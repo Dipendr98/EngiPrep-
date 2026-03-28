@@ -1,0 +1,61 @@
+id: 95
+title: "heapq: K Smallest"
+category: syntax
+difficulty: Easy
+summary: Use heapq.nsmallest to efficiently retrieve the k smallest values from a list.
+description: >-
+  Implement `k_smallest(nums: list[int], k: int) -> list[int]` that takes a list of
+  integers and an integer k, and returns the k smallest values in ascending order.
+scenario: >-
+  A monitoring system identifies the k lowest-latency nodes in a large cluster
+  metric snapshot to prioritize routing decisions.
+constraints:
+  - k >= 1 and k <= len(nums)
+  - nums is non-empty
+  - May contain duplicate values
+examples:
+  - input: k_smallest([3,1,4,1,5,9,2,6], 3)
+    output: '[1, 1, 2]'
+starter_code: |-
+  def k_smallest(nums: list[int], k: int) -> list[int]:
+      pass
+follow_ups:
+  - How would you find the k largest instead of k smallest?
+  - When is heapq.nsmallest better than sorting the full list?
+key_skills:
+  - heapq
+  - nsmallest
+  - min-heap
+  - priority queue
+test_type: function
+function_name: k_smallest
+test_cases:
+  - label: k equals 3 with duplicates
+    input:
+      nums: [3, 1, 4, 1, 5, 9, 2, 6]
+      k: 3
+    expected: [1, 1, 2]
+  - label: k equals 2 distinct values
+    input:
+      nums: [5, 3, 1, 4, 2]
+      k: 2
+    expected: [1, 2]
+  - label: single element list
+    input:
+      nums: [10]
+      k: 1
+    expected: [10]
+  - label: all same values
+    input:
+      nums: [7, 7, 7, 7]
+      k: 3
+    expected: [7, 7, 7]
+explanation: |-
+  `heapq.nsmallest(k, nums)` returns the k smallest elements in O(n log k) time —
+  better than sorting the whole list when k is much smaller than n. Python's heapq is
+  a min-heap, so `heappush`/`heappop` always give you the smallest element. For a
+  max-heap, negate values. Knowing when to use a heap vs sorting is a key interview
+  judgment call.
+references:
+  - "Python docs: heapq — https://docs.python.org/3/library/heapq.html"
+  - "heapq.nsmallest() — https://docs.python.org/3/library/heapq.html#heapq.nsmallest"

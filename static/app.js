@@ -17,6 +17,13 @@ let currentStudyProblem = null;
 let researchChatHistory = [];
 let isResearchStreaming = false;
 
+// ── INTERVIEW TUTOR STATE ──
+let currentInterviewProblemId = null;
+let interviewTutorHistory = [];
+let isInterviewTutorStreaming = false;
+let tutorSidebarWidth = 320;
+let tutorSidebarOpen = false;
+
 // ── VOICE SESSION STATE ──
 let voicePc = null;       // RTCPeerConnection
 let voiceDc = null;       // DataChannel
@@ -63,6 +70,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('selected'));
       tab.classList.add('selected');
       selectedCategory = tab.dataset.cat;
+      // deselect warm up when picking a topic
+      warmupOnly = false;
+      document.getElementById('warmup-checkbox').checked = false;
       renderProblems();
     });
   });
@@ -72,15 +82,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderProblems();
   });
 
+  document.getElementById('warmup-checkbox').addEventListener('change', (e) => {
+    warmupOnly = e.target.checked;
+    if (warmupOnly) {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('selected'));
+      document.querySelector('.cat-tab[data-cat="all"]').classList.add('selected');
+      selectedCategory = 'all';
+    }
+    renderProblems();
+  });
+
   document.querySelectorAll('.diff-pill').forEach(pill => {
     pill.addEventListener('click', () => {
-      if (pill.dataset.filter === 'warmup') {
-        warmupOnly = !warmupOnly;
-        pill.classList.toggle('selected', warmupOnly);
-        renderProblems();
-        return;
-      }
-
       const diff = pill.dataset.diff;
       if (selectedDifficulties.has(diff)) {
         selectedDifficulties.delete(diff);
@@ -88,6 +101,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         selectedDifficulties.add(diff);
         pill.classList.add('selected');
+      }
+      // deselect warm up when picking a difficulty
+      if (warmupOnly) {
+        warmupOnly = false;
+        document.getElementById('warmup-checkbox').checked = false;
       }
       renderProblems();
     });
@@ -117,6 +135,123 @@ document.addEventListener('DOMContentLoaded', async () => {
   studyChatInput.addEventListener('input', () => {
     studyChatInput.style.height = 'auto';
     studyChatInput.style.height = Math.min(studyChatInput.scrollHeight, 120) + 'px';
+  });
+
+  // ── STUDY PANEL RESIZER ──
+  const studyResizer = document.getElementById('study-resizer');
+  const studyDetails = document.getElementById('study-details');
+  const studyLayout = document.getElementById('study-layout');
+
+  studyResizer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const isVertical = getComputedStyle(studyLayout).flexDirection === 'column';
+    const startPos = isVertical ? e.clientY : e.clientX;
+    const startSize = isVertical ? studyDetails.offsetHeight : studyDetails.offsetWidth;
+    const layoutSize = isVertical ? studyLayout.offsetHeight : studyLayout.offsetWidth;
+
+    studyResizer.classList.add('dragging');
+    document.body.style.cursor = isVertical ? 'row-resize' : 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const delta = (isVertical ? e.clientY : e.clientX) - startPos;
+      const newSize = Math.max(200, Math.min(startSize + delta, layoutSize - 200));
+      if (isVertical) {
+        studyDetails.style.height = newSize + 'px';
+      } else {
+        studyDetails.style.width = newSize + 'px';
+      }
+    };
+
+    const onUp = () => {
+      studyResizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // ── INTERVIEW PANEL RESIZER (chat | editor) ──
+  const interviewResizer = document.getElementById('interview-resizer');
+  const chatPanel = document.querySelector('.chat-panel');
+  const interviewLayout = document.querySelector('.interview-layout');
+
+  interviewResizer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const isVertical = getComputedStyle(interviewLayout).flexDirection === 'column';
+    const startPos = isVertical ? e.clientY : e.clientX;
+    const startSize = isVertical ? chatPanel.offsetHeight : chatPanel.offsetWidth;
+    const layoutSize = isVertical ? interviewLayout.offsetHeight : interviewLayout.offsetWidth;
+
+    interviewResizer.classList.add('dragging');
+    document.body.style.cursor = isVertical ? 'row-resize' : 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const delta = (isVertical ? e.clientY : e.clientX) - startPos;
+      const newSize = Math.max(280, Math.min(startSize + delta, layoutSize - 280));
+      if (isVertical) {
+        chatPanel.style.height = newSize + 'px';
+      } else {
+        chatPanel.style.width = newSize + 'px';
+      }
+    };
+
+    const onUp = () => {
+      interviewResizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // ── TUTOR SIDEBAR RESIZER ──
+  const tutorSidebarResizer = document.getElementById('tutor-sidebar-resizer');
+  const tutorSidebar = document.getElementById('tutor-sidebar');
+
+  tutorSidebarResizer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = tutorSidebar.offsetWidth;
+
+    tutorSidebarResizer.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const delta = startX - e.clientX;
+      tutorSidebarWidth = Math.max(200, Math.min(startWidth + delta, window.innerWidth - 400));
+      tutorSidebar.style.transition = 'none';
+      tutorSidebar.style.width = tutorSidebarWidth + 'px';
+    };
+
+    const onUp = () => {
+      tutorSidebarResizer.classList.remove('dragging');
+      tutorSidebar.style.transition = '';
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // ── INTERVIEW TUTOR INPUT KEYDOWN ──
+  document.getElementById('interview-tutor-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendInterviewTutorMessage();
+    }
   });
 
   const res = await fetch('/api/check-key');
@@ -167,6 +302,7 @@ const CATEGORY_LABELS = {
   infra: 'Infra',
   concurrency: 'Concurrency',
   api_design: 'API Design',
+  syntax: 'Python Syntax',
 };
 
 async function loadProblems() {
@@ -512,6 +648,113 @@ async function sendResearchMessage() {
   input.focus();
 }
 
+// ── INTERVIEW TUTOR ──
+
+function setTutorSidebar(open) {
+  const sidebar = document.getElementById('tutor-sidebar');
+  const resizer = document.getElementById('tutor-sidebar-resizer');
+  const btn = document.getElementById('tutor-btn');
+  tutorSidebarOpen = open;
+  sidebar.style.transition = 'width 0.2s ease';
+  sidebar.style.width = open ? tutorSidebarWidth + 'px' : '0';
+  sidebar.style.borderLeft = open ? '1px solid var(--border)' : 'none';
+  resizer.style.width = open ? '5px' : '0';
+  if (btn) btn.classList.toggle('selected', open);
+  if (open) setTimeout(() => document.getElementById('interview-tutor-input')?.focus(), 220);
+}
+
+function toggleInterviewTutor() {
+  setTutorSidebar(!tutorSidebarOpen);
+}
+
+function appendInterviewTutorMessage(role, content) {
+  const container = document.getElementById('interview-tutor-messages');
+  const placeholder = container.querySelector('.study-chat-placeholder');
+  if (placeholder) placeholder.remove();
+
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const label = role === 'assistant' ? 'Tutor' : 'You';
+  const rendered = role === 'assistant' ? renderMarkdown(content) : renderUserMessage(content);
+  div.innerHTML = `<div class="message-label">${label}</div><div class="message-bubble">${rendered}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+async function sendInterviewTutorMessage() {
+  if (isInterviewTutorStreaming) return;
+
+  const input = document.getElementById('interview-tutor-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  appendInterviewTutorMessage('user', text);
+
+  isInterviewTutorStreaming = true;
+  document.getElementById('interview-tutor-send-btn').disabled = true;
+  input.disabled = true;
+
+  const container = document.getElementById('interview-tutor-messages');
+  const msgEl = document.createElement('div');
+  msgEl.className = 'message assistant';
+  msgEl.innerHTML = `<div class="message-label">Tutor</div><div class="message-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+
+  try {
+    const res = await fetch('/api/research/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        problem_id: currentInterviewProblemId,
+        message: text,
+        history: interviewTutorHistory,
+      }),
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullContent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.content) {
+            fullContent += data.content;
+            msgEl.querySelector('.message-bubble').innerHTML = renderMarkdown(fullContent);
+            container.scrollTop = container.scrollHeight;
+          }
+          if (data.error) {
+            msgEl.querySelector('.message-bubble').innerHTML = `Error: ${escapeHtml(data.error)}`;
+          }
+        } catch (e) {}
+      }
+    }
+
+    msgEl.querySelector('.message-bubble').innerHTML = renderMarkdown(fullContent);
+    interviewTutorHistory.push({ role: 'user', content: text });
+    interviewTutorHistory.push({ role: 'assistant', content: fullContent });
+  } catch (e) {
+    msgEl.querySelector('.message-bubble').innerHTML = `Connection error: ${escapeHtml(e.message)}`;
+  }
+
+  isInterviewTutorStreaming = false;
+  document.getElementById('interview-tutor-send-btn').disabled = false;
+  input.disabled = false;
+  input.focus();
+}
+
 // ── REFERENCE PANEL ──
 
 function toggleReferencePanel() {
@@ -652,6 +895,11 @@ async function startInterview(focus, problemId) {
     }
 
     currentSessionId = data.id;
+    currentInterviewProblemId = problemId || null;
+    interviewTutorHistory = [];
+    const tutorMessages = document.getElementById('interview-tutor-messages');
+    if (tutorMessages) tutorMessages.innerHTML = '<div class="study-chat-placeholder">Ask for hints, concept explanations, or complexity guidance. The tutor won\'t give away the solution.</div>';
+    setTutorSidebar(false);
     const problem = problemId ? allProblems.find(p => p.id === problemId) : null;
     const title = problem ? problem.title : 'Technical Interview';
     const focusLabel = problem ? (CATEGORY_LABELS[problem.category] || problem.category) : (CATEGORY_LABELS[focus] || focus);

@@ -1,0 +1,54 @@
+id: 85
+title: "Dict Comprehensions"
+category: syntax
+difficulty: Easy
+summary: Use a dict comprehension to invert a dictionary with unique values.
+description: >-
+  Implement `invert_dict(d: dict) -> dict` that takes a dict with unique values and
+  returns a new dict with keys and values swapped.
+scenario: >-
+  A symbol table reversal maps compiled addresses back to their original variable
+  names for a debugger's memory inspector.
+constraints:
+  - All values in d are unique and hashable
+  - d may be empty
+examples:
+  - input: invert_dict({"a":1,"b":2,"c":3})
+    output: '{1: "a", 2: "b", 3: "c"}'
+starter_code: |-
+  def invert_dict(d: dict) -> dict:
+      pass
+follow_ups:
+  - What happens if values are not unique? How would you handle collisions?
+  - How would you invert a dict where values are lists?
+key_skills:
+  - dict comprehension
+  - dict manipulation
+  - items()
+test_type: function
+function_name: invert_dict
+test_cases:
+  - label: three entries
+    input:
+      d: {"a": 1, "b": 2, "c": 3}
+    expected: {1: "a", 2: "b", 3: "c"}
+  - label: two entries
+    input:
+      d: {"x": 10, "y": 20}
+    expected: {10: "x", 20: "y"}
+  - label: single entry
+    input:
+      d: {"only": 42}
+    expected: {42: "only"}
+  - label: empty dict
+    input:
+      d: {}
+    expected: {}
+explanation: |-
+  Dict comprehensions use `{k: v for k, v in d.items()}`. To invert, swap key and value:
+  `{v: k for k, v in d.items()}`. This only works correctly when all values are unique
+  and hashable. Comprehensions are much cleaner than building an empty dict and
+  populating it in a loop.
+references:
+  - "Python docs: dict comprehensions — https://docs.python.org/3/tutorial/datastructures.html#dictionaries"
+  - "PEP 274: Dict Comprehensions"

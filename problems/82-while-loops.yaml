@@ -1,0 +1,63 @@
+id: 82
+title: "While Loop: Two Pointer"
+category: syntax
+difficulty: Easy
+summary: Use a while loop with two pointers to find indices of two numbers in a sorted list that sum to a target.
+description: >-
+  Implement `two_sum_sorted(nums: list[int], target: int) -> list[int]` that takes a
+  sorted list of distinct integers and a target, and returns the 0-based indices of the
+  two numbers that sum to the target. Use a while loop with two pointers. Guaranteed
+  exactly one solution exists.
+scenario: >-
+  A search backend uses two-pointer lookups on pre-sorted candidate lists to
+  efficiently find complementary bid and ask prices that match a target spread.
+constraints:
+  - nums is sorted in ascending order
+  - All integers in nums are distinct
+  - Exactly one solution is guaranteed
+examples:
+  - input: two_sum_sorted([2,7,11,15], 9)
+    output: '[0, 1]'
+  - input: two_sum_sorted([1,3,5,8], 6)
+    output: '[1, 2]'
+starter_code: |-
+  def two_sum_sorted(nums: list[int], target: int) -> list[int]:
+      pass
+follow_ups:
+  - How would you adapt this if the list were not sorted?
+  - What if there could be duplicate values in the list?
+key_skills:
+  - while loop
+  - two pointers
+  - binary search mindset
+test_type: function
+function_name: two_sum_sorted
+test_cases:
+  - label: basic pair at start
+    input:
+      nums: [2, 7, 11, 15]
+      target: 9
+    expected: [0, 1]
+  - label: middle pair
+    input:
+      nums: [1, 3, 5, 8]
+      target: 6
+    expected: [1, 2]
+  - label: last two elements
+    input:
+      nums: [1, 2, 3, 4, 5]
+      target: 9
+    expected: [3, 4]
+  - label: two-element list
+    input:
+      nums: [2, 4]
+      target: 6
+    expected: [0, 1]
+explanation: |-
+  Two pointers start at opposite ends of a sorted list. If the sum is too large, move
+  the right pointer left; if too small, move the left pointer right. This avoids O(n²)
+  brute force. The while loop condition `left < right` naturally terminates when pointers
+  cross.
+references:
+  - "Pattern: Two Pointers on sorted arrays"
+  - "LeetCode 167: Two Sum II — Input Array Is Sorted"

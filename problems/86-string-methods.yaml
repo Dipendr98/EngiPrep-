@@ -1,0 +1,57 @@
+id: 86
+title: "String Methods"
+category: syntax
+difficulty: Easy
+summary: Normalize a string by collapsing extra whitespace and applying title case to each word.
+description: >-
+  Implement `normalize_sentence(s: str) -> str` that takes a string with inconsistent
+  casing and extra spaces between words, and returns a version where words are
+  title-cased and separated by exactly one space. Strip leading and trailing whitespace.
+scenario: >-
+  A form validation layer cleans up user-submitted name fields that may have been
+  pasted from various sources with inconsistent spacing and casing.
+constraints:
+  - Input may have leading, trailing, or multiple consecutive spaces
+  - Words consist of ASCII letters only
+examples:
+  - input: 'normalize_sentence("  hello   WORLD  ")'
+    output: '"Hello World"'
+starter_code: |-
+  def normalize_sentence(s: str) -> str:
+      pass
+follow_ups:
+  - How would you preserve acronyms (e.g., "NASA") without lowercasing them?
+  - What if the input could contain punctuation?
+key_skills:
+  - string methods
+  - split
+  - join
+  - title case
+  - strip
+test_type: function
+function_name: normalize_sentence
+test_cases:
+  - label: leading and trailing spaces with run
+    input:
+      s: "  hello   WORLD  "
+    expected: "Hello World"
+  - label: mixed casing no extra spaces
+    input:
+      s: "python IS great"
+    expected: "Python Is Great"
+  - label: single word
+    input:
+      s: "one"
+    expected: "One"
+  - label: single-char words with spaces
+    input:
+      s: "  a  b  c  "
+    expected: "A B C"
+explanation: |-
+  The pattern `" ".join(s.split())` is the idiomatic way to collapse all whitespace
+  (including runs of spaces and tabs) into single spaces while stripping the ends. Then
+  `.title()` on each word handles casing. Chaining string methods is a core Python skill.
+references:
+  - "Python docs: str.split() — https://docs.python.org/3/library/stdtypes.html#str.split"
+  - "Python docs: str.join() — https://docs.python.org/3/library/stdtypes.html#str.join"
+  - "Python docs: str.title() — https://docs.python.org/3/library/stdtypes.html#str.title"

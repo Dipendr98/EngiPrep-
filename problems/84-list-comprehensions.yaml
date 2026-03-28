@@ -1,0 +1,56 @@
+id: 84
+title: "List Comprehensions"
+category: syntax
+difficulty: Easy
+summary: Use a list comprehension with a filter to transform strings longer than 3 characters to uppercase.
+description: >-
+  Implement `transform(words: list[str]) -> list[str]` that takes a list of strings
+  and returns a new list containing the uppercase version of each string whose length
+  is greater than 3, preserving original order.
+scenario: >-
+  A log parser filters short noise tokens from a tokenized log line and
+  normalizes the remaining tokens to uppercase for case-insensitive matching.
+constraints:
+  - Words consist of ASCII letters only
+  - Preserve the relative order of qualifying words
+examples:
+  - input: transform(["hi","hello","hey","world"])
+    output: '["HELLO", "WORLD"]'
+starter_code: |-
+  def transform(words: list[str]) -> list[str]:
+      pass
+follow_ups:
+  - How would you also exclude words that contain digits?
+  - Can you rewrite this as a generator expression instead?
+key_skills:
+  - list comprehension
+  - filtering
+  - string methods
+  - conditional expression
+test_type: function
+function_name: transform
+test_cases:
+  - label: mixed lengths
+    input:
+      words: ["hi", "hello", "hey", "world"]
+    expected: ["HELLO", "WORLD"]
+  - label: boundary at length 4
+    input:
+      words: ["a", "bb", "ccc", "dddd"]
+    expected: ["DDDD"]
+  - label: all qualify
+    input:
+      words: ["python", "is", "great"]
+    expected: ["PYTHON", "GREAT"]
+  - label: empty list
+    input:
+      words: []
+    expected: []
+explanation: |-
+  List comprehensions combine a transformation and an optional filter in one expression:
+  `[expr for x in iterable if condition]`. This is more readable and often faster than
+  a for loop with append. The pattern `if len(w) > 3` filters before the transformation
+  runs.
+references:
+  - "Python docs: list comprehensions — https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions"
+  - "PEP 202: List Comprehensions"

@@ -1,0 +1,60 @@
+id: 93
+title: "any, all, map, filter"
+category: syntax
+difficulty: Easy
+summary: Use any and all to audit a list of passwords and filter those meeting multiple criteria.
+description: >-
+  Implement `check_passwords(passwords: list[str]) -> dict` that takes a list of
+  password strings and returns a dict with: "all_long" (True if all passwords have
+  length >= 8), "any_strong" (True if any password contains both a digit and an
+  uppercase letter), "valid" (list of passwords that are both long AND strong,
+  preserving order).
+scenario: >-
+  A user account service validates bulk-imported passwords to flag which ones meet
+  the minimum security policy before storing them.
+constraints:
+  - Passwords are non-empty strings of printable ASCII characters
+  - An empty list results in all_long=True (vacuous truth) and any_strong=False
+examples:
+  - input: check_passwords(["Hello1234","short","GoodPass9"])
+    output: '{"all_long": false, "any_strong": true, "valid": ["Hello1234", "GoodPass9"]}'
+starter_code: |-
+  def check_passwords(passwords: list[str]) -> dict:
+      pass
+follow_ups:
+  - How would you add a rule requiring at least one special character?
+  - How would you report which specific passwords fail which specific rules?
+key_skills:
+  - any
+  - all
+  - filter
+  - comprehension
+  - string methods
+test_type: function
+function_name: check_passwords
+test_cases:
+  - label: mixed valid and short
+    input:
+      passwords: ["Hello1234", "short", "GoodPass9"]
+    expected: {"all_long": false, "any_strong": true, "valid": ["Hello1234", "GoodPass9"]}
+  - label: all valid
+    input:
+      passwords: ["Abcdefg1", "Hijklmn2"]
+    expected: {"all_long": true, "any_strong": true, "valid": ["Abcdefg1", "Hijklmn2"]}
+  - label: all short and weak
+    input:
+      passwords: ["short", "tiny"]
+    expected: {"all_long": false, "any_strong": false, "valid": []}
+  - label: empty list
+    input:
+      passwords: []
+    expected: {"all_long": true, "any_strong": false, "valid": []}
+explanation: |-
+  `all(cond for x in lst)` returns True only if every element satisfies the condition
+  (vacuously True for empty lists). `any(cond for x in lst)` returns True if at least
+  one does. These are more readable than writing loops with early returns and compose
+  well with generator expressions to avoid building intermediate lists.
+references:
+  - "Python docs: all() — https://docs.python.org/3/library/functions.html#all"
+  - "Python docs: any() — https://docs.python.org/3/library/functions.html#any"
+  - "Python docs: str.isupper(), str.isdigit() — https://docs.python.org/3/library/stdtypes.html#str"

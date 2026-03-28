@@ -1,0 +1,57 @@
+id: 87
+title: "Sorting with key="
+category: syntax
+difficulty: Easy
+summary: Sort a list of strings first by length, then alphabetically for ties, using a tuple sort key.
+description: >-
+  Implement `sort_words(words: list[str]) -> list[str]` that sorts a list of strings
+  first by length (ascending), then alphabetically for words of equal length. Return
+  the sorted list.
+scenario: >-
+  An autocomplete engine ranks suggestions by token length first so shorter
+  completions appear at the top, with alphabetical ordering breaking ties.
+constraints:
+  - Words consist of lowercase ASCII letters only
+  - The original list is not modified
+examples:
+  - input: sort_words(["banana","fig","apple","kiwi"])
+    output: '["fig", "kiwi", "apple", "banana"]'
+starter_code: |-
+  def sort_words(words: list[str]) -> list[str]:
+      pass
+follow_ups:
+  - How would you reverse the order so longer words appear first?
+  - How would you make the alphabetical tiebreak case-insensitive?
+key_skills:
+  - sorted
+  - key function
+  - tuple key
+  - multi-key sort
+  - lambda
+test_type: function
+function_name: sort_words
+test_cases:
+  - label: mixed lengths with tie
+    input:
+      words: ["banana", "fig", "apple", "kiwi"]
+    expected: ["fig", "kiwi", "apple", "banana"]
+  - label: all same length alphabetical
+    input:
+      words: ["cat", "bat", "ant"]
+    expected: ["ant", "bat", "cat"]
+  - label: single chars and two-char words
+    input:
+      words: ["z", "aa", "b", "cc"]
+    expected: ["b", "z", "aa", "cc"]
+  - label: single word
+    input:
+      words: ["hello"]
+    expected: ["hello"]
+explanation: |-
+  `sorted(lst, key=lambda x: (len(x), x))` uses a tuple as the sort key. Python sorts
+  tuples lexicographically, so it compares by length first, then alphabetically on ties.
+  This avoids writing a custom comparator and is the idiomatic way to do multi-criteria
+  sorting.
+references:
+  - "Python docs: sorted() — https://docs.python.org/3/library/functions.html#sorted"
+  - "Python Sorting HOW TO — https://docs.python.org/3/howto/sorting.html"
