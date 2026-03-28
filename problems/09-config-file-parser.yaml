@@ -1,0 +1,70 @@
+id: 9
+title: Config File Parser
+category: parsing
+difficulty: Medium
+summary: Parse a nested INI/TOML-like config file into a dictionary.
+description: 'Parse a config file format with sections, key-value pairs, comments, and nested sections. Sections are delimited by [section.subsection]. Keys are ''key = value''. Lines starting with # are comments. Values can reference other keys via ${section.key} interpolation. Return a nested dictionary.'
+scenario: ''
+constraints: []
+examples: []
+starter_code: |-
+  def parse_config(text: str) -> dict:
+      pass
+follow_ups:
+- Handle circular references in variable interpolation.
+- Add support for typed values (integers, booleans, lists).
+- Add include directives that pull in other config files.
+key_skills:
+- string parsing
+- recursive structure
+- cycle detection
+- hash map
+test_type: function
+test_cases:
+- label: sections and interpolation
+  input:
+    text: |-
+      [server]
+      host = localhost
+      port = 8080
+      [app]
+      url = http://${server.host}:${server.port}
+  expected:
+    server:
+      host: localhost
+      port: '8080'
+    app:
+      url: http://localhost:8080
+- label: nested section
+  input:
+    text: |-
+      [root.child]
+      name = demo
+  expected:
+    root:
+      child:
+        name: demo
+- label: cycle detection
+  input:
+    text: |-
+      [a]
+      x = ${b.y}
+      [b]
+      y = ${a.x}
+  expected_error: cycle
+function_name: parse_config
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **string parsing** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **recursive structure** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Practice spotting cycles in graphs, linked structures, and recursive references.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.

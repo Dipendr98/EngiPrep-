@@ -1,0 +1,62 @@
+id: 58
+title: Anagram Grouper
+category: search
+difficulty: Easy
+summary: Group words that are anagrams of each other.
+description: Implement group_anagrams(words) that groups together strings containing the same multiset of letters. Sort groups by the first original appearance of any member.
+scenario: A search feature wants to cluster typo-tolerant suggestions that are letter rearrangements of one another before presenting them to users.
+constraints:
+- All input strings are lowercase ASCII letters
+- Preserve stable group ordering by first appearance
+examples:
+- input: group_anagrams(["eat","tea","tan","ate","nat","bat"])
+  output: '[["eat","tea","ate"],["tan","nat"],["bat"]]'
+starter_code: |-
+  def group_anagrams(words: list[str]) -> list[list[str]]:
+      pass
+follow_ups:
+- Sort each group lexicographically.
+- Handle Unicode normalization.
+key_skills:
+- hash map
+- search
+test_type: function
+function_name: group_anagrams
+test_cases:
+- label: basic groups
+  input:
+    words:
+    - eat
+    - tea
+    - tan
+    - ate
+    - nat
+    - bat
+  expected:
+  - - eat
+    - tea
+    - ate
+  - - tan
+    - nat
+  - - bat
+- label: single empty string
+  input:
+    words:
+    - ''
+  expected:
+  - - ''
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- 'Review indexing tradeoffs: what you precompute, what you scan, and how ranking is derived.'
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.

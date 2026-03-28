@@ -1,0 +1,44 @@
+id: 68
+title: Remove Vowels
+category: warmup
+difficulty: Easy
+summary: Return a string without vowels.
+description: Implement remove_vowels(s) that removes English vowels from the string, preserving the order of the remaining characters.
+scenario: This is a quick filter-and-rebuild string exercise for getting fingers warm in the editor.
+constraints:
+- Treat vowels case-insensitively.
+examples:
+- input: remove_vowels("Interview")
+  output: ntrvw
+starter_code: |-
+  def remove_vowels(s: str) -> str:
+      pass
+follow_ups:
+- Remove only repeated vowels.
+- Also collapse runs of whitespace.
+key_skills:
+- strings
+test_type: function
+function_name: remove_vowels
+test_cases:
+- label: basic
+  input:
+    s: Interview
+  expected: ntrvw
+- label: already none
+  input:
+    s: rhythms
+  expected: rhythms
+- label: all vowels
+  input:
+    s: aeiouAEIOU
+  expected: ''
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Remove Vowels as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

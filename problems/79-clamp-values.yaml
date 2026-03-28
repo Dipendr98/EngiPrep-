@@ -1,0 +1,60 @@
+id: 79
+title: Clamp Values
+category: warmup
+difficulty: Easy
+summary: Clamp all numbers into an inclusive range.
+description: Implement clamp_values(nums, low, high) that returns a new list where every value below low becomes low and every value above high becomes high.
+scenario: A tiny numeric transformation is a good warm-up for clean iteration and edge-case handling.
+constraints:
+- Assume low <= high.
+examples:
+- input: clamp_values([1,5,10], 3, 8)
+  output: '[3,5,8]'
+starter_code: |-
+  def clamp_values(nums: list[int], low: int, high: int) -> list[int]:
+      pass
+follow_ups:
+- Clamp floats too.
+- Count how many values were changed.
+key_skills:
+- arrays
+test_type: function
+function_name: clamp_values
+test_cases:
+- label: mixed values
+  input:
+    nums:
+    - 1
+    - 5
+    - 10
+    low: 3
+    high: 8
+  expected:
+  - 3
+  - 5
+  - 8
+- label: already inside
+  input:
+    nums:
+    - 4
+    - 5
+    low: 3
+    high: 8
+  expected:
+  - 4
+  - 5
+- label: empty
+  input:
+    nums: []
+    low: 0
+    high: 1
+  expected: []
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- 'Treat Clamp Values as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

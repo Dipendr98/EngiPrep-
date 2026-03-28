@@ -1,0 +1,109 @@
+id: 45
+title: Consistent Hash Ring
+category: concurrency
+difficulty: Hard
+summary: Distribute keys across nodes with minimal reassignment on node changes.
+description: Implement a consistent hash ring for distributing keys across N server nodes. add_node(node_id) and remove_node(node_id) should minimize key reassignment. get_node(key) returns which node a key belongs to. Use virtual nodes for better balance.
+scenario: We run a distributed caching layer in front of our database — think a simplified Memcached cluster. When a cache server is added or removed (scaling event, hardware failure), we need to redistribute as few keys as possible to avoid a thundering-herd of cache misses. A naive modulo-N hash reshuffles almost every key on topology changes. Build a consistent hash ring with virtual nodes so that only ~1/N of keys move when a single node joins or leaves.
+constraints:
+- Use virtual nodes (configurable count per physical node) for even distribution.
+- get_node(key) must return a consistent result given the same ring state.
+- add_node / remove_node should only reassign keys proportional to 1/N of total keys.
+- You may use hashlib (e.g., MD5 or SHA-1) for hashing.
+- The ring must handle the edge case of zero nodes gracefully (raise or return None).
+- Keys and node IDs are strings.
+examples:
+- input: |-
+    ring = ConsistentHashRing(num_virtual_nodes=150)
+    ring.add_node('cache-1')
+    ring.add_node('cache-2')
+    ring.add_node('cache-3')
+    print(ring.get_node('user:1001'))
+    print(ring.get_node('user:1002'))
+  output: |-
+    'cache-2'  (or whichever node owns that hash position)
+    'cache-1'  (keys are distributed roughly evenly across the three nodes)
+- input: |-
+    # Continuing from above
+    ring.remove_node('cache-2')
+    print(ring.get_node('user:1001'))
+  output: '''cache-3''  — only keys previously assigned to cache-2 are reassigned; keys on cache-1 and cache-3 stay put.'
+- input: |-
+    ring = ConsistentHashRing(num_virtual_nodes=150)
+    ring.add_node('A')
+    ring.add_node('B')
+    keys = [f'key-{i}' for i in range(1000)]
+    before = {k: ring.get_node(k) for k in keys}
+    ring.add_node('C')
+    after = {k: ring.get_node(k) for k in keys}
+    moved = sum(1 for k in keys if before[k] != after[k])
+    print(f'{moved} keys moved out of 1000')
+  output: Approximately 333 keys moved (≈1/3), demonstrating minimal reassignment.
+starter_code: |-
+  from typing import Optional
+
+  class ConsistentHashRing:
+      def __init__(self, num_virtual_nodes: int = 150):
+          pass
+
+      def add_node(self, node_id: str) -> None:
+          pass
+
+      def remove_node(self, node_id: str) -> None:
+          pass
+
+      def get_node(self, key: str) -> Optional[str]:
+          pass
+follow_ups:
+- 'Implement replication: each key is stored on K consecutive nodes.'
+- Add weighted nodes where some nodes handle more keys.
+- How would you handle a node that goes down temporarily vs permanently?
+key_skills:
+- hash functions
+- sorted structure / binary search
+- virtual nodes
+- load balancing
+test_type: class
+test_cases:
+- label: basic add remove
+  init_args:
+  - 50
+  ops:
+  - __eval__
+  - add_node
+  - __eval__
+  - add_node
+  - __eval__
+  - remove_node
+  - __eval__
+  op_args:
+  - - obj.get_node('user:1')
+  - - A
+  - - obj.get_node('user:1')
+  - - B
+  - - obj.get_node('user:1') in {'A', 'B'}
+  - - B
+  - - obj.get_node('user:1')
+  expected:
+  - null
+  - null
+  - A
+  - null
+  - true
+  - null
+  - A
+class_name: ConsistentHashRing
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash functions** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **sorted structure / binary search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Write down the shared state and the blocking conditions before choosing locks or queues.
+- Test mentally for races, starvation, and forgotten wakeups.
+- After implementing Consistent Hash Ring, re-run the provided hardcoded tests and explain why each one protects an important invariant.

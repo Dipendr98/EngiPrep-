@@ -1,0 +1,58 @@
+id: 51
+title: Valid Parentheses
+category: parsing
+difficulty: Easy
+summary: Check whether brackets in a string are balanced and properly nested.
+description: Implement is_valid(s) that returns True if the input string contains properly matched (), [], and {} pairs in the correct order, otherwise False.
+scenario: You are building a lightweight syntax checker for an editor extension and need a fast pass that catches obviously malformed bracket structure before deeper parsing runs.
+constraints:
+- The input contains only the characters (, ), [, ], {, }
+- An empty string is considered valid
+examples:
+- input: is_valid("()[]{}")
+  output: 'True'
+- input: is_valid("([)]")
+  output: 'False'
+starter_code: |-
+  def is_valid(s: str) -> bool:
+      pass
+follow_ups:
+- Ignore bracket characters that appear inside quoted strings.
+- Return the first index where validation fails.
+key_skills:
+- stack
+- parsing
+test_type: function
+function_name: is_valid
+test_cases:
+- label: simple valid
+  input:
+    s: ()[]{}
+  expected: true
+- label: nested valid
+  input:
+    s: '{[()()]}'
+  expected: true
+- label: crossed invalid
+  input:
+    s: ([)]
+  expected: false
+- label: missing close
+  input:
+    s: (((
+  expected: false
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **stack** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **parsing** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how stacks help with matching delimiters, backtracking, and incremental parsing.
+- Practice turning informal text rules into a tokenizer plus a small set of deterministic parsing steps.
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.

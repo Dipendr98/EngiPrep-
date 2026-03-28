@@ -1,0 +1,76 @@
+id: 74
+title: Simple Counter
+category: warmup
+difficulty: Easy
+summary: Implement a tiny stateful counter API.
+description: Implement Counter with increment(), decrement(), reset(), and value() methods.
+scenario: A very small stateful warm-up helps you talk through invariants before deeper object-design problems.
+constraints:
+- The counter starts at 0.
+examples:
+- input: |-
+    c = Counter()
+    c.increment()
+    c.increment()
+    c.value()
+  output: '2'
+starter_code: |-
+  class Counter:
+      def __init__(self):
+          pass
+
+      def increment(self) -> None:
+          pass
+
+      def decrement(self) -> None:
+          pass
+
+      def reset(self) -> None:
+          pass
+
+      def value(self) -> int:
+          pass
+follow_ups:
+- Support incrementing by an amount.
+- Add undo for the last operation.
+key_skills:
+- stateful
+- counting
+test_type: class
+class_name: Counter
+test_cases:
+- label: basic flow
+  init_args: []
+  ops:
+  - increment
+  - increment
+  - value
+  - decrement
+  - value
+  - reset
+  - value
+  op_args:
+  - []
+  - []
+  - []
+  - []
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - 2
+  - null
+  - 1
+  - null
+  - 0
+explanation: |-
+  This warm-up is meant to build confidence around **stateful** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Simple Counter as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,145 @@
+id: 40
+title: Event Emitter
+category: infra
+difficulty: Medium
+summary: Pub/sub event system with subscribe, unsubscribe, and emit.
+description: Implement an event emitter. on(event, callback) registers a listener. off(event, callback) removes it. emit(event, *args) calls all listeners for that event. once(event, callback) registers a listener that auto-removes after one call. Support wildcard listeners that receive all events.
+scenario: You're designing the core event system for a plugin architecture in a document editor. Plugins need to react to events like 'document.saved', 'cursor.moved', and 'selection.changed' without the core editor knowing about each plugin. You need a pub/sub emitter that supports registering listeners, one-shot listeners, removal, and a wildcard '*' listener that hears every event for cross-cutting concerns like analytics.
+constraints:
+- Event names are strings
+- Callbacks are callable objects
+- emit() calls listeners in the order they were registered
+- off() removes a specific callback; it is a no-op if the callback is not found
+- once() listeners are removed after their first invocation
+- Wildcard '*' listeners receive the event name as the first argument followed by *args
+- emit() with no registered listeners for that event is a no-op
+examples:
+- input: |-
+    emitter = EventEmitter()
+    results = []
+    emitter.on('data', lambda x: results.append(x))
+    emitter.emit('data', 42)
+    emitter.emit('data', 99)
+    results
+  output: '[42, 99]  # listener called on each emit with the provided argument'
+- input: |-
+    once_results = []
+    emitter.once('done', lambda msg: once_results.append(msg))
+    emitter.emit('done', 'first')
+    emitter.emit('done', 'second')
+    once_results
+  output: '[''first'']  # once() listener auto-removed after the first invocation'
+- input: |-
+    wild = []
+    emitter.on('*', lambda event, *args: wild.append(event))
+    emitter.emit('click', 1)
+    emitter.emit('hover', 2)
+    wild
+  output: '[''click'', ''hover'']  # wildcard listener receives the event name plus args'
+starter_code: |-
+  class EventEmitter:
+      def __init__(self):
+          pass
+
+      def on(self, event: str, callback) -> None:
+          pass
+
+      def off(self, event: str, callback) -> None:
+          pass
+
+      def once(self, event: str, callback) -> None:
+          pass
+
+      def emit(self, event: str, *args) -> None:
+          pass
+follow_ups:
+- Add namespaced events (e.g. 'user.created', 'user.*').
+- Support async listeners and wait for all to complete.
+- Add max listener warnings to detect leaks.
+key_skills:
+- hash map of lists
+- callback management
+- observer pattern
+- memory management
+test_type: class
+test_cases:
+- label: on once wildcard
+  setup_code: |-
+    results = []
+    once_results = []
+    wild = []
+
+    def on_data(x):
+        results.append(x)
+
+    def on_done(msg):
+        once_results.append(msg)
+
+    def on_any(event, *args):
+        wild.append(event)
+  init_args: []
+  ops:
+  - 'on'
+  - emit
+  - emit
+  - __eval__
+  - once
+  - emit
+  - emit
+  - __eval__
+  - 'on'
+  - emit
+  - emit
+  - __eval__
+  op_args:
+  - - data
+    - __ref__: on_data
+  - - data
+    - 42
+  - - data
+    - 99
+  - - results
+  - - done
+    - __ref__: on_done
+  - - done
+    - first
+  - - done
+    - second
+  - - once_results
+  - - '*'
+    - __ref__: on_any
+  - - click
+    - 1
+  - - hover
+    - 2
+  - - wild
+  expected:
+  - null
+  - null
+  - null
+  - - 42
+    - 99
+  - null
+  - null
+  - null
+  - - first
+  - null
+  - null
+  - null
+  - - click
+    - hover
+class_name: EventEmitter
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map of lists** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **callback management** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Event Emitter, re-run the provided hardcoded tests and explain why each one protects an important invariant.

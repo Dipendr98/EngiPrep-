@@ -1,0 +1,46 @@
+id: 67
+title: Count Vowels
+category: warmup
+difficulty: Easy
+summary: Count vowels in a string.
+description: Implement count_vowels(s) that returns the number of English vowels in the string, case-insensitive.
+scenario: A tiny counting task helps warm up loops, conditionals, and normalization.
+constraints:
+- Count a, e, i, o, u only.
+examples:
+- input: count_vowels("OpenAI")
+  output: '4'
+starter_code: |-
+  def count_vowels(s: str) -> int:
+      pass
+follow_ups:
+- Return counts per vowel.
+- Ignore vowels inside quoted segments.
+key_skills:
+- strings
+- counting
+test_type: function
+function_name: count_vowels
+test_cases:
+- label: mixed case
+  input:
+    s: OpenAI
+  expected: 4
+- label: none
+  input:
+    s: rhythms
+  expected: 0
+- label: repeated
+  input:
+    s: queue
+  expected: 4
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Count Vowels as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

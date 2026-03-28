@@ -1,0 +1,106 @@
+id: 42
+title: Read-Write Lock
+category: concurrency
+difficulty: Hard
+summary: Lock that allows concurrent readers but exclusive writers.
+description: 'Implement a read-write lock. acquire_read() allows multiple concurrent readers. acquire_write() is exclusive: no other readers or writers. Prevent writer starvation: if a writer is waiting, new readers should not be granted access until the writer finishes.'
+scenario: We have a shared in-memory configuration cache that dozens of request-handler threads read on every request but that only gets updated a few times per minute by a background config-refresh thread. A plain mutex serializes everything and kills throughput. You need a lock that lets all those readers proceed in parallel but gives the writer exclusive access when it needs to swap the config — and you can't let a steady stream of new readers starve the writer indefinitely.
+constraints:
+- Multiple readers may hold the lock concurrently.
+- A writer must have exclusive access — no other readers or writers.
+- If a writer is waiting, new reader requests must queue behind the writer (starvation prevention).
+- You may use threading.Lock and threading.Condition as building blocks.
+- release_read/release_write should raise if called without a matching acquire.
+examples:
+- input: |-
+    rw = ReadWriteLock()
+    rw.acquire_read()   # Thread A
+    rw.acquire_read()   # Thread B (concurrent with A)
+    # Both threads read concurrently
+    rw.release_read()   # Thread A done
+    rw.release_read()   # Thread B done
+  output: Both acquire_read() calls succeed immediately and run concurrently. No blocking occurs.
+- input: |-
+    rw = ReadWriteLock()
+    rw.acquire_read()    # Thread A holds read
+    # Thread B: rw.acquire_write()  -- blocks waiting for A
+    # Thread C: rw.acquire_read()   -- should also block (writer waiting)
+    rw.release_read()    # Thread A releases
+  output: Thread B's acquire_write() now succeeds. Thread C's acquire_read() remains blocked until B calls release_write(), preventing writer starvation.
+- input: |-
+    rw = ReadWriteLock()
+    rw.acquire_write()   # Thread A holds write
+    # Thread B: rw.acquire_write()  -- blocks
+    rw.release_write()   # Thread A releases
+  output: Thread B's acquire_write() now succeeds. Only one writer holds the lock at a time.
+starter_code: |
+  import threading
+
+  class ReadWriteLock:
+      def __init__(self):
+          pass
+
+      def acquire_read(self):
+          """Acquire the lock for reading (shared)."""
+          pass
+
+      def release_read(self):
+          """Release a previously acquired read lock."""
+          pass
+
+      def acquire_write(self):
+          """Acquire the lock for writing (exclusive)."""
+          pass
+
+      def release_write(self):
+          """Release a previously acquired write lock."""
+          pass
+follow_ups:
+- 'Add upgrade: allow a reader to atomically upgrade to a writer.'
+- Add timeout support for lock acquisition.
+- How would you implement this without using any built-in lock primitives?
+key_skills:
+- synchronization primitives
+- starvation prevention
+- state tracking
+- fairness
+test_type: class
+test_cases:
+- label: basic acquire release
+  init_args: []
+  ops:
+  - acquire_read
+  - acquire_read
+  - release_read
+  - release_read
+  - acquire_write
+  - release_write
+  op_args:
+  - []
+  - []
+  - []
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - null
+class_name: ReadWriteLock
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **synchronization primitives** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **starvation prevention** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Write down the shared state and the blocking conditions before choosing locks or queues.
+- Test mentally for races, starvation, and forgotten wakeups.
+- After implementing Read-Write Lock, re-run the provided hardcoded tests and explain why each one protects an important invariant.

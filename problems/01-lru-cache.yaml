@@ -1,0 +1,134 @@
+id: 1
+title: LRU Cache
+category: stateful
+difficulty: Hard
+summary: Build a cache that evicts the least recently used entry when full.
+description: Design and implement a Least Recently Used cache. It should support get(key) which returns the value or -1 if not found, and put(key, value) which inserts or updates. When capacity is exceeded, evict the least recently used item. Both operations must be O(1).
+scenario: Imagine you're building a caching layer for a high-traffic web service. Every database lookup costs around 50ms, so you keep recently accessed records in memory. But memory is finite—when the cache is full, you need to drop the item that nobody has touched in the longest time. Both reads and writes have to stay O(1), so you can't just scan the whole cache on every operation.
+constraints:
+- Keys and values are integers
+- Capacity is always a positive integer
+- Both get and put must run in O(1) average time
+- get returns -1 for a key not in the cache
+examples:
+- input: |-
+    cache = LRUCache(2)
+    cache.put(1, 10)
+    cache.put(2, 20)
+    cache.get(1)
+    cache.put(3, 30)
+    cache.get(2)
+  output: |-
+    None
+    None
+    10    # key 1 exists, now most-recently used
+    None  # cache full – evicts key 2 (LRU) to make room
+    -1    # key 2 was evicted
+- input: |-
+    cache = LRUCache(2)
+    cache.put(1, 10)
+    cache.put(1, 99)
+    cache.get(1)
+  output: |-
+    None
+    None  # updates key 1 in place, counts as a use
+    99    # returns updated value
+- input: |-
+    cache = LRUCache(1)
+    cache.put(1, 10)
+    cache.put(2, 20)
+    cache.get(1)
+    cache.get(2)
+  output: |-
+    None
+    None  # capacity 1 – evicts key 1 immediately
+    -1    # key 1 was evicted
+    20
+starter_code: |-
+  class LRUCache:
+      def __init__(self, capacity: int):
+          pass
+
+      def get(self, key: int) -> int:
+          pass
+
+      def put(self, key: int, value: int) -> None:
+          pass
+follow_ups:
+- Add TTL-based expiration so entries auto-expire after a configurable duration.
+- Make it thread-safe for concurrent readers and writers.
+- Add an eviction callback that fires when an item is removed.
+key_skills:
+- hash map
+- doubly linked list
+- O(1) design
+- eviction policy
+test_type: class
+test_cases:
+- label: basic eviction
+  init_args:
+  - 2
+  ops:
+  - put
+  - put
+  - get
+  - put
+  - get
+  op_args:
+  - - 1
+    - 1
+  - - 2
+    - 2
+  - - 1
+  - - 3
+    - 3
+  - - 2
+  expected:
+  - null
+  - null
+  - 1
+  - null
+  - -1
+- label: overwrite refreshes recency
+  init_args:
+  - 2
+  ops:
+  - put
+  - put
+  - get
+  - put
+  - get
+  - get
+  op_args:
+  - - 1
+    - 10
+  - - 1
+    - 99
+  - - 1
+  - - 2
+    - 20
+  - - 1
+  - - 2
+  expected:
+  - null
+  - null
+  - 99
+  - null
+  - 99
+  - 20
+class_name: LRUCache
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **doubly linked list** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Review pointer updates for insert/remove in a doubly linked list, especially head/tail sentinels and edge cases.
+- Practice mapping product requirements to invariants so you can justify when an operation truly stays O(1).
+- Compare FIFO, LRU, and LFU so you can explain why LRU is a good default for cache locality.

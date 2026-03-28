@@ -1,0 +1,90 @@
+id: 30
+title: Stream Deduplicator
+category: streaming
+difficulty: Medium
+summary: Detect and filter duplicate items in a stream with bounded memory.
+description: Implement a deduplicator for a stream of events, each with an ID. is_duplicate(event_id) returns True if this ID was seen within the last N events (or last T seconds). Memory usage should be bounded regardless of total stream size.
+scenario: We have a webhook ingestion service that occasionally receives duplicate deliveries from upstream providers. Each event carries a unique ID, but retries can send the same ID multiple times. We need a deduplicator that checks whether an event ID was seen recently—within the last N events—and rejects duplicates. Crucially, we can't store every ID we've ever seen, because this stream runs forever. Memory must stay bounded.
+constraints:
+- window_size N is a positive integer set at construction
+- Event IDs are strings
+- is_duplicate() returns True only if the ID was seen within the last N calls
+- Memory usage is bounded at O(N) regardless of total stream length
+- Each is_duplicate() call should run in O(1) average time
+examples:
+- input: |-
+    dedup = StreamDeduplicator(window_size=3)
+    dedup.is_duplicate('evt-1')
+    dedup.is_duplicate('evt-2')
+    dedup.is_duplicate('evt-1')
+  output: |-
+    is_duplicate('evt-1') → False  (first time seen)
+    is_duplicate('evt-2') → False  (first time seen)
+    is_duplicate('evt-1') → True   (evt-1 is still in the window)
+- input: |-
+    dedup.is_duplicate('evt-3')
+    dedup.is_duplicate('evt-4')
+    dedup.is_duplicate('evt-1')
+  output: |-
+    is_duplicate('evt-3') → False
+    is_duplicate('evt-4') → False  (window is now [evt-2, evt-3, evt-4]; evt-1 evicted)
+    is_duplicate('evt-1') → False  (evt-1 is no longer in the window)
+starter_code: |-
+  class StreamDeduplicator:
+      def __init__(self, window_size: int):
+          pass
+
+      def is_duplicate(self, event_id: str) -> bool:
+          """Return True if event_id was seen within the last window_size events."""
+          pass
+follow_ups:
+- Use a probabilistic data structure (Bloom filter) for even lower memory.
+- Support both time-based and count-based windows simultaneously.
+- How would you handle exactly-once semantics in a distributed system?
+key_skills:
+- hash set with eviction
+- deque
+- Bloom filter
+- sliding window
+test_type: class
+test_cases:
+- label: window eviction
+  init_args:
+  - 3
+  ops:
+  - is_duplicate
+  - is_duplicate
+  - is_duplicate
+  - is_duplicate
+  - is_duplicate
+  - is_duplicate
+  op_args:
+  - - evt-1
+  - - evt-2
+  - - evt-1
+  - - evt-3
+  - - evt-4
+  - - evt-1
+  expected:
+  - false
+  - false
+  - true
+  - false
+  - false
+  - false
+class_name: StreamDeduplicator
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash set with eviction** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **deque** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Know when a deque is the right fit for popping from both ends while preserving order.
+- Review how to shrink a window incrementally so old items leave exactly when they stop mattering.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.

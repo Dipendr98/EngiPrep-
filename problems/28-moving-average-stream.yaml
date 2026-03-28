@@ -1,0 +1,77 @@
+id: 28
+title: Moving Average Stream
+category: streaming
+difficulty: Easy
+summary: Compute a moving average over a sliding window of values.
+description: Implement a class that computes the moving average of the last N values in a stream. add(value) adds a new value and returns the current average. The window size N is set at initialization.
+scenario: We have a service that monitors API latency. Every time a request completes, we record its response time. The dashboard needs to show the average latency over the last N requests so on-call engineers can spot regressions quickly. We need a lightweight class that keeps a sliding window and recomputes the average in O(1) on each new value—no rescanning the whole window.
+constraints:
+- Window size N is a positive integer set at construction
+- Values are integers or floats
+- add() returns a float representing the current average
+- Before the window is full, average all values seen so far
+- Each add() call should run in O(1) time
+examples:
+- input: |-
+    ma = MovingAverage(3)
+    ma.add(1)
+    ma.add(10)
+    ma.add(3)
+  output: |-
+    add(1) → 1.0  (window: [1])
+    add(10) → 5.5  (window: [1, 10])
+    add(3) → 4.666...  (window: [1, 10, 3])
+- input: ma.add(5)
+  output: 'add(5) → 6.0  (window: [10, 3, 5] — the 1 was evicted)'
+starter_code: |-
+  class MovingAverage:
+      def __init__(self, window_size: int):
+          pass
+
+      def add(self, value: float) -> float:
+          """Add a value to the stream and return the current moving average."""
+          pass
+follow_ups:
+- Add support for weighted moving averages.
+- Support removing the oldest value without adding a new one.
+- Extend to compute moving median efficiently.
+key_skills:
+- circular buffer / deque
+- running sum
+- sliding window
+test_type: class
+test_cases:
+- label: window updates
+  init_args:
+  - 3
+  ops:
+  - add
+  - add
+  - add
+  - add
+  op_args:
+  - - 1
+  - - 10
+  - - 3
+  - - 5
+  expected:
+  - 1.0
+  - 5.5
+  - 4.666666666666667
+  - 6.0
+class_name: MovingAverage
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **circular buffer / deque** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **running sum** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to shrink a window incrementally so old items leave exactly when they stop mattering.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.
+- After implementing Moving Average Stream, re-run the provided hardcoded tests and explain why each one protects an important invariant.

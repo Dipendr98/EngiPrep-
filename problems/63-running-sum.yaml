@@ -1,0 +1,56 @@
+id: 63
+title: Running Sum
+category: warmup
+difficulty: Easy
+summary: Build cumulative sums across an array.
+description: Implement running_sum(nums) that returns a list where each position contains the sum of all values up to that index.
+scenario: This warm-up gets you thinking about carrying state forward in a single pass.
+constraints:
+- Return a new list.
+examples:
+- input: running_sum([1,2,3,4])
+  output: '[1,3,6,10]'
+starter_code: |-
+  def running_sum(nums: list[int]) -> list[int]:
+      pass
+follow_ups:
+- Compute running products.
+- Support resetting the running total at markers.
+key_skills:
+- arrays
+- counting
+test_type: function
+function_name: running_sum
+test_cases:
+- label: positive
+  input:
+    nums:
+    - 1
+    - 2
+    - 3
+    - 4
+  expected:
+  - 1
+  - 3
+  - 6
+  - 10
+- label: mixed
+  input:
+    nums:
+    - 3
+    - -1
+    - 2
+  expected:
+  - 3
+  - 2
+  - 4
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Running Sum as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

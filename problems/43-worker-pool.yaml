@@ -1,0 +1,164 @@
+id: 43
+title: Worker Pool
+category: concurrency
+difficulty: Hard
+summary: Fixed-size pool of workers that process submitted tasks concurrently.
+description: Implement a worker pool with N worker threads/coroutines. submit(task) queues a task and returns a future. Tasks are executed by available workers in FIFO order. Support shutdown(wait=True) which waits for pending tasks to complete and shutdown(wait=False) which cancels pending tasks.
+scenario: 'You''re building the background-job engine for an internal platform. API handlers need to kick off CPU-bound work — image resizing, PDF generation, report compilation — without blocking the request. You want a fixed pool of worker threads that drains a shared task queue. Each submission hands back a future so the caller can check on the result later. When the service receives SIGTERM, you need a clean shutdown path: either finish in-flight work or drop what''s pending and exit fast.'
+constraints:
+- num_workers is set at construction and stays fixed.
+- submit(task) accepts a zero-argument callable and returns a Future object.
+- Future must support .result(timeout=None) that blocks until the value is ready or raises the task's exception.
+- Tasks execute in FIFO submission order.
+- shutdown(wait=True) blocks until all submitted tasks complete; shutdown(wait=False) cancels pending tasks but lets running tasks finish.
+- submit() after shutdown() should raise RuntimeError.
+examples:
+- input: |-
+    pool = WorkerPool(num_workers=3)
+    future1 = pool.submit(lambda: 2 + 2)
+    future2 = pool.submit(lambda: 'hello'.upper())
+    print(future1.result())  # blocks until done
+    print(future2.result())
+    pool.shutdown(wait=True)
+  output: |-
+    4
+    'HELLO'
+    All workers finish and join cleanly.
+- input: |-
+    pool = WorkerPool(num_workers=2)
+    import time
+    futures = [pool.submit(lambda i=i: (time.sleep(0.1), i)[1]) for i in range(5)]
+    pool.shutdown(wait=False)
+  output: Tasks already picked up by workers finish, but remaining queued tasks are discarded. Futures for discarded tasks raise CancelledError on .result().
+- input: |-
+    pool = WorkerPool(num_workers=2)
+    def failing_task():
+        raise ValueError('bad input')
+    f = pool.submit(failing_task)
+    try:
+        f.result()
+    except ValueError as e:
+        print(e)
+  output: '''bad input'' — the exception propagates through the future without crashing the worker.'
+starter_code: |
+  import threading
+  from typing import Any, Callable
+
+  class Future:
+      def __init__(self):
+          pass
+
+      def result(self, timeout=None) -> Any:
+          """Block until the result is available, then return it (or raise)."""
+          pass
+
+      def done(self) -> bool:
+          """Return True if the task has completed (success or failure)."""
+          pass
+
+  class WorkerPool:
+      def __init__(self, num_workers: int):
+          pass
+
+      def submit(self, task: Callable[[], Any]) -> Future:
+          """Submit a task and return a Future."""
+          pass
+
+      def shutdown(self, wait: bool = True) -> None:
+          """Shut down the pool."""
+          pass
+follow_ups:
+- Add a max queue size with back-pressure.
+- Support task priorities.
+- 'Add monitoring: active workers, queued tasks, completed count, error rate.'
+key_skills:
+- thread management
+- task queue
+- futures/promises
+- graceful shutdown
+test_type: class
+test_cases:
+- label: successful tasks
+  setup_code: |-
+    def task_one():
+        return 4
+
+    def task_two():
+        return 'HELLO'
+  init_args:
+  - 2
+  ops:
+  - submit
+  - submit
+  - __eval__
+  - __eval__
+  - shutdown
+  op_args:
+  - - __ref__: task_one
+  - - __ref__: task_two
+  - - future1.result()
+  - - future2.result()
+  - - true
+  save_as:
+  - future1
+  - future2
+  - null
+  - null
+  - null
+  compare:
+  - false
+  - false
+  - true
+  - true
+  - true
+  expected:
+  - null
+  - null
+  - 4
+  - HELLO
+  - null
+- label: propagates exception
+  setup_code: |-
+    def failing_task():
+        raise ValueError('bad input')
+  init_args:
+  - 1
+  ops:
+  - submit
+  - __eval__
+  - shutdown
+  op_args:
+  - - __ref__: failing_task
+  - - future.result()
+  - - true
+  save_as:
+  - future
+  - null
+  - null
+  compare:
+  - false
+  - true
+  - true
+  expected:
+  - null
+  - null
+  - null
+  expected_errors:
+  - null
+  - ValueError
+  - null
+class_name: WorkerPool
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **thread management** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **task queue** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Write down the shared state and the blocking conditions before choosing locks or queues.
+- Test mentally for races, starvation, and forgotten wakeups.
+- After implementing Worker Pool, re-run the provided hardcoded tests and explain why each one protects an important invariant.

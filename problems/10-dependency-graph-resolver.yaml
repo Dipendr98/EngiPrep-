@@ -1,0 +1,72 @@
+id: 10
+title: Dependency Graph Resolver
+category: parsing
+difficulty: Medium
+summary: Resolve dependencies and return a valid execution order.
+description: 'Given a dictionary mapping tasks to their dependencies, return a valid execution order (topological sort). Detect and report circular dependencies. For example, given {''a'': [''b'', ''c''], ''b'': [''c''], ''c'': []}, return [''c'', ''b'', ''a''] or any valid ordering.'
+scenario: ''
+constraints: []
+examples: []
+starter_code: |-
+  def resolve(deps: dict[str, list[str]]) -> list[str]:
+      pass
+follow_ups:
+- Return all the tasks involved in a cycle, not just that a cycle exists.
+- Add version constraints to dependencies.
+- Determine which tasks can run in parallel at each stage.
+key_skills:
+- topological sort
+- cycle detection
+- DFS
+- directed graph
+test_type: function
+test_cases:
+- label: topological order
+  input:
+    deps:
+      a:
+      - b
+      - c
+      b:
+      - c
+      c: []
+  expected:
+  - c
+  - b
+  - a
+- label: lexicographic tie break
+  input:
+    deps:
+      a: []
+      b: []
+      c:
+      - a
+      - b
+  expected:
+  - a
+  - b
+  - c
+- label: cycle
+  input:
+    deps:
+      a:
+      - b
+      b:
+      - a
+  expected_error: circular
+function_name: resolve
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **topological sort** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **cycle detection** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Know both Kahn’s algorithm and DFS-based cycle detection so you can choose the clearer tool.
+- Practice spotting cycles in graphs, linked structures, and recursive references.
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.

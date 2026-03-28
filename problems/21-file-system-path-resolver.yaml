@@ -1,0 +1,90 @@
+id: 21
+title: File System Path Resolver
+category: search
+difficulty: Medium
+summary: Normalize file paths handling ., .., symlinks, and absolute/relative references.
+description: Given a mapping of symlinks and a path string, implement resolve(path) that returns the canonical absolute path. Handle . (current), .. (parent), consecutive slashes, trailing slashes, and symlink chains. Detect and report symlink cycles.
+scenario: Imagine you're building a deployment tool that resolves file paths inside containers. Users specify paths full of symlinks, relative references, and double slashes. Your tool needs to figure out the true canonical path so it can mount volumes correctly. You also need to catch symlink cycles before your tool spins forever following links in circles.
+constraints:
+- Paths are always absolute (start with '/')
+- Symlink keys and values are absolute paths
+- Consecutive and trailing slashes are treated as a single '/'
+- '''..'' at the root stays at the root (i.e. ''/.. '' → ''/'')'
+- Raise an error or return a sentinel on symlink cycle detection
+examples:
+- input: |-
+    symlinks = {}
+    resolve('/home/user/./docs/../docs/file.txt')
+  output: '''/home/user/docs/file.txt''  — ''.'' and ''..'' are resolved, path is normalized'
+- input: |-
+    symlinks = {'/var/log/current': '/var/log/2024'}
+    resolve('/var/log/current/app.log')
+  output: '''/var/log/2024/app.log''  — symlink ''/var/log/current'' is followed to its target'
+- input: |-
+    symlinks = {'/a': '/b', '/b': '/a'}
+    resolve('/a/file.txt')
+  output: Raises an error or returns a sentinel indicating a symlink cycle was detected
+starter_code: |-
+  class PathResolver:
+      def __init__(self, symlinks: dict[str, str]):
+          pass
+
+      def resolve(self, path: str) -> str:
+          pass
+follow_ups:
+- Add a max symlink depth to prevent infinite loops.
+- Support relative symlink targets.
+- Implement a glob pattern matcher on top of this.
+key_skills:
+- stack
+- string splitting
+- graph cycle detection
+- path normalization
+test_type: class
+test_cases:
+- label: normalize path
+  init_args:
+  - {}
+  ops:
+  - resolve
+  op_args:
+  - - /home/user/./docs/../docs/file.txt
+  expected:
+  - /home/user/docs/file.txt
+- label: follow symlink
+  init_args:
+  - /var/log/current: /var/log/2024
+  ops:
+  - resolve
+  op_args:
+  - - /var/log/current/app.log
+  expected:
+  - /var/log/2024/app.log
+- label: cycle
+  init_args:
+  - /a: /b
+    /b: /a
+  ops:
+  - resolve
+  op_args:
+  - - /a/file.txt
+  expected_errors:
+  - cycle
+  expected:
+  - null
+class_name: PathResolver
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **stack** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **string splitting** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how stacks help with matching delimiters, backtracking, and incremental parsing.
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing File System Path Resolver, re-run the provided hardcoded tests and explain why each one protects an important invariant.

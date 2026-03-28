@@ -1,0 +1,45 @@
+id: 61
+title: Reverse String
+category: warmup
+difficulty: Easy
+summary: Return a string with characters reversed.
+description: Implement reverse_string(s) that returns the input string reversed.
+scenario: You are warming up before a longer interview and want a tiny string-manipulation problem to get comfortable with the editor.
+constraints:
+- The input may be empty.
+- Return a new string.
+examples:
+- input: reverse_string("hello")
+  output: '"olleh"'
+starter_code: |-
+  def reverse_string(s: str) -> str:
+      pass
+follow_ups:
+- Reverse only alphabetic characters.
+- Do it in place for a mutable character array.
+key_skills:
+- strings
+test_type: function
+function_name: reverse_string
+test_cases:
+- label: basic
+  input:
+    s: hello
+  expected: olleh
+- label: empty
+  input:
+    s: ''
+  expected: ''
+- label: spaces
+  input:
+    s: ab cd
+  expected: dc ba
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Reverse String as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

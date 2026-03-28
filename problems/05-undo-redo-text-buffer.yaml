@@ -1,0 +1,149 @@
+id: 5
+title: Undo/Redo Text Buffer
+category: stateful
+difficulty: Medium
+summary: Text buffer supporting insert, delete, undo, and redo operations.
+description: Implement a text buffer that supports insert(position, text), delete(position, length), undo(), and redo(). Undo reverts the last operation, redo re-applies it. A new operation after an undo should clear the redo history. Operations should handle boundary conditions gracefully.
+scenario: You’re building the core text-editing engine for a lightweight code editor. Users expect fluid insert and delete operations, plus full undo/redo support. The tricky part is keeping the undo and redo stacks consistent—especially when a user undoes a few steps, types something new, and that should discard the entire redo future.
+constraints:
+- Position is a 0-based index into the current text
+- insert(pos, text) inserts before the character at pos
+- delete(pos, length) removes length characters starting at pos
+- Out-of-range position or length should be clamped to valid bounds
+- undo/redo on an empty stack is a no-op
+examples:
+- input: |-
+    buf = TextBuffer()
+    buf.insert(0, 'hello')
+    buf.insert(5, ' world')
+    buf.get_text()
+    buf.undo()
+    buf.get_text()
+    buf.redo()
+    buf.get_text()
+  output: |-
+    'hello world'
+    'hello'        # undid the ' world' insert
+    'hello world'  # redid the ' world' insert
+- input: |-
+    buf = TextBuffer()
+    buf.insert(0, 'abcdef')
+    buf.delete(2, 3)
+    buf.get_text()
+    buf.undo()
+    buf.get_text()
+    buf.insert(0, 'X')
+    buf.get_text()
+    buf.redo()
+    buf.get_text()
+  output: |-
+    'af'       # deleted 'bcd' starting at index 2
+    'abcdef'   # undo restored 'bcd'
+    'Xabcdef'  # new insert after undo
+    'Xabcdef'  # redo is a no-op – stack was cleared by the new insert
+starter_code: |-
+  class TextBuffer:
+      def __init__(self):
+          pass
+
+      def insert(self, position: int, text: str) -> None:
+          pass
+
+      def delete(self, position: int, length: int) -> None:
+          pass
+
+      def get_text(self) -> str:
+          pass
+
+      def undo(self) -> None:
+          pass
+
+      def redo(self) -> None:
+          pass
+follow_ups:
+- Group rapid edits into a single undo step (e.g. typing a word).
+- Add cursor position tracking that moves correctly with undo/redo.
+- How would you support collaborative editing with multiple users?
+key_skills:
+- command pattern
+- stack
+- state management
+- string manipulation
+test_type: class
+test_cases:
+- label: undo redo
+  init_args: []
+  ops:
+  - insert
+  - insert
+  - get_text
+  - undo
+  - get_text
+  - redo
+  - get_text
+  op_args:
+  - - 0
+    - hello
+  - - 5
+    - ' world'
+  - []
+  - []
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - hello world
+  - null
+  - hello
+  - null
+  - hello world
+- label: redo cleared by new edit
+  init_args: []
+  ops:
+  - insert
+  - delete
+  - get_text
+  - undo
+  - get_text
+  - insert
+  - redo
+  - get_text
+  op_args:
+  - - 0
+    - abcdef
+  - - 2
+    - 3
+  - []
+  - []
+  - []
+  - - 0
+    - X
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - abf
+  - null
+  - abcdef
+  - null
+  - null
+  - Xabcdef
+class_name: TextBuffer
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **command pattern** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **stack** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how stacks help with matching delimiters, backtracking, and incremental parsing.
+- 'Focus on invariants first: what state must always stay true after every method call?'
+- Practice stepping through short operation sequences by hand before writing code.
+- After implementing Undo/Redo Text Buffer, re-run the provided hardcoded tests and explain why each one protects an important invariant.

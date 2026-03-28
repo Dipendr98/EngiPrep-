@@ -1,0 +1,46 @@
+id: 69
+title: First Unique Character
+category: warmup
+difficulty: Easy
+summary: Find the index of the first non-repeating character.
+description: Implement first_unique_char(s) that returns the index of the first character appearing exactly once, or -1 if none exists.
+scenario: A simple two-pass counting warm-up gives you a clean confidence boost before harder interviews.
+constraints:
+- Assume lowercase ASCII letters.
+examples:
+- input: first_unique_char("leetcode")
+  output: '0'
+starter_code: |-
+  def first_unique_char(s: str) -> int:
+      pass
+follow_ups:
+- Return the character instead of the index.
+- Support streaming input.
+key_skills:
+- hash map
+- strings
+test_type: function
+function_name: first_unique_char
+test_cases:
+- label: first char unique
+  input:
+    s: leetcode
+  expected: 0
+- label: middle unique
+  input:
+    s: loveleetcode
+  expected: 2
+- label: none
+  input:
+    s: aabb
+  expected: -1
+explanation: |-
+  This warm-up is meant to build confidence around **hash map** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Use a hash map when you need fast membership checks or counts without rescanning the input.
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat First Unique Character as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

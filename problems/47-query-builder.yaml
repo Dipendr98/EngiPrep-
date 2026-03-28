@@ -1,0 +1,142 @@
+id: 47
+title: Query Builder
+category: api_design
+difficulty: Medium
+summary: Fluent API for building filter/sort/limit queries on a dataset.
+description: 'Implement a query builder with a fluent API. Support where(field, op, value) for filtering (ops: eq, ne, gt, lt, in, contains), order_by(field, direction), limit(n), and offset(n). execute(data) applies all conditions to a list of dicts and returns matching results.'
+scenario: You're building an internal admin dashboard that lets support engineers search through user records, orders, and events. Instead of writing raw filter code every time, you want a reusable query builder with a chainable API so that code like `Query().where('status', 'eq', 'active').where('age', 'gt', 21).order_by('name').limit(10).execute(users)` reads almost like SQL. The builder accumulates predicates and applies them all at execution time.
+constraints:
+- 'Supported operators: ''eq'', ''ne'', ''gt'', ''lt'', ''in'', ''contains''.'
+- '''in'' checks membership in a list; ''contains'' checks substring in a string field.'
+- Multiple where() calls are ANDed together.
+- order_by direction is 'asc' (default) or 'desc'.
+- limit and offset are non-negative integers.
+- All builder methods return self for chaining.
+- execute(data) takes a list of dicts and returns a new list (no mutation).
+examples:
+- input: |-
+    data = [
+      {'name': 'Alice', 'age': 30, 'role': 'admin'},
+      {'name': 'Bob', 'age': 25, 'role': 'user'},
+      {'name': 'Charlie', 'age': 35, 'role': 'user'},
+      {'name': 'Diana', 'age': 28, 'role': 'admin'}
+    ]
+    result = Query().where('role', 'eq', 'admin').order_by('age', 'asc').execute(data)
+  output: '[{''name'': ''Diana'', ''age'': 28, ''role'': ''admin''}, {''name'': ''Alice'', ''age'': 30, ''role'': ''admin''}]'
+- input: result = Query().where('age', 'gt', 26).where('role', 'ne', 'admin').limit(1).execute(data)
+  output: '[{''name'': ''Charlie'', ''age'': 35, ''role'': ''user''}]  — both where clauses are ANDed, limit caps the output.'
+- input: result = Query().where('name', 'in', ['Alice', 'Bob']).order_by('name', 'desc').execute(data)
+  output: '[{''name'': ''Bob'', ''age'': 25, ''role'': ''user''}, {''name'': ''Alice'', ''age'': 30, ''role'': ''admin''}]'
+starter_code: |
+  from typing import Any, Dict, List
+
+  class Query:
+      def __init__(self):
+          pass
+
+      def where(self, field: str, op: str, value: Any) -> 'Query':
+          """Add a filter condition."""
+          pass
+
+      def order_by(self, field: str, direction: str = 'asc') -> 'Query':
+          """Set the sort field and direction."""
+          pass
+
+      def limit(self, n: int) -> 'Query':
+          """Limit the number of results."""
+          pass
+
+      def offset(self, n: int) -> 'Query':
+          """Skip the first n results."""
+          pass
+
+      def execute(self, data: List[Dict]) -> List[Dict]:
+          """Apply all conditions and return matching results."""
+          pass
+follow_ups:
+- Add or() and and() for combining conditions.
+- Support nested field access like where('address.city', 'eq', 'SF').
+- Add select() to project only specific fields.
+key_skills:
+- builder pattern
+- predicate composition
+- sorting
+- fluent interface design
+test_type: class
+test_cases:
+- label: filter sort execute
+  setup_code: |-
+    data = [
+        {'name': 'Alice', 'age': 30, 'role': 'admin'},
+        {'name': 'Bob', 'age': 25, 'role': 'user'},
+        {'name': 'Charlie', 'age': 35, 'role': 'user'},
+        {'name': 'Diana', 'age': 28, 'role': 'admin'}
+    ]
+  init_args: []
+  ops:
+  - where
+  - order_by
+  - __eval__
+  op_args:
+  - - role
+    - eq
+    - admin
+  - - age
+    - asc
+  - - obj.execute(data)
+  compare:
+  - false
+  - false
+  - true
+  expected:
+  - null
+  - null
+  - - name: Diana
+      age: 28
+      role: admin
+    - name: Alice
+      age: 30
+      role: admin
+- label: in and desc
+  setup_code: 'data = [{''name'': ''Alice'', ''age'': 30, ''role'': ''admin''}, {''name'': ''Bob'', ''age'': 25, ''role'': ''user''}]'
+  init_args: []
+  ops:
+  - where
+  - order_by
+  - __eval__
+  op_args:
+  - - name
+    - in
+    - - Alice
+      - Bob
+  - - name
+    - desc
+  - - obj.execute(data)
+  compare:
+  - false
+  - false
+  - true
+  expected:
+  - null
+  - null
+  - - name: Bob
+      age: 25
+      role: user
+    - name: Alice
+      age: 30
+      role: admin
+class_name: Query
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **builder pattern** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **predicate composition** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Keep caller ergonomics in mind: a clean API should make the correct usage obvious.'
+- Use tests to define the contract, especially around chaining, defaults, and error cases.
+- After implementing Query Builder, re-run the provided hardcoded tests and explain why each one protects an important invariant.

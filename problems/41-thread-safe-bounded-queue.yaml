@@ -1,0 +1,111 @@
+id: 41
+title: Thread-Safe Bounded Queue
+category: concurrency
+difficulty: Hard
+summary: Producer-consumer queue with blocking put and get operations.
+description: Implement a thread-safe bounded queue. put(item) blocks if the queue is full. get() blocks if the queue is empty. Support a timeout parameter for both operations. The queue should be efficient and avoid busy-waiting.
+scenario: Imagine you're building the internal message-passing layer for a data pipeline. Producer threads ingest events from Kafka and push them into an in-process buffer, while consumer threads pick items off that buffer, enrich them, and write to a database. If the consumers fall behind, you need the producers to block rather than eat unbounded memory. If the buffer is empty, consumers should sleep efficiently instead of spinning.
+constraints:
+- Capacity is a positive integer set at construction time.
+- put() and get() accept an optional timeout in seconds (float); None means block forever.
+- If timeout expires, raise a TimeoutError.
+- Items are delivered in FIFO order.
+- Must not busy-wait — use condition variables or similar primitives.
+- All operations must be safe to call from multiple threads concurrently.
+examples:
+- input: |-
+    q = BoundedQueue(capacity=2)
+    q.put('a')
+    q.put('b')
+    # q is now full
+    # In thread-2: q.put('c', timeout=1.0)  -- blocks up to 1s
+    # In thread-1: q.get()
+  output: get() returns 'a', which frees a slot, so the blocked put('c') in thread-2 succeeds. Queue now contains ['b', 'c'].
+- input: |-
+    q = BoundedQueue(capacity=3)
+    # q is empty
+    result = q.get(timeout=0.5)
+  output: get() blocks for 0.5 seconds, then raises a Timeout exception because no item was put during that window.
+- input: |-
+    q = BoundedQueue(capacity=2)
+    q.put('x')
+    q.put('y')
+    print(q.get())
+    print(q.get())
+  output: '''x'' then ''y'' — FIFO order is preserved.'
+starter_code: |
+  import threading
+
+  class BoundedQueue:
+      def __init__(self, capacity: int):
+          pass
+
+      def put(self, item, timeout=None):
+          """Add item to the queue. Block if full."""
+          pass
+
+      def get(self, timeout=None):
+          """Remove and return an item. Block if empty."""
+          pass
+
+      def qsize(self) -> int:
+          """Return the current number of items in the queue."""
+          pass
+follow_ups:
+- Add a non-blocking try_put / try_get variant.
+- 'Support batch operations: put_many and get_many.'
+- Add a poison pill mechanism for graceful shutdown.
+key_skills:
+- locks/mutexes
+- condition variables
+- circular buffer
+- blocking semantics
+test_type: class
+test_cases:
+- label: fifo
+  init_args:
+  - 2
+  ops:
+  - put
+  - put
+  - get
+  - get
+  - qsize
+  op_args:
+  - - x
+  - - y
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - x
+  - y
+  - 0
+- label: timeout on empty
+  init_args:
+  - 1
+  ops:
+  - get
+  op_args:
+  - - 0.01
+  expected:
+  - null
+  expected_errors:
+  - Timeout
+class_name: BoundedQueue
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **locks/mutexes** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **condition variables** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Write down the shared state and the blocking conditions before choosing locks or queues.
+- Test mentally for races, starvation, and forgotten wakeups.
+- After implementing Thread-Safe Bounded Queue, re-run the provided hardcoded tests and explain why each one protects an important invariant.

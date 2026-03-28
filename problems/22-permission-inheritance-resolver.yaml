@@ -1,0 +1,96 @@
+id: 22
+title: Permission Inheritance Resolver
+category: search
+difficulty: Medium
+summary: Resolve effective permissions through a role/resource hierarchy.
+description: Given a tree of resources (like file system directories) and a role hierarchy, determine the effective permission for a user on a resource. Permissions are inherited from parent resources but can be overridden at any level. Support ALLOW, DENY, and INHERIT.
+scenario: We have an internal tool with a resource tree—think Google Drive folders. Each folder can have permissions set for different roles, and child folders inherit permissions from their parents unless someone explicitly overrides them. A PM just filed a bug where a user can access a document they shouldn't. We need you to build the permission resolver that walks the tree and figures out the effective permission for any role on any resource.
+constraints:
+- Resources form a tree rooted at '/' (no cycles)
+- Permission values are 'ALLOW', 'DENY', or 'INHERIT'
+- '''INHERIT'' means ''delegate to the parent resource'''
+- If no permission is found up to the root, default to 'DENY'
+- Roles and actions are plain strings
+examples:
+- input: |-
+    set_permission('/docs', 'editor', 'read', 'ALLOW')
+    get_permission('/docs/design', 'editor', 'read')
+  output: '''ALLOW''  — inherited from parent ''/docs'' since no override exists on ''/docs/design'''
+- input: |-
+    set_permission('/docs', 'editor', 'write', 'ALLOW')
+    set_permission('/docs/secret', 'editor', 'write', 'DENY')
+    get_permission('/docs/secret', 'editor', 'write')
+  output: '''DENY''  — the override at ''/docs/secret'' takes precedence over the parent'
+- input: get_permission('/docs/design/v2', 'viewer', 'delete')
+  output: '''DENY''  — no permission is set anywhere up to root, so default is DENY'
+starter_code: |-
+  class PermissionResolver:
+      def __init__(self):
+          pass
+
+      def set_permission(self, resource: str, role: str, action: str, permission: str) -> None:
+          """Set ALLOW, DENY, or INHERIT for a role+action on a resource."""
+          pass
+
+      def get_permission(self, resource: str, role: str, action: str) -> str:
+          """Return the effective permission ('ALLOW' or 'DENY') for a role+action on a resource."""
+          pass
+follow_ups:
+- Support multiple roles per user where permissions must be merged.
+- Add wildcard permissions (e.g. 'read:*').
+- What's the most efficient way to check permissions if you have millions of resources?
+key_skills:
+- tree traversal
+- inheritance chain
+- hash map
+- override logic
+test_type: class
+test_cases:
+- label: inherit and override
+  init_args: []
+  ops:
+  - set_permission
+  - get_permission
+  - set_permission
+  - get_permission
+  - get_permission
+  op_args:
+  - - /docs
+    - editor
+    - read
+    - ALLOW
+  - - /docs/design
+    - editor
+    - read
+  - - /docs/secret
+    - editor
+    - read
+    - DENY
+  - - /docs/secret
+    - editor
+    - read
+  - - /docs/design/v2
+    - viewer
+    - delete
+  expected:
+  - null
+  - ALLOW
+  - null
+  - DENY
+  - DENY
+class_name: PermissionResolver
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **tree traversal** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **inheritance chain** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing Permission Inheritance Resolver, re-run the provided hardcoded tests and explain why each one protects an important invariant.

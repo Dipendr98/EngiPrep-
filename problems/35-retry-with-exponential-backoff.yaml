@@ -1,0 +1,86 @@
+id: 35
+title: Retry with Exponential Backoff
+category: infra
+difficulty: Medium
+summary: Wrapper that retries failed operations with configurable backoff and jitter.
+description: Implement a retry decorator/wrapper. Given a function that may raise exceptions, retry it up to N times with exponential backoff (delay doubles each attempt). Add random jitter to prevent thundering herd. Support configurable retryable exception types and a max total timeout.
+scenario: We have a microservice that calls a flaky third-party payments API. About 2% of calls fail with transient errors — timeouts, 503s, connection resets. Rather than having every team reimplement retry logic, you're building a shared retry wrapper so callers can just say 'run this with retries' and get automatic exponential backoff with jitter out of the box.
+constraints:
+- max_retries is a non-negative integer (0 means only the initial call, no retries)
+- base_delay is in seconds; each retry doubles the delay
+- Jitter is a random value between 0 and the current delay, added to the delay
+- retryable_exceptions is a tuple of exception types; all others propagate immediately
+- max_timeout is the total wall-clock seconds allowed across all attempts; None means no limit
+- The wrapper must preserve the original function's return value on success
+examples:
+- input: |-
+    config = RetryConfig(max_retries=3, base_delay=1.0,
+                         retryable_exceptions=(ConnectionError, TimeoutError))
+    # func fails twice with ConnectionError, succeeds on 3rd call
+    result = retry_with_backoff(func, config)
+  output: 'result = <func''s return value>  # waited ~1s, then ~2s (plus jitter) before succeeding'
+- input: |-
+    # func fails 4 times with TimeoutError (exceeds max_retries=3)
+    retry_with_backoff(func, config)
+  output: 'Raises TimeoutError  # the last exception after all retries exhausted'
+- input: |-
+    # func raises ValueError (not in retryable_exceptions)
+    retry_with_backoff(func, config)
+  output: 'Raises ValueError immediately  # non-retryable, no retries attempted'
+starter_code: |-
+  class RetryConfig:
+      def __init__(self, max_retries: int = 3, base_delay: float = 1.0,
+                   retryable_exceptions: tuple = (Exception,),
+                   max_timeout: float = None):
+          pass
+
+  def retry_with_backoff(func, config: RetryConfig, *args, **kwargs):
+      pass
+follow_ups:
+- Add a circuit breaker that stops retrying after too many consecutive failures.
+- Support different backoff strategies (linear, exponential, constant).
+- Add an on_retry callback for logging/metrics.
+key_skills:
+- decorator pattern
+- exponential backoff
+- jitter
+- error handling
+test_type: function
+test_cases:
+- label: eventual success
+  setup_code: |-
+    attempts = []
+    def flaky():
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise ConnectionError('nope')
+        return 'ok'
+    config = RetryConfig(max_retries=3, base_delay=0, retryable_exceptions=(ConnectionError,))
+  args:
+  - __ref__: flaky
+  - __ref__: config
+  expected: ok
+- label: non retryable
+  setup_code: |-
+    def bad():
+        raise ValueError('bad input')
+    config = RetryConfig(max_retries=3, base_delay=0, retryable_exceptions=(ConnectionError,))
+  args:
+  - __ref__: bad
+  - __ref__: config
+  expected_error: ValueError
+function_name: retry_with_backoff
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **decorator pattern** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **exponential backoff** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Retry with Exponential Backoff, re-run the provided hardcoded tests and explain why each one protects an important invariant.

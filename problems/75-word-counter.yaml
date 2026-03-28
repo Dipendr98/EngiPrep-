@@ -1,0 +1,45 @@
+id: 75
+title: Word Counter
+category: warmup
+difficulty: Easy
+summary: Count words in a sentence.
+description: Implement count_words(text) that returns the number of space-separated words, ignoring extra whitespace.
+scenario: This is a nice warm-up for trimming and tokenizing plain text without overthinking the parser.
+constraints:
+- Treat runs of whitespace as a single separator.
+examples:
+- input: count_words("  hello   world ")
+  output: '2'
+starter_code: |-
+  def count_words(text: str) -> int:
+      pass
+follow_ups:
+- Return the words too.
+- Treat punctuation as separators.
+key_skills:
+- strings
+- parsing
+test_type: function
+function_name: count_words
+test_cases:
+- label: extra spaces
+  input:
+    text: '  hello   world '
+  expected: 2
+- label: single word
+  input:
+    text: CodePrep
+  expected: 1
+- label: empty
+  input:
+    text: '   '
+  expected: 0
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Word Counter as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

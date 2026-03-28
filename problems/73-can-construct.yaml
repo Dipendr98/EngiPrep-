@@ -1,0 +1,49 @@
+id: 73
+title: Can Construct
+category: warmup
+difficulty: Easy
+summary: Decide whether one string can be built from another.
+description: Implement can_construct(ransom_note, magazine) that returns whether every character needed by ransom_note is available in magazine.
+scenario: A tiny inventory-counting problem is a good confidence builder before more open-ended questions.
+constraints:
+- Assume lowercase ASCII letters.
+examples:
+- input: can_construct("aa", "aab")
+  output: 'True'
+starter_code: |-
+  def can_construct(ransom_note: str, magazine: str) -> bool:
+      pass
+follow_ups:
+- Return the leftover characters.
+- Handle words instead of characters.
+key_skills:
+- hash map
+- strings
+test_type: function
+function_name: can_construct
+test_cases:
+- label: possible
+  input:
+    ransom_note: aa
+    magazine: aab
+  expected: true
+- label: impossible
+  input:
+    ransom_note: aa
+    magazine: ab
+  expected: false
+- label: empty note
+  input:
+    ransom_note: ''
+    magazine: abc
+  expected: true
+explanation: |-
+  This warm-up is meant to build confidence around **hash map** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Use a hash map when you need fast membership checks or counts without rescanning the input.
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Can Construct as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

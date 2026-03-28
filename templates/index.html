@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePrep — Mock Interview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- GLOBAL TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-landing" id="top-bar-landing">
+      <span class="top-bar-logo">CodePrep</span>
+      <div class="top-bar-right">
+        <div class="mode-toggle" id="mode-toggle">
+        <button class="mode-btn selected" data-mode="text" onclick="selectMode(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Text
+        </button>
+        <button class="mode-btn" data-mode="voice" onclick="selectMode(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          Voice
+        </button>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleHistoryDrawer()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+      </div>
+    </div>
+    <div class="top-bar-study" id="top-bar-study" style="display:none">
+      <button class="btn btn-ghost btn-sm" onclick="exitStudyView()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="top-bar-center">
+        <span class="top-bar-title" id="study-bar-title">Problem</span>
+        <span class="top-bar-focus" id="study-bar-focus"></span>
+      </div>
+      <div class="top-bar-right"></div>
+    </div>
+    <div class="top-bar-interview" id="top-bar-interview" style="display:none">
+      <button class="btn btn-ghost btn-sm" onclick="exitInterview()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="top-bar-center">
+        <span class="top-bar-title" id="top-bar-title">Technical Interview</span>
+        <span class="top-bar-focus" id="top-bar-focus"></span>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn btn-ghost btn-sm" id="ref-panel-btn" onclick="toggleReferencePanel()" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Reference
+        </button>
+        <span id="timer-display" class="timer">00:00</span>
+        <button class="btn btn-danger btn-sm" onclick="endCurrentInterview()">End Interview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANDING / SESSION PICKER -->
+  <div id="landing-view" class="view active">
+    <div class="landing">
+      <div class="new-interview-card">
+        <div class="search-bar">
+          <div class="search-wrapper">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search problems or skills..." autocomplete="off">
+          </div>
+          <button class="btn btn-primary btn-sm" id="start-btn" onclick="startRandomInterview()">
+            Surprise Me
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Topic</span>
+          <div class="category-tabs" id="category-tabs">
+            <button class="cat-tab selected" data-cat="all">All</button>
+            <button class="cat-tab" data-cat="stateful">Stateful</button>
+            <button class="cat-tab" data-cat="parsing">Parsing</button>
+            <button class="cat-tab" data-cat="scheduling">Scheduling</button>
+            <button class="cat-tab" data-cat="search">Search</button>
+            <button class="cat-tab" data-cat="streaming">Streaming</button>
+            <button class="cat-tab" data-cat="infra">Infra</button>
+            <button class="cat-tab" data-cat="concurrency">Concurrency</button>
+            <button class="cat-tab" data-cat="api_design">API Design</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Difficulty</span>
+          <div class="difficulty-pills" id="difficulty-pills">
+            <button class="diff-pill" id="warmup-pill" data-filter="warmup">Warm Up</button>
+            <button class="diff-pill" data-diff="Easy">Easy</button>
+            <button class="diff-pill" data-diff="Medium">Medium</button>
+            <button class="diff-pill" data-diff="Hard">Hard</button>
+          </div>
+        </div>
+
+        <div class="problem-list" id="problem-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STUDY VIEW -->
+  <div id="study-view" class="view">
+    <div class="study-layout">
+      <div class="study-details">
+        <div class="study-details-scroll" id="study-details-content"></div>
+      </div>
+      <div class="study-chat">
+        <div class="study-chat-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Research Chat</span>
+        </div>
+        <div class="study-chat-messages" id="study-chat-messages">
+          <div class="study-chat-placeholder">Ask questions about this problem &mdash; concepts, approaches, complexity, data structures. The tutor will guide you without giving away the full solution.</div>
+        </div>
+        <div class="study-chat-input-area">
+          <textarea id="study-chat-input" placeholder="Ask about the problem..." rows="2"></textarea>
+          <div class="chat-actions">
+            <button class="btn btn-primary btn-sm" id="study-send-btn" onclick="sendResearchMessage()">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY DRAWER -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
+  <div class="drawer" id="history-drawer">
+    <div class="drawer-header">
+      <h3>Past Interviews</h3>
+      <button class="btn btn-ghost btn-sm" onclick="toggleHistoryDrawer()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="sessions-list"></div>
+  </div>
+
+  <!-- API KEY MODAL -->
+  <div id="key-modal" class="modal" style="display:none">
+    <div class="modal-content">
+      <h2>OpenAI API Key Required</h2>
+      <p>This app uses GPT-4o to simulate a real interviewer. Set your API key to get started.</p>
+      <p class="modal-instruction">Create a <code>.env</code> file in the project root:</p>
+      <code class="key-command">OPENAI_API_KEY=sk-your-key-here</code>
+      <p class="modal-note">Then restart the server. Your key stays local — never stored or sent anywhere except OpenAI.</p>
+      <button class="btn btn-secondary" onclick="document.getElementById('key-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <!-- INTERVIEW VIEW -->
+  <div id="interview-view" class="view">
+    <div class="interview-layout">
+      <!-- LEFT: Chat -->
+      <div class="chat-panel">
+        <div class="ref-panel" id="ref-panel" style="display:none">
+          <div class="ref-panel-header">
+            <span class="ref-panel-title">Problem Reference</span>
+            <button class="btn btn-ghost btn-sm" onclick="toggleReferencePanel()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="ref-panel-body" id="ref-panel-body"></div>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <!-- Text mode input -->
+        <div class="chat-input-area" id="text-input-area">
+          <textarea id="chat-input" placeholder="Type your response..." rows="2"></textarea>
+          <div class="chat-actions">
+            <button class="btn btn-secondary btn-sm" id="submit-code-btn" onclick="submitCode()">
+              Submit Code
+            </button>
+            <button class="btn btn-primary btn-sm" id="send-btn" onclick="sendMessage()">
+              Send
+            </button>
+          </div>
+        </div>
+
+        <!-- Voice mode controls -->
+        <div class="voice-controls" id="voice-controls" style="display:none">
+          <div class="voice-status" id="voice-status">Connecting...</div>
+          <div class="voice-buttons">
+            <button class="btn btn-secondary btn-sm" id="voice-submit-code-btn" onclick="submitCodeVoice()">
+              Submit Code
+            </button>
+            <button class="mic-btn active" id="mic-btn" onclick="toggleMic()">
+              <svg class="mic-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <svg class="mic-off-icon" style="display:none" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <div class="mic-pulse"></div>
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="endVoiceSession()">
+              End
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Code Editor -->
+      <div class="editor-panel">
+        <div class="editor-header">
+          <span class="editor-lang">Python</span>
+          <div class="editor-actions-bar">
+            <button class="btn btn-ghost btn-sm" onclick="clearEditor()">Clear</button>
+            <button class="btn btn-secondary btn-sm" id="run-btn" onclick="runCode()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run
+            </button>
+            <button class="btn btn-secondary btn-sm" id="run-tests-btn" onclick="runTests()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Run Tests
+            </button>
+          </div>
+        </div>
+        <div id="code-editor-wrapper">
+          <textarea id="code-editor"></textarea>
+        </div>
+        <div id="output-panel" class="output-panel">
+          <div class="output-tabs">
+            <button class="output-tab selected" data-tab="output" onclick="switchOutputTab(this)">Output</button>
+            <button class="output-tab" data-tab="tests" onclick="switchOutputTab(this)">Tests</button>
+            <div class="output-tab-actions">
+              <button class="btn btn-ghost btn-sm" onclick="clearOutput()">Clear</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleOutputPanel()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="output-body" id="output-body" style="display:none">
+            <div class="output-content active" id="output-content">
+              <pre class="output-pre" id="output-pre"><span class="output-placeholder">Run your code to see output here.</span></pre>
+            </div>
+            <div class="output-content" id="tests-content">
+              <div class="output-placeholder" id="tests-placeholder">Click "Run Tests" to auto-generate and run test cases.</div>
+              <div id="tests-results-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

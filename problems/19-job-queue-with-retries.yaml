@@ -1,0 +1,106 @@
+id: 19
+title: Job Queue with Retries
+category: scheduling
+difficulty: Hard
+summary: Priority job queue with retry logic, backoff, and dead letter handling.
+description: Implement a job queue where jobs have priorities and can fail. Failed jobs are retried with exponential backoff (1s, 2s, 4s, ...) up to max_retries. Jobs exceeding max_retries go to a dead letter queue. Support enqueue(job, priority), process_next() which returns the highest-priority ready job, and get_dead_letters().
+scenario: ''
+constraints: []
+examples: []
+starter_code: |-
+  class JobQueue:
+      def __init__(self, max_retries: int = 3):
+          pass
+
+      def enqueue(self, job_id: str, priority: int) -> None:
+          pass
+
+      def process_next(self, success: bool = True):
+          pass
+
+      def advance_time(self, seconds: int) -> None:
+          pass
+
+      def get_dead_letters(self) -> list[str]:
+          pass
+follow_ups:
+- Add job dependencies so a job only becomes ready when its dependencies complete.
+- Add a cancel(job_id) operation.
+- How would you persist this across restarts?
+key_skills:
+- priority queue
+- exponential backoff
+- state machine
+- time management
+test_type: class
+test_cases:
+- label: priority order
+  init_kwargs:
+    max_retries: 2
+  ops:
+  - enqueue
+  - enqueue
+  - process_next
+  - process_next
+  op_args:
+  - - low
+    - 1
+  - - high
+    - 5
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - high
+  - low
+- label: retry then dead letter
+  init_kwargs:
+    max_retries: 2
+  ops:
+  - enqueue
+  - process_next
+  - process_next
+  - advance_time
+  - process_next
+  - process_next
+  - advance_time
+  - process_next
+  - get_dead_letters
+  op_args:
+  - - job1
+    - 5
+  - - false
+  - []
+  - - 1
+  - - false
+  - []
+  - - 2
+  - - false
+  - []
+  expected:
+  - null
+  - job1
+  - null
+  - null
+  - job1
+  - null
+  - null
+  - job1
+  - - job1
+class_name: JobQueue
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **priority queue** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **exponential backoff** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review heap operations and why heaps are often the simplest way to keep the next best item ready.
+- Model which item should be processed next and which data structure answers that question most directly.
+- Keep one eye on tie-breaking rules so your output stays deterministic.
+- After implementing Job Queue with Retries, re-run the provided hardcoded tests and explain why each one protects an important invariant.

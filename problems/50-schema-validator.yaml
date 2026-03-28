@@ -1,0 +1,140 @@
+id: 50
+title: Schema Validator
+category: api_design
+difficulty: Medium
+summary: Validate nested data structures against a declarative schema definition.
+description: 'Implement validate(data, schema) where schema defines expected types, required fields, and constraints. Support types: string, int, float, bool, list, dict. Support nested schemas, optional fields, and validation rules like min/max for numbers and min_length/max_length for strings. Return all validation errors, not just the first.'
+scenario: You're building the request-validation layer for a REST API. Every incoming JSON payload needs to be checked against a schema before it reaches business logic — correct types, required fields present, string lengths in range, numeric values within bounds. You want the validator to report every error at once rather than bailing on the first one, so the client can fix all issues in a single round-trip. Schemas are nested dicts that mirror the expected data shape.
+constraints:
+- 'Supported types: ''string'', ''int'', ''float'', ''bool'', ''list'', ''dict''.'
+- 'For ''string'': optional ''min_length'' and ''max_length'' constraints.'
+- 'For ''int'' and ''float'': optional ''min'' and ''max'' constraints.'
+- 'For ''dict'': ''fields'' maps field names to sub-schemas; ''required'' lists mandatory field names.'
+- 'For ''list'': ''items'' defines the schema each element must satisfy.'
+- 'Fields not in ''required'' and not marked ''optional'': True are implicitly optional.'
+- Return a list of all error strings, not just the first. Empty list means valid.
+examples:
+- input: |-
+    schema = {
+      'type': 'dict',
+      'required': ['name', 'age'],
+      'fields': {
+        'name': {'type': 'string', 'min_length': 1, 'max_length': 50},
+        'age':  {'type': 'int', 'min': 0, 'max': 150},
+        'email': {'type': 'string', 'optional': True}
+      }
+    }
+    data = {'name': '', 'age': -5}
+    errors = validate(data, schema)
+  output: |-
+    [
+      "name: string length 0 is less than min_length 1",
+      "age: value -5 is less than min 0"
+    ]
+- input: |-
+    schema = {
+      'type': 'dict',
+      'required': ['users'],
+      'fields': {
+        'users': {
+          'type': 'list',
+          'items': {
+            'type': 'dict',
+            'required': ['id'],
+            'fields': {
+              'id': {'type': 'int'},
+              'role': {'type': 'string', 'optional': True}
+            }
+          }
+        }
+      }
+    }
+    data = {'users': [{'id': 1}, {'role': 'admin'}]}
+    errors = validate(data, schema)
+  output: '["users[1].id: required field missing"]'
+- input: |-
+    schema = {'type': 'int', 'min': 1, 'max': 100}
+    errors = validate('not a number', schema)
+  output: '["expected type int, got str"]'
+starter_code: |
+  from typing import Any, Dict, List
+
+  def validate(data: Any, schema: Dict[str, Any], path: str = '') -> List[str]:
+      """Validate data against schema. Return list of error messages."""
+      pass
+follow_ups:
+- Add custom validator functions for complex rules.
+- 'Support schema composition: allOf, anyOf, oneOf.'
+- Add default values and type coercion.
+key_skills:
+- recursive validation
+- error accumulation
+- schema representation
+- type checking
+test_type: function
+test_cases:
+- label: multiple errors
+  input:
+    data:
+      name: ''
+      age: -5
+    schema:
+      type: dict
+      required:
+      - name
+      - age
+      fields:
+        name:
+          type: string
+          min_length: 1
+          max_length: 50
+        age:
+          type: int
+          min: 0
+          max: 150
+        email:
+          type: string
+          optional: true
+  expected:
+  - 'name: string length 0 is less than min_length 1'
+  - 'age: value -5 is less than min 0'
+- label: nested missing field
+  input:
+    data:
+      users:
+      - id: 1
+      - role: admin
+    schema:
+      type: dict
+      required:
+      - users
+      fields:
+        users:
+          type: list
+          items:
+            type: dict
+            required:
+            - id
+            fields:
+              id:
+                type: int
+              role:
+                type: string
+                optional: true
+  expected:
+  - 'users[1].id: required field missing'
+function_name: validate
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **recursive validation** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **error accumulation** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Keep caller ergonomics in mind: a clean API should make the correct usage obvious.'
+- Use tests to define the contract, especially around chaining, defaults, and error cases.
+- After implementing Schema Validator, re-run the provided hardcoded tests and explain why each one protects an important invariant.

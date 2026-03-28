@@ -1,0 +1,116 @@
+id: 38
+title: Batched Writer with Flush
+category: infra
+difficulty: Medium
+summary: Buffer writes and flush in batches by size or time interval.
+description: Implement a buffered writer that collects individual write(item) calls and flushes them as a batch when either the buffer reaches batch_size items or flush_interval_ms has elapsed since the last flush. flush() can also be called manually. Ensure no data is lost on close().
+scenario: We're inserting analytics events into a data warehouse, but single-row inserts are expensive — the warehouse performs much better with bulk inserts of 50-100 rows at a time. You need a writer that collects individual events and flushes them in batches, either when the batch is full or after a time interval, so we balance latency against throughput. And crucially, we can't silently drop events if the service shuts down.
+constraints:
+- batch_size is a positive integer
+- flush_interval_ms is a positive integer (milliseconds between time-triggered flushes)
+- flush_fn is a callable that receives a list of items
+- write() triggers an immediate flush if the buffer reaches batch_size
+- close() must flush any remaining buffered items before returning
+- flush() on an empty buffer is a no-op
+- The writer should be usable as a context manager (with statement)
+examples:
+- input: |-
+    flushed_batches = []
+    writer = BatchedWriter(flush_fn=flushed_batches.append, batch_size=3,
+                           flush_interval_ms=5000)
+    writer.write('a')
+    writer.write('b')
+    writer.write('c')
+  output: 'flushed_batches == [[''a'', ''b'', ''c'']]  # auto-flushed when batch_size reached'
+- input: |-
+    writer.write('d')
+    # ... 5 seconds pass without more writes ...
+    # timer triggers flush
+  output: 'flushed_batches == [[''a'', ''b'', ''c''], [''d'']]  # time-based flush of partial batch'
+- input: |-
+    writer.write('e')
+    writer.close()
+  output: 'flushed_batches == [[''a'', ''b'', ''c''], [''d''], [''e'']]  # close() flushes remaining'
+starter_code: |-
+  class BatchedWriter:
+      def __init__(self, flush_fn, batch_size: int, flush_interval_ms: int):
+          pass
+
+      def write(self, item) -> None:
+          pass
+
+      def flush(self) -> None:
+          pass
+
+      def close(self) -> None:
+          pass
+
+      def __enter__(self):
+          pass
+
+      def __exit__(self, exc_type, exc_val, exc_tb):
+          pass
+follow_ups:
+- Handle flush failures with retry logic.
+- 'Add back-pressure: block write() if too many unflushed batches are pending.'
+- How would you guarantee at-least-once delivery?
+key_skills:
+- buffering
+- timer management
+- batch processing
+- resource cleanup
+test_type: class
+test_cases:
+- label: size and close flush
+  setup_code: |-
+    flushed = []
+    def capture(batch):
+        flushed.append(list(batch))
+  init_args:
+  - __ref__: capture
+  - 3
+  - 5000
+  ops:
+  - write
+  - write
+  - write
+  - __eval__
+  - write
+  - close
+  - __eval__
+  op_args:
+  - - a
+  - - b
+  - - c
+  - - flushed
+  - - d
+  - []
+  - - flushed
+  expected:
+  - null
+  - null
+  - null
+  - - - a
+      - b
+      - c
+  - null
+  - null
+  - - - a
+      - b
+      - c
+    - - d
+class_name: BatchedWriter
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **buffering** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **timer management** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Batched Writer with Flush, re-run the provided hardcoded tests and explain why each one protects an important invariant.

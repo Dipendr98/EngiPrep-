@@ -1,0 +1,52 @@
+id: 71
+title: Majority Element
+category: warmup
+difficulty: Easy
+summary: Return the element appearing more than half the time.
+description: Implement majority_element(nums) that returns the value that appears more than n/2 times.
+scenario: This warm-up is a nice chance to choose between a counting approach and a more elegant voting approach.
+constraints:
+- A majority element always exists.
+examples:
+- input: majority_element([3,2,3])
+  output: '3'
+starter_code: |-
+  def majority_element(nums: list[int]) -> int:
+      pass
+follow_ups:
+- Solve it in O(1) extra space.
+- Find all elements appearing more than n/3 times.
+key_skills:
+- arrays
+- counting
+test_type: function
+function_name: majority_element
+test_cases:
+- label: simple
+  input:
+    nums:
+    - 3
+    - 2
+    - 3
+  expected: 3
+- label: longer
+  input:
+    nums:
+    - 2
+    - 2
+    - 1
+    - 1
+    - 1
+    - 2
+    - 2
+  expected: 2
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Majority Element as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

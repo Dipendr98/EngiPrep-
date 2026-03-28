@@ -1,0 +1,76 @@
+id: 54
+title: Prefix Sum Query
+category: streaming
+difficulty: Easy
+summary: Answer range-sum queries using precomputed cumulative totals.
+description: Implement a PrefixSum class with sum_range(left, right) returning the inclusive sum between two indices.
+scenario: A dashboard repeatedly asks for totals across subranges of a static metric array, and recomputing each sum from scratch is wasting time.
+constraints:
+- The array is fixed after construction
+- Indices are valid and inclusive
+examples:
+- input: |-
+    ps = PrefixSum([1,2,3,4])
+    ps.sum_range(1, 3)
+  output: '9'
+starter_code: |-
+  class PrefixSum:
+      def __init__(self, nums: list[int]):
+          pass
+
+      def sum_range(self, left: int, right: int) -> int:
+          pass
+follow_ups:
+- Support point updates.
+- Use the same idea for 2D grids.
+key_skills:
+- streaming
+- prefix sums
+test_type: class
+class_name: PrefixSum
+test_cases:
+- label: basic ranges
+  init_args:
+  - - 1
+    - 2
+    - 3
+    - 4
+  ops:
+  - sum_range
+  - sum_range
+  op_args:
+  - - 0
+    - 0
+  - - 1
+    - 3
+  expected:
+  - 1
+  - 9
+- label: negatives
+  init_args:
+  - - 5
+    - -2
+    - 7
+    - 1
+  ops:
+  - sum_range
+  op_args:
+  - - 0
+    - 2
+  expected:
+  - 10
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **streaming** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **prefix sums** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Think about incremental updates where you never want to recompute everything from scratch.
+- Review how cumulative totals turn repeated range queries into constant-time subtraction.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.

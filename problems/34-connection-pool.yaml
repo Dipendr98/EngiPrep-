@@ -1,0 +1,143 @@
+id: 34
+title: Connection Pool
+category: infra
+difficulty: Hard
+summary: Manage a pool of reusable connections with checkout, return, and health checks.
+description: Implement a connection pool with a max size. acquire() returns an available connection or blocks/waits if all are in use. release(conn) returns a connection to the pool. Connections should be health-checked before reuse. Support a max_idle_time after which unused connections are closed.
+scenario: Your team runs a service that talks to a PostgreSQL database, and you're seeing connection-creation latency spikes during traffic bursts. The infra lead asks you to build a connection pool that pre-creates and reuses connections, with health checks so you never hand out a stale connection, and an idle timeout so you don't hold resources you're not using during quiet periods.
+constraints:
+- max_size is a positive integer (maximum number of connections)
+- max_idle_time is in seconds
+- acquire() blocks if no connections are available and the pool is at max_size
+- release() of a connection not from this pool should raise ValueError
+- health_check is a callable that takes a connection and returns True if alive
+- create_conn is a zero-argument callable that returns a new connection object
+examples:
+- input: |-
+    pool = ConnectionPool(create_conn=make_db_conn, health_check=ping,
+                          max_size=2, max_idle_time=60.0)
+    conn1 = pool.acquire()
+    conn2 = pool.acquire()
+    # pool is now fully checked out
+  output: conn1 and conn2 are live connection objects returned from the pool
+- input: |-
+    pool.release(conn1)
+    conn3 = pool.acquire()  # reuses conn1 after health check passes
+  output: conn3 is the same object as conn1 (reused, not newly created)
+- input: |-
+    # After 60+ seconds idle, close_idle() is called
+    removed = pool.close_idle()
+    conn4 = pool.acquire()  # creates a fresh connection
+  output: removed = 1 (one idle connection was closed); conn4 is a new connection
+starter_code: |-
+  class ConnectionPool:
+      def __init__(self, create_conn, health_check, max_size: int, max_idle_time: float):
+          pass
+
+      def acquire(self):
+          pass
+
+      def release(self, conn) -> None:
+          pass
+
+      def close_idle(self) -> int:
+          pass
+
+      def shutdown(self) -> None:
+          pass
+follow_ups:
+- Add a timeout for acquire() so callers don't wait forever.
+- 'Add metrics: active count, idle count, wait time histogram.'
+- How would you handle a connection that is never returned (leak detection)?
+key_skills:
+- queue
+- state tracking
+- resource lifecycle
+- timeout management
+test_type: class
+test_cases:
+- label: reuse and close idle
+  setup_code: |-
+    counter = {'n': 0}
+    def make_conn():
+        counter['n'] += 1
+        return {'id': counter['n']}
+
+    def ping(conn):
+        return True
+  init_args:
+  - __ref__: make_conn
+  - __ref__: ping
+  - 2
+  - 0.02
+  ops:
+  - acquire
+  - acquire
+  - release
+  - acquire
+  - __eval__
+  - release
+  - __sleep__
+  - close_idle
+  - acquire
+  - __eval__
+  op_args:
+  - []
+  - []
+  - - __ref__: conn1
+  - []
+  - - conn3 is conn1
+  - - __ref__: conn2
+  - - 0.03
+  - []
+  - []
+  - - conn4 is conn1
+  save_as:
+  - conn1
+  - conn2
+  - null
+  - conn3
+  - null
+  - null
+  - null
+  - null
+  - conn4
+  - null
+  compare:
+  - false
+  - false
+  - true
+  - false
+  - true
+  - true
+  - true
+  - true
+  - false
+  - true
+  expected:
+  - null
+  - null
+  - null
+  - null
+  - true
+  - null
+  - null
+  - 1
+  - null
+  - false
+class_name: ConnectionPool
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **queue** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **state tracking** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Think about FIFO guarantees and how queues model work scheduling and buffered flow.
+- Study acquisition, release, reuse, and shutdown paths so resources never leak or get reused unsafely.
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.

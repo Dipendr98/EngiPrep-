@@ -1,0 +1,136 @@
+id: 4
+title: Sliding Window Rate Limiter
+category: stateful
+difficulty: Medium
+summary: Rate limiter that enforces N requests per sliding time window.
+description: Implement a rate limiter that allows at most N requests within a sliding window of W seconds for a given client ID. allow(client_id, timestamp) returns True if the request is allowed, False otherwise. The implementation should be memory-efficient even with many clients.
+scenario: Your team runs an API gateway that sits in front of several microservices, and scrapers have been hammering certain endpoints. You need a per-client rate limiter that enforces N requests per W-second sliding window—not fixed time buckets, because those let bursts through at bucket boundaries. Memory should scale with the number of active clients, not with total request volume.
+constraints:
+- client_id is a string
+- Timestamps are positive integers (seconds) given in non-decreasing order
+- The window is a strict sliding window, not a fixed bucket
+- Memory should scale with active clients, not total request volume
+examples:
+- input: |-
+    rl = RateLimiter(max_requests=3, window_seconds=10)
+    rl.allow('client_A', 1)
+    rl.allow('client_A', 2)
+    rl.allow('client_A', 3)
+    rl.allow('client_A', 4)
+    rl.allow('client_A', 12)
+  output: |-
+    True   # 1st request
+    True   # 2nd request
+    True   # 3rd request
+    False  # 4th request within 10s window, denied
+    True   # timestamp 1 has left the window [2,12]
+- input: |-
+    rl = RateLimiter(max_requests=2, window_seconds=5)
+    rl.allow('X', 1)
+    rl.allow('Y', 1)
+    rl.allow('X', 2)
+    rl.allow('Y', 2)
+    rl.allow('X', 3)
+  output: |-
+    True   # X: 1st
+    True   # Y: 1st (independent window)
+    True   # X: 2nd
+    True   # Y: 2nd
+    False  # X: 3rd within 5s, denied
+- input: |-
+    rl = RateLimiter(max_requests=1, window_seconds=3)
+    rl.allow('A', 1)
+    rl.allow('A', 2)
+    rl.allow('A', 5)
+  output: |-
+    True   # 1st request at t=1
+    False  # t=2 is within 3s of t=1
+    True   # t=5, the window [3,5] has no prior requests
+starter_code: |-
+  class RateLimiter:
+      def __init__(self, max_requests: int, window_seconds: int):
+          pass
+
+      def allow(self, client_id: str, timestamp: int) -> bool:
+          pass
+follow_ups:
+- 'Add multiple tiers: e.g. 10/second AND 100/minute.'
+- How would you distribute this across multiple servers?
+- Add a method that returns how many seconds until the next request would be allowed.
+key_skills:
+- sliding window
+- deque
+- hash map
+- time-based cleanup
+test_type: class
+test_cases:
+- label: sliding window
+  init_args:
+  - 3
+  - 10
+  ops:
+  - allow
+  - allow
+  - allow
+  - allow
+  - allow
+  op_args:
+  - - A
+    - 1
+  - - A
+    - 2
+  - - A
+    - 3
+  - - A
+    - 4
+  - - A
+    - 12
+  expected:
+  - true
+  - true
+  - true
+  - false
+  - true
+- label: per client
+  init_args:
+  - 2
+  - 5
+  ops:
+  - allow
+  - allow
+  - allow
+  - allow
+  - allow
+  op_args:
+  - - X
+    - 1
+  - - Y
+    - 1
+  - - X
+    - 2
+  - - Y
+    - 2
+  - - X
+    - 3
+  expected:
+  - true
+  - true
+  - true
+  - true
+  - false
+class_name: RateLimiter
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **sliding window** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **deque** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to shrink a window incrementally so old items leave exactly when they stop mattering.
+- Know when a deque is the right fit for popping from both ends while preserving order.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Think about lazy cleanup versus eager cleanup and what each means for latency and memory.

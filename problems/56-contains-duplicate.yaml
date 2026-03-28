@@ -1,0 +1,65 @@
+id: 56
+title: Contains Duplicate
+category: search
+difficulty: Easy
+summary: Return whether any value appears more than once.
+description: Implement contains_duplicate(nums) that returns True if any value is repeated, otherwise False.
+scenario: A preprocessing step wants to reject duplicate IDs before writing a batch to a downstream system that expects uniqueness.
+constraints:
+- The list may be empty
+- Values can be negative or positive
+examples:
+- input: contains_duplicate([1,2,3,1])
+  output: 'True'
+- input: contains_duplicate([1,2,3,4])
+  output: 'False'
+starter_code: |-
+  def contains_duplicate(nums: list[int]) -> bool:
+      pass
+follow_ups:
+- Return the first duplicated value.
+- Track duplicates in a stream of values.
+key_skills:
+- hash map
+- search
+test_type: function
+function_name: contains_duplicate
+test_cases:
+- label: has duplicate
+  input:
+    nums:
+    - 1
+    - 2
+    - 3
+    - 1
+  expected: true
+- label: all unique
+  input:
+    nums:
+    - 1
+    - 2
+    - 3
+    - 4
+  expected: false
+- label: negative duplicate
+  input:
+    nums:
+    - -1
+    - 0
+    - -1
+  expected: true
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- 'Review indexing tradeoffs: what you precompute, what you scan, and how ranking is derived.'
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.

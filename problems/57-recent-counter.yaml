@@ -1,0 +1,84 @@
+id: 57
+title: Recent Counter
+category: streaming
+difficulty: Easy
+summary: Count recent events within a rolling 3000ms window.
+description: Implement RecentCounter with ping(t) returning the number of timestamps in the inclusive range [t-3000, t]. Calls arrive in increasing timestamp order.
+scenario: A monitoring widget wants a quick rolling request count over the last few seconds without recomputing old events every time.
+constraints:
+- Timestamps are strictly increasing
+- Use the inclusive window [t-3000, t]
+examples:
+- input: |-
+    rc = RecentCounter()
+    rc.ping(1)
+    rc.ping(100)
+    rc.ping(3001)
+    rc.ping(3002)
+  output: |-
+    1
+    2
+    3
+    3
+starter_code: |-
+  class RecentCounter:
+      def __init__(self):
+          pass
+
+      def ping(self, t: int) -> int:
+          pass
+follow_ups:
+- Generalize the window size.
+- Track multiple counters by key.
+key_skills:
+- deque
+- sliding window
+test_type: class
+class_name: RecentCounter
+test_cases:
+- label: rolling count
+  init_args: []
+  ops:
+  - ping
+  - ping
+  - ping
+  - ping
+  op_args:
+  - - 1
+  - - 100
+  - - 3001
+  - - 3002
+  expected:
+  - 1
+  - 2
+  - 3
+  - 3
+- label: old items expire
+  init_args: []
+  ops:
+  - ping
+  - ping
+  - ping
+  op_args:
+  - - 1
+  - - 3000
+  - - 6001
+  expected:
+  - 1
+  - 2
+  - 2
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **deque** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **sliding window** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Know when a deque is the right fit for popping from both ends while preserving order.
+- Review how to shrink a window incrementally so old items leave exactly when they stop mattering.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.

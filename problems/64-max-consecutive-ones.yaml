@@ -1,0 +1,58 @@
+id: 64
+title: Max Consecutive Ones
+category: warmup
+difficulty: Easy
+summary: Find the longest streak of 1 values.
+description: Implement max_consecutive_ones(nums) that returns the maximum number of consecutive 1s in the input array.
+scenario: A quick counting warm-up helps you settle into writing one-pass logic.
+constraints:
+- The array contains only 0 and 1.
+examples:
+- input: max_consecutive_ones([1,1,0,1,1,1])
+  output: '3'
+starter_code: |-
+  def max_consecutive_ones(nums: list[int]) -> int:
+      pass
+follow_ups:
+- Allow flipping at most one 0.
+- Return the start and end index of the best run.
+key_skills:
+- arrays
+- counting
+test_type: function
+function_name: max_consecutive_ones
+test_cases:
+- label: basic
+  input:
+    nums:
+    - 1
+    - 1
+    - 0
+    - 1
+    - 1
+    - 1
+  expected: 3
+- label: all zeros
+  input:
+    nums:
+    - 0
+    - 0
+    - 0
+  expected: 0
+- label: all ones
+  input:
+    nums:
+    - 1
+    - 1
+    - 1
+  expected: 3
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Max Consecutive Ones as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

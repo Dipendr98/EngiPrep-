@@ -1,0 +1,65 @@
+id: 26
+title: Wildcard File Matcher
+category: search
+difficulty: Medium
+summary: Match file paths against glob patterns with *, ?, and ** support.
+description: Implement match(pattern, path) that returns True if the path matches the glob pattern. * matches any sequence within a path segment, ? matches a single character, and ** matches zero or more path segments. For example, 'src/**/*.py' matches 'src/lib/utils/helpers.py'.
+scenario: You're working on a build system that uses glob patterns to decide which source files get bundled into a release artifact. Developers write patterns like 'src/**/*.py' in their config and expect it to correctly match deeply nested Python files. We need to implement the matching logic from scratch—no calling out to fnmatch or glob libraries—supporting the standard *, ?, and ** wildcards.
+constraints:
+- Paths use '/' as the separator
+- '''*'' matches zero or more characters within a single path segment (never crosses ''/'')'
+- '''?'' matches exactly one character (never ''/'')'
+- '''**'' matches zero or more complete path segments (including zero)'
+- Patterns and paths have no leading or trailing slashes
+examples:
+- input: match('src/**/*.py', 'src/lib/utils/helpers.py')
+  output: True  — '**' matches 'lib/utils' (two segments), '*' matches 'helpers'
+- input: match('test_?.py', 'test_a.py')
+  output: True  — '?' matches the single character 'a'
+- input: match('test_?.py', 'test_ab.py')
+  output: False  — '?' matches exactly one character, but 'ab' is two
+starter_code: |-
+  def match(pattern: str, path: str) -> bool:
+      """Return True if path matches the glob pattern supporting *, ?, and **."""
+      pass
+follow_ups:
+- Support negation patterns like !*.test.py.
+- Return all matching paths from a directory tree.
+- Support brace expansion like {a,b,c}.py.
+key_skills:
+- dynamic programming or recursion
+- string matching
+- backtracking
+- path splitting
+test_type: function
+test_cases:
+- label: double star
+  input:
+    pattern: src/**/*.py
+    path: src/lib/utils/helpers.py
+  expected: true
+- label: single char
+  input:
+    pattern: test_?.py
+    path: test_a.py
+  expected: true
+- label: single char too long
+  input:
+    pattern: test_?.py
+    path: test_ab.py
+  expected: false
+function_name: match
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **dynamic programming or recursion** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **string matching** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing Wildcard File Matcher, re-run the provided hardcoded tests and explain why each one protects an important invariant.

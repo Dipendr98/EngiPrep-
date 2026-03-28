@@ -1,0 +1,52 @@
+id: 77
+title: Longest Common Prefix
+category: warmup
+difficulty: Easy
+summary: Find the shared prefix across a list of strings.
+description: Implement longest_common_prefix(words) that returns the longest shared starting substring across all words.
+scenario: This warm-up is useful for practicing early exits and careful index bounds on string comparisons.
+constraints:
+- If the list is empty, return an empty string.
+examples:
+- input: longest_common_prefix(["flower","flow","flight"])
+  output: '"fl"'
+starter_code: |-
+  def longest_common_prefix(words: list[str]) -> str:
+      pass
+follow_ups:
+- Ignore case.
+- Support streaming additional words.
+key_skills:
+- strings
+- arrays
+test_type: function
+function_name: longest_common_prefix
+test_cases:
+- label: common prefix
+  input:
+    words:
+    - flower
+    - flow
+    - flight
+  expected: fl
+- label: none
+  input:
+    words:
+    - dog
+    - racecar
+    - car
+  expected: ''
+- label: empty list
+  input:
+    words: []
+  expected: ''
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- 'Treat Longest Common Prefix as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'
