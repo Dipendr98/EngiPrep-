@@ -12,6 +12,10 @@ let warmupOnly = false;
 let attemptedProblems = {};
 let codeSaveTimeout = null;
 let visibleCount = 30;
+let selectedSort = 'default';
+let cmdPaletteItems = [];
+let cmdPaletteIndex = 0;
+let activeSkillFilter = null;
 
 // ── STUDY / RESEARCH STATE ──
 let currentStudyProblem = null;
@@ -75,12 +79,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       warmupOnly = false;
       document.getElementById('warmup-checkbox').checked = false;
       renderProblems();
+      // close sidebar on mobile after selection
+      const sidebar = document.getElementById('filter-sidebar');
+      if (sidebar && sidebar.classList.contains('open')) toggleFilterSidebar();
     });
   });
 
   document.getElementById('search-input').addEventListener('input', (e) => {
     searchQuery = e.target.value.trim().toLowerCase();
     renderProblems();
+  });
+
+  document.getElementById('cmd-palette-input').addEventListener('input', (e) => {
+    cmdPaletteSearch(e.target.value);
   });
 
   document.getElementById('warmup-checkbox').addEventListener('change', (e) => {
@@ -108,6 +119,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         warmupOnly = false;
         document.getElementById('warmup-checkbox').checked = false;
       }
+      renderProblems();
+    });
+  });
+
+  document.querySelectorAll('.sort-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('selected'));
+      tab.classList.add('selected');
+      selectedSort = tab.dataset.sort;
       renderProblems();
     });
   });
@@ -300,9 +320,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      const palette = document.getElementById('cmd-palette');
+      palette.classList.contains('open') ? closeCmdPalette() : openCmdPalette();
+      return;
+    }
     if (e.key === 'Escape') {
-      const drawer = document.getElementById('history-drawer');
-      if (drawer.classList.contains('open')) toggleHistoryDrawer();
+      const palette = document.getElementById('cmd-palette');
+      if (palette.classList.contains('open')) { closeCmdPalette(); return; }
+      const historyDrawer = document.getElementById('history-drawer');
+      if (historyDrawer.classList.contains('open')) toggleHistoryDrawer();
+      const progressDrawer = document.getElementById('progress-drawer');
+      if (progressDrawer.classList.contains('open')) toggleProgressDrawer();
+      return;
+    }
+    if (document.getElementById('cmd-palette').classList.contains('open')) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        cmdPaletteMove(1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        cmdPaletteMove(-1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        cmdPaletteConfirm(e.metaKey || e.ctrlKey);
+      }
     }
   });
 
@@ -356,50 +399,301 @@ async function loadProblems() {
   const res = await fetch('/api/problems');
   allProblems = await res.json();
   renderProblems();
+  updateProgressChip();
+}
+
+function renderInterviewProblemHeader(problem) {
+  const pid = `CP-${String(problem.id).padStart(3, '0')}`;
+  const diffClass = problem.difficulty.toLowerCase();
+  const catLabel = CATEGORY_LABELS[problem.category] || problem.category;
+  return `<div class="interview-problem-header">
+    <div class="study-title">${escapeHtml(problem.title)}</div>
+    <div class="study-badges">
+      <span class="problem-id">${pid}</span>
+      <span class="diff-badge ${diffClass}">${problem.difficulty}</span>
+    </div>
+  </div>`;
+}
+
+function renderProblemRow(p) {
+  const diffClass = p.difficulty.toLowerCase();
+  const catLabel = CATEGORY_LABELS[p.category] || p.category;
+  const skills = (p.key_skills || []).slice(0, 3);
+  const attempt = attemptedProblems[p.id];
+  const pid = `CP-${String(p.id).padStart(3, '0')}`;
+  let statusIcon = '<span class="status-cell"></span>';
+  if (attempt) {
+    const cls = attempt.rating ? `status-dot-${attempt.rating.replace(/\s+/g, '-').toLowerCase()}` : 'status-dot-attempted';
+    statusIcon = `<span class="status-cell"><span class="status-dot ${cls}" title="${attempt.rating || 'Attempted'}"></span></span>`;
+  }
+  return `
+    <div class="problem-row" onclick="showStudyView(${p.id})" style="cursor:pointer">
+      ${statusIcon}
+      <div class="col-title-cell">
+        <div class="problem-title-row">
+          <span class="problem-id">${pid}</span>
+          <span class="problem-title">${p.title}</span>
+        </div>
+        <span class="problem-summary">${p.summary}</span>
+        ${skills.length ? `<div class="problem-skills">${skills.map(s => `<button class="skill-tag${activeSkillFilter === s ? ' active' : ''}" onclick="event.stopPropagation(); filterBySkill('${escapeHtml(s)}')">#${escapeHtml(s.replace(/\s+/g, '-'))}</button>`).join('')}</div>` : ''}
+      </div>
+      <span class="col-category-cell"><span class="cat-badge">${catLabel}</span></span>
+      <span class="col-difficulty-cell"><span class="diff-badge ${diffClass}">${p.difficulty}</span></span>
+      <div class="problem-actions">
+        <button class="problem-action-btn" onclick="event.stopPropagation(); showStudyView(${p.id})" title="Study this problem">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Study
+        </button>
+        <button class="problem-action-btn action-practice" onclick="event.stopPropagation(); startDirectInterview(${p.id})" title="Start mock interview">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Practice
+        </button>
+      </div>
+    </div>`;
 }
 
 function renderProblems() {
+  visibleCount = 30;
   const container = document.getElementById('problem-list');
   const filtered = getFilteredProblems();
+
+  const countEl = document.getElementById('problems-count');
+  if (countEl) countEl.textContent = `${filtered.length} problem${filtered.length !== 1 ? 's' : ''}`;
+
+  updateClearFiltersBtn();
+
+  // Detach any previous scroll handler
+  const main = document.getElementById('problem-list');
+  if (main && main._scrollHandler) {
+    main.removeEventListener('scroll', main._scrollHandler);
+    main._scrollHandler = null;
+  }
 
   if (filtered.length === 0) {
     container.innerHTML = '<div class="empty-state">No problems match your filters.</div>';
     return;
   }
 
-  container.innerHTML = filtered.map(p => {
+  container.innerHTML = filtered.slice(0, visibleCount).map(renderProblemRow).join('');
+  setupInfiniteScroll(filtered);
+}
+
+function setupInfiniteScroll(filtered) {
+  const main = document.getElementById('problem-list');
+  if (!main || visibleCount >= filtered.length) return;
+
+  const handler = () => {
+    if (main.scrollTop + main.clientHeight >= main.scrollHeight - 200) {
+      const prevCount = visibleCount;
+      visibleCount = Math.min(visibleCount + 30, filtered.length);
+      if (visibleCount > prevCount) {
+        main.insertAdjacentHTML('beforeend',
+          filtered.slice(prevCount, visibleCount).map(renderProblemRow).join(''));
+        if (visibleCount >= filtered.length) {
+          main.removeEventListener('scroll', handler);
+          main._scrollHandler = null;
+        }
+      }
+    }
+  };
+  main._scrollHandler = handler;
+  main.addEventListener('scroll', handler);
+}
+
+function updateClearFiltersBtn() {
+  const btn = document.getElementById('clear-filters-btn');
+  if (!btn) return;
+  const hasFilters = selectedCategory !== 'all' || selectedDifficulties.size > 0 || warmupOnly || searchQuery || activeSkillFilter;
+  btn.style.display = hasFilters ? 'flex' : 'none';
+}
+
+function filterBySkill(skill) {
+  activeSkillFilter = activeSkillFilter === skill ? null : skill;
+  updateClearBtn();
+  renderProblems();
+}
+
+function clearAllFilters() {
+  selectedCategory = 'all';
+  selectedDifficulties.clear();
+  warmupOnly = false;
+  searchQuery = '';
+  selectedSort = 'default';
+  activeSkillFilter = null;
+  document.getElementById('search-input').value = '';
+  document.getElementById('warmup-checkbox').checked = false;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('selected'));
+  document.querySelector('.cat-tab[data-cat="all"]').classList.add('selected');
+  document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('selected'));
+  document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('selected'));
+  document.querySelector('.sort-tab[data-sort="default"]').classList.add('selected');
+  renderProblems();
+}
+
+function updateProgressChip() {
+  const totalAttempted = Object.keys(attemptedProblems).length;
+  const total = allProblems.length;
+  const el = document.getElementById('progress-chip-text');
+  if (el) el.textContent = `${totalAttempted} / ${total} done`;
+}
+
+function toggleProgressDrawer() {
+  const drawer = document.getElementById('progress-drawer');
+  const overlay = document.getElementById('progress-drawer-overlay');
+  const isOpen = drawer.classList.contains('open');
+  if (!isOpen) renderProgressDrawer();
+  drawer.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+}
+
+function renderProgressDrawer() {
+  const body = document.getElementById('progress-drawer-body');
+  const totalAttempted = Object.keys(attemptedProblems).length;
+  const total = allProblems.length;
+  const pct = total ? (totalAttempted / total * 100).toFixed(1) : 0;
+
+  const byCat = {};
+  for (const p of allProblems) {
+    if (!byCat[p.category]) byCat[p.category] = { total: 0, done: 0, problems: [] };
+    byCat[p.category].total++;
+    if (attemptedProblems[p.id]) {
+      byCat[p.category].done++;
+      byCat[p.category].problems.push({ ...p, attempt: attemptedProblems[p.id] });
+    }
+  }
+
+  let html = `
+    <div class="progress-summary">
+      <div class="progress-summary-stat">
+        <span class="progress-summary-num">${totalAttempted}</span>
+        <span class="progress-summary-label">of ${total} completed</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" style="width: ${pct}%"></div>
+      </div>
+    </div>
+  `;
+
+  if (totalAttempted === 0) {
+    html += '<div class="empty-state">No problems attempted yet.<br>Start practicing to see your progress.</div>';
+    body.innerHTML = html;
+    return;
+  }
+
+  const cats = Object.entries(byCat)
+    .filter(([, d]) => d.done > 0)
+    .sort((a, b) => b[1].done - a[1].done);
+
+  for (const [cat, data] of cats) {
+    const label = CATEGORY_LABELS[cat] || cat;
+    const catPct = (data.done / data.total * 100).toFixed(0);
+    html += `
+      <div class="progress-cat-section">
+        <div class="progress-cat-header">
+          <span class="progress-cat-name">${label}</span>
+          <span class="progress-cat-count">${data.done} / ${data.total}</span>
+        </div>
+        <div class="progress-bar-outer progress-bar-sm">
+          <div class="progress-bar-inner" style="width: ${catPct}%"></div>
+        </div>
+        <div class="progress-problems-list">
+          ${data.problems.map(p => {
+            const ratingClass = p.attempt.rating ? p.attempt.rating.replace(/\s+/g, '-').toLowerCase() : 'attempted';
+            const ratingLabel = p.attempt.rating || 'Attempted';
+            return `<div class="progress-problem-row">
+              <span class="status-dot status-dot-${ratingClass}"></span>
+              <span class="progress-problem-title">${escapeHtml(p.title)}</span>
+              <span class="progress-problem-rating">${ratingLabel}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  body.innerHTML = html;
+}
+
+// ── COMMAND PALETTE ──
+
+function openCmdPalette() {
+  document.getElementById('cmd-palette').classList.add('open');
+  document.getElementById('cmd-palette-overlay').classList.add('open');
+  const input = document.getElementById('cmd-palette-input');
+  input.value = '';
+  cmdPaletteSearch('');
+  requestAnimationFrame(() => input.focus());
+}
+
+function closeCmdPalette() {
+  document.getElementById('cmd-palette').classList.remove('open');
+  document.getElementById('cmd-palette-overlay').classList.remove('open');
+}
+
+function cmdPaletteSearch(query) {
+  const q = query.trim().toLowerCase();
+  cmdPaletteItems = q
+    ? allProblems.filter(p => {
+        const skills = (p.key_skills || []).join(' ').toLowerCase();
+        return p.title.toLowerCase().includes(q)
+          || p.summary.toLowerCase().includes(q)
+          || skills.includes(q)
+          || (CATEGORY_LABELS[p.category] || p.category).toLowerCase().includes(q);
+      })
+    : allProblems;
+  cmdPaletteIndex = 0;
+  renderCmdPaletteResults();
+}
+
+function renderCmdPaletteResults() {
+  const container = document.getElementById('cmd-palette-results');
+  if (cmdPaletteItems.length === 0) {
+    container.innerHTML = '<div class="cmd-palette-empty">No problems found.</div>';
+    return;
+  }
+  container.innerHTML = cmdPaletteItems.map((p, i) => {
+    const pid = `CP-${String(p.id).padStart(3, '0')}`;
     const diffClass = p.difficulty.toLowerCase();
     const catLabel = CATEGORY_LABELS[p.category] || p.category;
-    const skills = (p.key_skills || []).slice(0, 3);
     const attempt = attemptedProblems[p.id];
-    let statusIcon = '<span class="status-cell"></span>';
-    if (attempt) {
-      const cls = attempt.rating ? `status-dot-${attempt.rating.replace(/\s+/g, '-').toLowerCase()}` : 'status-dot-attempted';
-      statusIcon = `<span class="status-cell"><span class="status-dot ${cls}" title="${attempt.rating || 'Attempted'}"></span></span>`;
-    }
-
-    return `
-      <div class="problem-row">
-        ${statusIcon}
-        <div class="col-title-cell">
-          <span class="problem-title">${p.title}</span>
-          <span class="problem-summary">${p.summary}</span>
-          ${skills.length ? `<div class="problem-skills">${skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div>` : ''}
-        </div>
-        <span class="col-category-cell"><span class="cat-badge">${catLabel}</span></span>
-        <span class="col-difficulty-cell"><span class="diff-badge ${diffClass}">${p.difficulty}</span></span>
-        <div class="problem-actions">
-          <button class="problem-action-btn" onclick="event.stopPropagation(); showStudyView(${p.id})" title="Study this problem">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            Study
-          </button>
-          <button class="problem-action-btn action-practice" onclick="event.stopPropagation(); startDirectInterview(${p.id})" title="Start mock interview">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Practice
-          </button>
-        </div>
-      </div>`;
+    const dot = attempt
+      ? `<span class="status-dot ${attempt.rating ? `status-dot-${attempt.rating.replace(/\s+/g, '-').toLowerCase()}` : 'status-dot-attempted'}"></span>`
+      : `<span style="width:8px;flex-shrink:0;display:inline-block"></span>`;
+    return `<div class="cmd-palette-item${i === cmdPaletteIndex ? ' active' : ''}" onmouseenter="cmdPaletteHover(${i})" onclick="cmdPaletteConfirm(false)">
+      ${dot}
+      <span class="problem-id" style="flex-shrink:0">${pid}</span>
+      <span class="cmd-palette-item-title">${escapeHtml(p.title)}</span>
+      <div class="cmd-palette-item-meta">
+        <span class="cat-badge">${catLabel}</span>
+        <span class="diff-badge ${diffClass}">${p.difficulty}</span>
+      </div>
+      <div class="cmd-palette-item-actions">
+        <button class="problem-action-btn" onclick="event.stopPropagation(); closeCmdPalette(); showStudyView(${p.id})" style="padding:3px 8px;font-size:11px">Study</button>
+        <button class="problem-action-btn" onclick="event.stopPropagation(); closeCmdPalette(); startDirectInterview(${p.id})" style="padding:3px 8px;font-size:11px">Practice</button>
+      </div>
+    </div>`;
   }).join('');
+}
+
+function cmdPaletteHover(i) {
+  cmdPaletteIndex = i;
+  document.querySelectorAll('.cmd-palette-item').forEach((el, idx) =>
+    el.classList.toggle('active', idx === i));
+}
+
+function cmdPaletteMove(dir) {
+  cmdPaletteIndex = Math.max(0, Math.min(cmdPaletteIndex + dir, cmdPaletteItems.length - 1));
+  document.querySelectorAll('.cmd-palette-item').forEach((el, i) => {
+    el.classList.toggle('active', i === cmdPaletteIndex);
+    if (i === cmdPaletteIndex) el.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+function cmdPaletteConfirm(study = false) {
+  const p = cmdPaletteItems[cmdPaletteIndex];
+  if (!p) return;
+  closeCmdPalette();
+  study ? showStudyView(p.id) : startDirectInterview(p.id);
 }
 
 async function startDirectInterview(problemId) {
@@ -420,6 +714,8 @@ async function startRandomInterview() {
   await startInterview(focus, null);
 }
 
+const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 };
+
 function getFilteredProblems() {
   let filtered = warmupOnly
     ? allProblems.filter(p => p.category === 'warmup')
@@ -431,6 +727,12 @@ function getFilteredProblems() {
     filtered = filtered.filter(p => selectedDifficulties.has(p.difficulty));
   }
 
+  if (activeSkillFilter) {
+    filtered = filtered.filter(p =>
+      (p.key_skills || []).some(s => s.toLowerCase() === activeSkillFilter.toLowerCase())
+    );
+  }
+
   if (searchQuery) {
     filtered = filtered.filter(p => {
       const skills = (p.key_skills || []).join(' ').toLowerCase();
@@ -438,6 +740,27 @@ function getFilteredProblems() {
         || p.summary.toLowerCase().includes(searchQuery)
         || skills.includes(searchQuery);
     });
+  }
+
+  switch (selectedSort) {
+    case 'difficulty-asc':
+      filtered = [...filtered].sort((a, b) =>
+        DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
+      break;
+    case 'difficulty-desc':
+      filtered = [...filtered].sort((a, b) =>
+        DIFFICULTY_ORDER[b.difficulty] - DIFFICULTY_ORDER[a.difficulty]);
+      break;
+    case 'unattempted':
+      filtered = [...filtered].sort((a, b) => {
+        const aAttempted = !!attemptedProblems[a.id];
+        const bAttempted = !!attemptedProblems[b.id];
+        return aAttempted - bAttempted;
+      });
+      break;
+    case 'alpha':
+      filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+      break;
   }
 
   return filtered;
@@ -454,8 +777,6 @@ async function showStudyView(problemId) {
   researchChatHistory = [];
 
   document.getElementById('study-bar-title').textContent = currentStudyProblem.title;
-  const catLabel = CATEGORY_LABELS[currentStudyProblem.category] || currentStudyProblem.category;
-  document.getElementById('study-bar-focus').textContent = catLabel;
 
   renderProblemDetails(currentStudyProblem);
 
@@ -477,11 +798,12 @@ function renderProblemDetails(problem) {
   const diffClass = problem.difficulty.toLowerCase();
   const catLabel = CATEGORY_LABELS[problem.category] || problem.category;
 
+  const pid = `CP-${String(problem.id).padStart(3, '0')}`;
   let html = `
     <div class="study-header">
       <div class="study-title">${escapeHtml(problem.title)}</div>
       <div class="study-badges">
-        <span class="cat-badge">${catLabel}</span>
+        <span class="problem-id">${pid}</span>
         <span class="diff-badge ${diffClass}">${problem.difficulty}</span>
       </div>
     </div>
@@ -878,6 +1200,7 @@ async function loadSessions() {
     }
   }
   renderProblems();
+  updateProgressChip();
 
   const container = document.getElementById('sessions-list');
 
@@ -914,6 +1237,14 @@ async function deleteSession(id) {
   if (!confirm('Delete this interview session?')) return;
   await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
   loadSessions();
+}
+
+function toggleFilterSidebar() {
+  const sidebar = document.getElementById('filter-sidebar');
+  const overlay = document.getElementById('filter-sidebar-overlay');
+  const isOpen = sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
 }
 
 function toggleHistoryDrawer() {
@@ -962,21 +1293,20 @@ async function startInterview(focus, problemId) {
     const focusLabel = problem ? (CATEGORY_LABELS[problem.category] || problem.category) : (CATEGORY_LABELS[focus] || focus);
     const starterCode = problem?.starter_code || '# Write your solution here\n\n';
     document.getElementById('top-bar-title').textContent = title;
-    document.getElementById('top-bar-focus').textContent = problemId ? focusLabel : focusLabel;
-    document.getElementById('chat-messages').innerHTML = '';
+    document.getElementById('chat-messages').innerHTML =
+      problem ? renderInterviewProblemHeader(problem) : '';
     editor.setValue(starterCode);
     resetOutputPanel();
 
-    const refBtn = document.getElementById('ref-panel-btn');
+    const studyBtn = document.getElementById('interview-study-btn');
+    if (studyBtn) studyBtn.style.display = problemId ? '' : 'none';
+
     const refPanel = document.getElementById('ref-panel');
     refPanel.style.display = 'none';
     if (problemId) {
-      refBtn.style.display = '';
       fetch(`/api/problems/${problemId}`).then(r => r.json()).then(fullProblem => {
         document.getElementById('ref-panel-body').innerHTML = buildReferenceContent(fullProblem);
       }).catch(() => {});
-    } else {
-      refBtn.style.display = 'none';
     }
 
     if (interviewMode === 'voice') {
@@ -1012,14 +1342,18 @@ async function resumeSession(id) {
   const title = session.problem_title || 'Technical Interview';
   const focusLabel = CATEGORY_LABELS[session.focus] || session.focus;
   document.getElementById('top-bar-title').textContent = title;
-  document.getElementById('top-bar-focus').textContent = session.problem_title ? focusLabel : '';
 
   // Always show text controls for resumed sessions (voice is live only)
   document.getElementById('text-input-area').style.display = '';
   document.getElementById('voice-controls').style.display = 'none';
 
   const container = document.getElementById('chat-messages');
-  container.innerHTML = '';
+  if (session.problem_id) {
+    const resumeProblem = allProblems.find(p => p.id === session.problem_id);
+    container.innerHTML = resumeProblem ? renderInterviewProblemHeader(resumeProblem) : '';
+  } else {
+    container.innerHTML = '';
+  }
   resetOutputPanel();
   editor.setValue(session.code || '# Write your solution here\n\n');
 
@@ -1040,6 +1374,16 @@ function exitInterview() {
   currentSessionId = null;
   showView('landing');
   loadSessions();
+}
+
+function switchInterviewToStudy() {
+  const problemId = currentInterviewProblemId;
+  stopTimer();
+  cleanupVoice();
+  currentSessionId = null;
+  loadSessions();
+  if (problemId) showStudyView(problemId);
+  else showView('landing');
 }
 
 function endCurrentInterview() {
@@ -1326,12 +1670,15 @@ function toggleMic() {
 
 function updateMicButton() {
   const btn = document.getElementById('mic-btn');
+  const label = document.getElementById('mic-label');
   if (micMuted) {
     btn.classList.add('muted');
     btn.classList.remove('active');
+    if (label) label.textContent = 'Tap to unmute';
   } else {
     btn.classList.remove('muted');
     btn.classList.add('active');
+    if (label) label.textContent = 'Tap to mute';
   }
 }
 

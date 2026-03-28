@@ -9,13 +9,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 </head>
 <body>
 
   <!-- GLOBAL TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-landing" id="top-bar-landing">
-      <span class="top-bar-logo">CodePrep</span>
+      <img src="{{ url_for('static', filename='favicon.svg') }}" alt="CodePrep" class="top-bar-logo-img">
       <div class="top-bar-right">
         <div class="mode-toggle" id="mode-toggle">
         <button class="mode-btn selected" data-mode="text" onclick="selectMode(this)">
@@ -44,9 +46,13 @@
       </button>
       <div class="top-bar-center">
         <span class="top-bar-title" id="study-bar-title">Problem</span>
-        <span class="top-bar-focus" id="study-bar-focus"></span>
       </div>
-      <div class="top-bar-right"></div>
+      <div class="top-bar-right">
+        <button class="btn btn-ghost btn-sm" onclick="startDirectInterview(currentStudyProblem && currentStudyProblem.id)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Practice
+        </button>
+      </div>
     </div>
     <div class="top-bar-interview" id="top-bar-interview" style="display:none">
       <button class="btn btn-ghost btn-sm" onclick="exitInterview()">
@@ -55,13 +61,13 @@
       </button>
       <div class="top-bar-center">
         <span class="top-bar-title" id="top-bar-title">Technical Interview</span>
-        <span class="top-bar-focus" id="top-bar-focus"></span>
       </div>
       <div class="top-bar-right">
-        <button class="btn btn-ghost btn-sm" id="ref-panel-btn" onclick="toggleReferencePanel()" style="display:none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          Reference
+        <button class="btn btn-ghost btn-sm" id="interview-study-btn" onclick="switchInterviewToStudy()" style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Study
         </button>
+
         <button class="btn btn-ghost btn-sm" id="tutor-btn" onclick="toggleInterviewTutor()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Tutor
@@ -75,21 +81,21 @@
   <!-- LANDING / SESSION PICKER -->
   <div id="landing-view" class="view active">
     <div class="landing">
-      <div class="landing-top">
-        <div class="search-bar">
-          <div class="search-wrapper">
-            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="search-input" placeholder="Search problems or skills..." autocomplete="off">
-          </div>
-          <button class="btn btn-primary btn-sm" id="start-btn" onclick="startRandomInterview()">
-            Surprise Me
-          </button>
-        </div>
-      </div>
       <div class="landing-body">
-        <aside class="filter-sidebar">
+        <div class="filter-sidebar-overlay" id="filter-sidebar-overlay" onclick="toggleFilterSidebar()"></div>
+        <aside class="filter-sidebar" id="filter-sidebar">
+          <div class="sidebar-search">
+            <div class="search-wrapper">
+              <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="search-input" placeholder="Search..." autocomplete="off">
+              <kbd class="search-kbd">⌘K</kbd>
+            </div>
+            <button class="btn btn-primary btn-sm sidebar-surprise-btn" id="start-btn" onclick="startRandomInterview()">
+              Surprise Me
+            </button>
+          </div>
           <button class="clear-filters-btn" id="clear-filters-btn" onclick="clearAllFilters()" style="display:none">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Clear filters
           </button>
 
@@ -135,10 +141,25 @@
               <span class="warmup-toggle-text">Warm Up only</span>
             </label>
           </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-label">Sort</div>
+            <div class="sidebar-nav" id="sort-tabs">
+              <button class="sort-tab selected" data-sort="default">Default</button>
+              <button class="sort-tab" data-sort="difficulty-asc">Easiest first</button>
+              <button class="sort-tab" data-sort="difficulty-desc">Hardest first</button>
+              <button class="sort-tab" data-sort="unattempted">Not attempted</button>
+              <button class="sort-tab" data-sort="alpha">A → Z</button>
+            </div>
+          </div>
         </aside>
 
         <div class="problems-main">
           <div class="problems-header">
+            <button class="filters-toggle-btn btn btn-ghost btn-sm" onclick="toggleFilterSidebar()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              Filters
+            </button>
             <span class="problems-count" id="problems-count"></span>
           </div>
           <div class="problem-list" id="problem-list"></div>
@@ -198,6 +219,22 @@
     <div class="drawer-body" id="sessions-list"></div>
   </div>
 
+  <!-- COMMAND PALETTE -->
+  <div class="cmd-palette-overlay" id="cmd-palette-overlay" onclick="closeCmdPalette()"></div>
+  <div class="cmd-palette" id="cmd-palette">
+    <div class="cmd-palette-input-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search problems...">
+      <kbd class="cmd-esc-kbd">esc</kbd>
+    </div>
+    <div class="cmd-palette-results" id="cmd-palette-results"></div>
+    <div class="cmd-palette-footer">
+      <span><kbd>↑↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> practice</span>
+      <span><kbd>⌘↵</kbd> study</span>
+    </div>
+  </div>
+
   <!-- API KEY MODAL -->
   <div id="key-modal" class="modal" style="display:none">
     <div class="modal-content">
@@ -243,16 +280,21 @@
         <div class="voice-controls" id="voice-controls" style="display:none">
           <div class="voice-status" id="voice-status">Connecting...</div>
           <div class="voice-buttons">
-            <button class="btn btn-secondary btn-sm" id="voice-submit-code-btn" onclick="submitCodeVoice()">
+            <button class="voice-action-btn" id="voice-submit-code-btn" onclick="submitCodeVoice()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
               Submit Code
             </button>
-            <button class="mic-btn active" id="mic-btn" onclick="toggleMic()">
-              <svg class="mic-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              <svg class="mic-off-icon" style="display:none" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              <div class="mic-pulse"></div>
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="endVoiceSession()">
-              End
+            <div class="mic-wrap">
+              <button class="mic-btn active" id="mic-btn" onclick="toggleMic()">
+                <svg class="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <svg class="mic-off-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <div class="mic-pulse"></div>
+              </button>
+              <span class="mic-label" id="mic-label">Tap to mute</span>
+            </div>
+            <button class="voice-action-btn voice-end-btn" onclick="endVoiceSession()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              End Session
             </button>
           </div>
         </div>
