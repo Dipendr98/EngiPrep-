@@ -553,6 +553,7 @@ def serialize_problem_for_list(problem):
         'difficulty': problem['difficulty'],
         'summary': problem.get('summary', ''),
         'starter_code': problem.get('starter_code', ''),
+        'key_skills': problem.get('key_skills', []),
     }
 
 
