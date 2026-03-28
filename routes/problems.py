@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-import problems
+from services import problems
 
 bp = Blueprint('problems', __name__)
 

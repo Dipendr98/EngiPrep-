@@ -1,6 +1,6 @@
 .env
 venv/
-__pycache__/
-user_data/
+**/__pycache__/
 *.pyc
+user_data/
 .DS_Store

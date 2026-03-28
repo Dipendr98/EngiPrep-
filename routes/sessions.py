@@ -3,11 +3,8 @@ from datetime import datetime
 
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 
-import ai
 import config
-import problems
-import sessions
-import code_runner
+from services import ai, problems, sessions, code_runner
 
 bp = Blueprint('sessions', __name__)
 

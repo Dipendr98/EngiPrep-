@@ -14,16 +14,41 @@
 
 ```
 codingprep/
-├── app.py                   # Flask backend, routes, AI logic, streaming
-├── code_runner.py           # Python code execution sandbox
+├── app.py                   # Flask app factory (registers blueprints)
+├── config.py                # Centralized settings (models, paths, timeouts)
 ├── requirements.txt
+├── services/                # Business logic layer
+│   ├── ai.py                # OpenAI client + streaming helpers
+│   ├── sessions.py          # Session persistence (JSON file I/O)
+│   ├── problems.py          # Problem loading + serialization
+│   └── code_runner.py       # Python code execution sandbox
+├── routes/                  # Flask Blueprints (HTTP layer)
+│   ├── sessions.py          # Session CRUD, chat, transcript routes
+│   ├── problems.py          # Problem list/detail routes
+│   ├── code.py              # Code execution routes
+│   ├── realtime.py          # Voice WebRTC proxy
+│   └── research.py          # Study/tutor chat route
 ├── templates/
 │   └── index.html           # Single-page app shell
-├── static/
-│   ├── app.js               # All frontend logic
+├── static/                  # Flask-served app assets
+│   ├── js/
+│   │   ├── state.js         # Global state variables
+│   │   ├── utils.js         # Shared utilities (SSE reader, resizer, markdown)
+│   │   ├── problems.js      # Problem rendering, filtering, command palette
+│   │   ├── sessions.js      # Session list, history drawer, progress
+│   │   ├── editor.js        # CodeMirror setup, output panel, run/test
+│   │   ├── interview.js     # Chat, streaming, messages, timer
+│   │   ├── voice.js         # WebRTC, data channel, transcript
+│   │   ├── study.js         # Study view, research chat, tutor sidebar
+│   │   └── init.js          # DOMContentLoaded init, keyboard shortcuts
 │   ├── style.css
 │   └── favicon.*
-├── problems/                # 132 YAML problem definitions
+├── docs/                    # Documentation assets (not served by Flask)
+│   ├── banner.svg
+│   ├── logo.png
+│   └── screenshots/         # README screenshots
+├── prompts/                 # LLM system prompts
+├── problems/                # 132+ YAML problem definitions
 │   ├── 01-lru-cache.yaml
 │   └── ...
 ├── user_data/

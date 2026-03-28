@@ -273,71 +273,21 @@ function renderTestResults(testData, beforeEl) {
   const div = document.createElement('div');
   div.className = 'message test-results';
 
-  const results = testData.results || [];
-  const topError = testData.error;
-  const displayName = testData.display_name || 'function';
-
-  if (topError && results.length === 0) {
+  const built = buildTestResultsHtml(testData);
+  if (built.errorHtml) {
+    div.innerHTML = `
+      <div class="message-label">Test Runner</div>
+      <div class="test-results-panel">${built.errorHtml}</div>
+    `;
+  } else {
     div.innerHTML = `
       <div class="message-label">Test Runner</div>
       <div class="test-results-panel">
-        <div class="test-summary test-summary-error">
-          <span class="test-summary-icon">&#x2716;</span>
-          <span>Execution failed</span>
-        </div>
-        <div class="test-error-block"><pre>${escapeHtml(topError)}</pre></div>
+        ${built.summaryHtml}
+        <div class="test-cases-list">${built.rowsHtml}</div>
       </div>
     `;
-    container.insertBefore(div, beforeEl);
-    scrollToBottom();
-    return;
   }
-
-  const passed = results.filter(r => r.passed).length;
-  const total = results.length;
-  const allPassed = passed === total;
-  const summaryClass = allPassed ? 'test-summary-pass' : 'test-summary-fail';
-
-  let detailRows = results.map((r, i) => {
-    const icon = r.passed ? '<span class="test-icon pass">&#x2714;</span>' : '<span class="test-icon fail">&#x2716;</span>';
-    const call = escapeHtml(formatTestCall(r, displayName, i));
-    const expectedValue = r.expected_error ? `error: ${r.expected_error}` : JSON.stringify(r.expected);
-
-    let detailInner = '';
-    if (r.error) {
-      detailInner = `<div class="test-detail-row"><span class="test-detail-label">Error:</span> <span class="test-detail-value err">${escapeHtml(r.error)}</span></div>`;
-    } else if (r.expected_error) {
-      detailInner = `<div class="test-detail-row"><span class="test-detail-label">Expected Error:</span> <span class="test-detail-value">${escapeHtml(r.expected_error)}</span></div>`;
-    } else {
-      detailInner = `
-        <div class="test-detail-row"><span class="test-detail-label">Expected:</span> <span class="test-detail-value">${escapeHtml(JSON.stringify(r.expected))}</span></div>
-        <div class="test-detail-row"><span class="test-detail-label">Got:</span> <span class="test-detail-value ${r.passed ? '' : 'err'}">${escapeHtml(JSON.stringify(r.actual))}</span></div>
-      `;
-    }
-
-    return `
-      <div class="test-case ${r.passed ? 'passed' : 'failed'}">
-        <div class="test-case-header" onclick="this.parentElement.classList.toggle('expanded')">
-          ${icon}
-          <code class="test-call">${call}</code>
-          <span class="test-expected">&rarr; ${escapeHtml(expectedValue)}</span>
-          <span class="test-toggle">&#x25BC;</span>
-        </div>
-        <div class="test-case-detail">${detailInner}</div>
-      </div>
-    `;
-  }).join('');
-
-  div.innerHTML = `
-    <div class="message-label">Test Runner</div>
-    <div class="test-results-panel">
-      <div class="test-summary ${summaryClass}">
-        <span class="test-summary-icon">${allPassed ? '&#x2714;' : '&#x2716;'}</span>
-        <span>${passed}/${total} tests passed</span>
-      </div>
-      <div class="test-cases-list">${detailRows}</div>
-    </div>
-  `;
 
   container.insertBefore(div, beforeEl);
   scrollToBottom();

@@ -4,6 +4,8 @@ import sys
 import tempfile
 import os
 
+import config
+
 
 HARNESS_TEMPLATE = '''
 import asyncio
@@ -197,7 +199,7 @@ print("__RESULTS__" + json.dumps(_results, default=str))
 '''
 
 
-def run(user_code: str, function_name: str, test_cases: list, timeout: int = 5) -> dict:
+def run(user_code: str, function_name: str, test_cases: list, timeout: int = config.CODE_TIMEOUT) -> dict:
     """
     Execute user_code against test_cases by calling function_name.
 
@@ -217,7 +219,7 @@ def run(user_code: str, function_name: str, test_cases: list, timeout: int = 5) 
     return _run_harness(harness, timeout=timeout)
 
 
-def run_class(user_code: str, class_name: str, test_cases: list, timeout: int = 5) -> dict:
+def run_class(user_code: str, class_name: str, test_cases: list, timeout: int = config.CODE_TIMEOUT) -> dict:
     """Execute user_code against class-style test cases."""
     harness = (
         CLASS_HARNESS_TEMPLATE
@@ -229,7 +231,7 @@ def run_class(user_code: str, class_name: str, test_cases: list, timeout: int = 
     return _run_harness(harness, timeout=timeout)
 
 
-def _run_harness(harness: str, timeout: int = 5) -> dict:
+def _run_harness(harness: str, timeout: int = config.CODE_TIMEOUT) -> dict:
     """Execute a generated harness file and parse structured results."""
 
     fd, path = tempfile.mkstemp(suffix='.py', prefix='codeprep_')
@@ -276,7 +278,7 @@ def _run_harness(harness: str, timeout: int = 5) -> dict:
         return {
             'success': False,
             'results': [],
-            'error': 'Timeout: code took too long to execute (>5s)',
+            'error': f'Timeout: code took too long to execute (>{timeout}s)',
         }
     except Exception as e:
         return {

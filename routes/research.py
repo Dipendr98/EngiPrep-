@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 
-import ai
 import config
-import problems
+from services import ai, problems
 
 bp = Blueprint('research', __name__)
 

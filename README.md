@@ -1,4 +1,4 @@
-![CodePrep banner](static/banner.svg)
+![CodePrep banner](docs/banner.svg)
 
 <div align="center">
 
@@ -66,7 +66,7 @@ Open **http://localhost:5000** - that's it.
 
 ## Picking a Problem
 
-![Landing page showing the problem list with filters](static/screenshots/LandingPage-ProblemList.png)
+![Landing page showing the problem list with filters](docs/screenshots/LandingPage-ProblemList.png)
 
 Browse and filter 132+ problems to find what you want to practice. Filters on the left let you narrow by category, difficulty, or whether you've attempted a problem before. Status dots on each card show how you've done - green for a hire signal, yellow for mixed, red for no hire.
 
@@ -92,7 +92,7 @@ Not sure what to pick? Hit **Surprise Me** to start a random interview from what
 
 ### Command Palette (`Cmd+K` / `Ctrl+K`)
 
-![Command palette for searching problems](static/screenshots/EasilySearchProblems.png)
+![Command palette for searching problems](docs/screenshots/EasilySearchProblems.png)
 
 Fuzzy search across all problem titles, summaries, skills, and categories. `Enter` to start Practice, `Cmd+Enter` / `Ctrl+Enter` to open Study Mode, `Escape` to close.
 
@@ -102,7 +102,7 @@ Fuzzy search across all problem titles, summaries, skills, and categories. `Ente
 
 Read a problem fully and chat with an AI tutor before you practice - useful when a topic is unfamiliar or you want to think through approaches first.
 
-![Study mode with problem details and research chat](static/screenshots/StudyMode.png)
+![Study mode with problem details and research chat](docs/screenshots/StudyMode.png)
 
 Two resizable panels side by side. The left panel has the full problem - scenario, constraints, examples, key skills, and follow-up challenges. The right panel is a tutor chat where you can ask anything about the problem without being handed the solution.
 
@@ -118,7 +118,7 @@ When you're ready, go back and hit **Practice** to start the interview.
 
 ## Running an Interview
 
-![Interview mode with chat, code editor, test results, and tutor sidebar](static/screenshots/PracticeAndEvaluateResult.png)
+![Interview mode with chat, code editor, test results, and tutor sidebar](docs/screenshots/PracticeAndEvaluateResult.png)
 
 Three panels: the interviewer chat on the left, your code editor in the center, and an optional tutor sidebar on the right. All dividers are draggable.
 
@@ -146,7 +146,7 @@ The interviewer gives a structured debrief with a hire/no-hire rating, scores ac
 
 Practice talking through your solution the way you actually would in an interview.
 
-![Voice interview mode with live transcript banner](static/screenshots/VoiceModeToEmulateRealInterviews.png)
+![Voice interview mode with live transcript banner](docs/screenshots/VoiceModeToEmulateRealInterviews.png)
 
 Switch to **Voice** mode in the toggle before starting. Once the interview begins, allow microphone access and wait for the connection. Your speech is transcribed live, the interviewer responds through your speakers, and everything is saved to your history just like a text session.
 
@@ -216,7 +216,7 @@ Click **History** in the top bar to see all past sessions. Click any entry to re
 
 Click the **X / Y done** chip to see your progress by category.
 
-![Progress drawer showing completion by category](static/screenshots/TrackProgress.png)
+![Progress drawer showing completion by category](docs/screenshots/TrackProgress.png)
 
 Each category shows a progress bar and lists the problems you've attempted with their ratings. Status dots on problem cards update as you practice:
 

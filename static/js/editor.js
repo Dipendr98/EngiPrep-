@@ -178,72 +178,13 @@ async function runTests() {
 }
 
 function renderEditorTestResults(testData) {
-  const results = testData.results || [];
-  const topError = testData.error;
-  const displayName = testData.display_name || 'function';
-
-  if (topError && results.length === 0) {
-    return `
-      <div class="editor-test-panel">
-        <div class="test-summary test-summary-error">
-          <span class="test-summary-icon">&#x2716;</span>
-          <span>Execution failed</span>
-        </div>
-        <div class="test-error-block"><pre>${escapeHtml(topError)}</pre></div>
-      </div>`;
+  const built = buildTestResultsHtml(testData);
+  if (built.errorHtml) {
+    return `<div class="editor-test-panel">${built.errorHtml}</div>`;
   }
-
-  const passed = results.filter(r => r.passed).length;
-  const total = results.length;
-  const allPassed = passed === total;
-  const summaryClass = allPassed ? 'test-summary-pass' : 'test-summary-fail';
-
-  const rows = results.map((r, i) => {
-    const icon = r.passed
-      ? '<span class="test-icon pass">&#x2714;</span>'
-      : '<span class="test-icon fail">&#x2716;</span>';
-    const call = escapeHtml(formatTestCall(r, displayName, i));
-    const expectedValue = r.expected_error ? `error: ${r.expected_error}` : JSON.stringify(r.expected);
-
-    let detail = '';
-    if (r.error) {
-      detail = `<div class="test-detail-row"><span class="test-detail-label">Error:</span> <span class="test-detail-value err">${escapeHtml(r.error)}</span></div>`;
-    } else if (r.expected_error) {
-      detail = `<div class="test-detail-row"><span class="test-detail-label">Expected Error:</span> <span class="test-detail-value">${escapeHtml(r.expected_error)}</span></div>`;
-    } else {
-      detail = `
-        <div class="test-detail-row"><span class="test-detail-label">Expected:</span> <span class="test-detail-value">${escapeHtml(JSON.stringify(r.expected))}</span></div>
-        <div class="test-detail-row"><span class="test-detail-label">Got:</span> <span class="test-detail-value ${r.passed ? '' : 'err'}">${escapeHtml(JSON.stringify(r.actual))}</span></div>`;
-    }
-
-    return `
-      <div class="test-case ${r.passed ? 'passed' : 'failed'}">
-        <div class="test-case-header" onclick="this.parentElement.classList.toggle('expanded')">
-          ${icon}
-          <code class="test-call">${call}</code>
-          <span class="test-expected">&rarr; ${escapeHtml(expectedValue)}</span>
-          <span class="test-toggle">&#x25BC;</span>
-        </div>
-        <div class="test-case-detail">${detail}</div>
-      </div>`;
-  }).join('');
-
   return `
     <div class="editor-test-panel">
-      <div class="test-summary ${summaryClass}">
-        <span class="test-summary-icon">${allPassed ? '&#x2714;' : '&#x2716;'}</span>
-        <span>${passed}/${total} tests passed</span>
-      </div>
-      <div class="test-cases-list">${rows}</div>
+      ${built.summaryHtml}
+      <div class="test-cases-list">${built.rowsHtml}</div>
     </div>`;
-}
-
-function formatTestCall(result, displayName, index) {
-  if (result.call) {
-    return result.label ? `${result.label} :: ${result.call}` : result.call;
-  }
-  const inputStr = Object.entries(result.input || {})
-    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-    .join(', ');
-  return `${displayName}(${inputStr}) [case ${index + 1}]`;
 }
