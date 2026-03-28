@@ -4,7 +4,12 @@ category: parsing
 difficulty: Hard
 summary: Implement a subset of JSONPath to query nested data structures.
 description: 'Implement query(data, path) where path is a JSONPath-like string. Support dot notation ($.store.book), array indexing ($[0]), wildcards ($.*), and recursive descent ($..). Return all matching values. For example, query({''a'': {''b'': [1,2,3]}}, ''$.a.b[1]'') returns [2].'
-scenario: ''
+scenario: |-
+  The Observability team at a cloud company receives structured JSON payloads from hundreds of different services, each with a slightly different schema. On-call engineers need to write ad-hoc queries against live alert payloads—things like "give me every `message` field anywhere in this nested structure" or "pull the second element from `$.errors[1].details`"—without writing one-off parsing code for each schema. You need to implement a JSONPath query engine that handles dot notation, array indexing, wildcards, and recursive descent so engineers can slice arbitrary payloads with a single expression.
+alt_scenarios:
+  - "**API contract testing tool:** A testing framework evaluates JSONPath assertions against HTTP response bodies to verify that deeply nested fields match expected values without hard-coding field access logic."
+  - "**ETL transformation layer:** A data-ingestion pipeline uses JSONPath expressions to extract specific fields from heterogeneous vendor webhook payloads before normalizing them into a common schema."
+  - "**Policy engine:** A security policy evaluator runs JSONPath queries against IAM request context objects to extract the resource ARN and action fields needed to make an allow/deny decision."
 constraints: []
 examples: []
 starter_code: |-

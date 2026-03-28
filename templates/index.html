@@ -27,6 +27,10 @@
           Voice
         </button>
         </div>
+        <button class="progress-chip" id="progress-chip" onclick="toggleProgressDrawer()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span id="progress-chip-text">0 / 0 done</span>
+        </button>
         <button class="btn btn-ghost btn-sm" onclick="toggleHistoryDrawer()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           History
@@ -71,7 +75,7 @@
   <!-- LANDING / SESSION PICKER -->
   <div id="landing-view" class="view active">
     <div class="landing">
-      <div class="new-interview-card">
+      <div class="landing-top">
         <div class="search-bar">
           <div class="search-wrapper">
             <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -81,44 +85,65 @@
             Surprise Me
           </button>
         </div>
-
-        <div class="filter-group">
-          <span class="filter-label">Topic</span>
-          <div class="category-tabs" id="category-tabs">
-            <button class="cat-tab selected" data-cat="all">All</button>
-            <button class="cat-tab" data-cat="stateful">Stateful</button>
-            <button class="cat-tab" data-cat="parsing">Parsing</button>
-            <button class="cat-tab" data-cat="scheduling">Scheduling</button>
-            <button class="cat-tab" data-cat="search">Search</button>
-            <button class="cat-tab" data-cat="streaming">Streaming</button>
-            <button class="cat-tab" data-cat="infra">Infra</button>
-            <button class="cat-tab" data-cat="concurrency">Concurrency</button>
-            <button class="cat-tab" data-cat="api_design">API Design</button>
-            <button class="cat-tab" data-cat="syntax">Python Syntax</button>
-          </div>
-        </div>
-        <div class="filter-group">
-          <span class="filter-label">Difficulty</span>
-          <div class="difficulty-pills" id="difficulty-pills">
-            <button class="diff-pill" data-diff="Easy">Easy</button>
-            <button class="diff-pill" data-diff="Medium">Medium</button>
-            <button class="diff-pill" data-diff="Hard">Hard</button>
-          </div>
-        </div>
-        <div class="filter-group">
-          <span class="filter-label">Warm Up</span>
-          <label class="warmup-toggle" id="warmup-label">
-            <input type="checkbox" id="warmup-checkbox">
-            <span class="warmup-toggle-box">
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
-            </span>
-            <span class="warmup-toggle-text">Warm Up</span>
-          </label>
-        </div>
-
-        <div class="problem-list" id="problem-list"></div>
       </div>
+      <div class="landing-body">
+        <aside class="filter-sidebar">
+          <button class="clear-filters-btn" id="clear-filters-btn" onclick="clearAllFilters()" style="display:none">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Clear filters
+          </button>
 
+          <div class="sidebar-section">
+            <div class="sidebar-section-label">Topic</div>
+            <div class="sidebar-nav" id="category-tabs">
+              <button class="cat-tab selected" data-cat="all">All</button>
+              <button class="cat-tab" data-cat="stateful">Stateful</button>
+              <button class="cat-tab" data-cat="parsing">Parsing</button>
+              <button class="cat-tab" data-cat="scheduling">Scheduling</button>
+              <button class="cat-tab" data-cat="search">Search</button>
+              <button class="cat-tab" data-cat="streaming">Streaming</button>
+              <button class="cat-tab" data-cat="infra">Infra</button>
+              <button class="cat-tab" data-cat="concurrency">Concurrency</button>
+              <button class="cat-tab" data-cat="api_design">API Design</button>
+              <button class="cat-tab" data-cat="syntax">Python Syntax</button>
+              <button class="cat-tab" data-cat="arrays">Arrays</button>
+              <button class="cat-tab" data-cat="strings">Strings</button>
+              <button class="cat-tab" data-cat="linked lists">Linked Lists</button>
+              <button class="cat-tab" data-cat="trees">Trees</button>
+              <button class="cat-tab" data-cat="graphs">Graphs</button>
+              <button class="cat-tab" data-cat="dynamic programming">Dynamic Programming</button>
+              <button class="cat-tab" data-cat="backtracking">Backtracking</button>
+              <button class="cat-tab" data-cat="debugging">Debugging</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-label">Difficulty</div>
+            <div class="difficulty-pills" id="difficulty-pills">
+              <button class="diff-pill" data-diff="Easy">Easy</button>
+              <button class="diff-pill" data-diff="Medium">Medium</button>
+              <button class="diff-pill" data-diff="Hard">Hard</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <label class="warmup-toggle" id="warmup-label">
+              <input type="checkbox" id="warmup-checkbox">
+              <span class="warmup-toggle-box">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
+              </span>
+              <span class="warmup-toggle-text">Warm Up only</span>
+            </label>
+          </div>
+        </aside>
+
+        <div class="problems-main">
+          <div class="problems-header">
+            <span class="problems-count" id="problems-count"></span>
+          </div>
+          <div class="problem-list" id="problem-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -147,6 +172,18 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- PROGRESS DRAWER -->
+  <div class="drawer-overlay" id="progress-drawer-overlay" onclick="toggleProgressDrawer()"></div>
+  <div class="drawer" id="progress-drawer">
+    <div class="drawer-header">
+      <h3>Progress</h3>
+      <button class="btn btn-ghost btn-sm" onclick="toggleProgressDrawer()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="progress-drawer-body"></div>
   </div>
 
   <!-- HISTORY DRAWER -->
@@ -241,6 +278,7 @@
         <div id="code-editor-wrapper">
           <textarea id="code-editor"></textarea>
         </div>
+        <div class="output-resizer" id="output-resizer"></div>
         <div id="output-panel" class="output-panel">
           <div class="output-tabs">
             <button class="output-tab selected" data-tab="output" onclick="switchOutputTab(this)">Output</button>

@@ -4,7 +4,12 @@ category: stateful
 difficulty: Medium
 summary: Rate limiter that enforces N requests per sliding time window.
 description: Implement a rate limiter that allows at most N requests within a sliding window of W seconds for a given client ID. allow(client_id, timestamp) returns True if the request is allowed, False otherwise. The implementation should be memory-efficient even with many clients.
-scenario: Your team runs an API gateway that sits in front of several microservices, and scrapers have been hammering certain endpoints. You need a per-client rate limiter that enforces N requests per W-second sliding window—not fixed time buckets, because those let bursts through at bucket boundaries. Memory should scale with the number of active clients, not with total request volume.
+scenario: |-
+  The API Security team at a payments company discovered that a handful of merchant integrations were issuing thousands of charge requests per minute, causing downstream database contention. You need to add a per-merchant rate limiter to the gateway that enforces a strict sliding-window policy—not a fixed bucket, because fixed buckets allow a burst of 2N requests straddling a bucket boundary. The limiter must be lightweight enough to run in-process on each gateway replica without a shared backing store.
+alt_scenarios:
+  - "**SMS notification service:** A customer-messaging platform limits each user account to N outbound texts per rolling 24-hour window to stay within carrier anti-spam thresholds."
+  - "**LLM API proxy:** An AI-gateway team enforces per-user token-rate limits over a sliding 60-second window so individual tenants can't starve shared GPU capacity."
+  - "**Web scraper politeness policy:** A data-collection service caps outbound requests to each target domain at N per W seconds to avoid triggering the target's own rate limiting."
 constraints:
 - client_id is a string
 - Timestamps are positive integers (seconds) given in non-decreasing order

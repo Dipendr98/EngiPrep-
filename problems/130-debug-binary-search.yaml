@@ -1,0 +1,136 @@
+id: 130
+title: Debug — Fix the Binary Search
+category: debugging
+difficulty: Easy
+summary: Find and fix three classic binary search bugs in the provided implementation.
+description: The implementation below contains three common binary search bugs. Your task is to identify and fix all of them so that the function correctly finds the target in a sorted array and returns its index, or -1 if absent. Do not change the function signature or overall structure — just fix the bugs.
+scenario: |-
+  You're reviewing a pull request from a junior engineer on the Search Infrastructure team at a large e-commerce platform. The binary search powering the product catalog lookup service is passing the happy-path test suite but is silently returning -1 on single-item catalogs and hanging in an infinite loop on two-item price ranges under load. You catch three off-by-one issues during code review before they reach the production index serving 2M queries per minute.
+alt_scenarios:
+  - "**Time-series anomaly detector:** A monitoring service uses binary search to locate the first sample crossing an alert threshold in a sorted metrics buffer; the same off-by-one bugs cause the detector to miss single-sample windows and loop on two-sample boundaries."
+  - "**Deployment version resolver:** A release management tool bisects a sorted list of build SHAs to find the first bad commit introduced by a regression; boundary bugs cause it to skip the oldest build or never converge on two-candidate bisections."
+  - "**Database index scan:** A storage engine uses binary search to find the insertion point for a new key in a sorted B-tree leaf node; the same loop-condition and boundary bugs cause silent data corruption on single-key and two-key leaf pages."
+constraints:
+- The array is sorted in ascending order
+- Return the index of target if found, else -1
+- Must run in O(log n) — do not convert to a linear scan
+- The three bugs are in the loop condition, the mid calculation, and the boundary updates
+examples:
+- input: 'binary_search([1,3,5,7,9,11], 7)'
+  output: '3'
+- input: 'binary_search([1,3,5,7,9,11], 6)'
+  output: '-1'
+- input: 'binary_search([5], 5)'
+  output: '0'
+- input: 'binary_search([], 1)'
+  output: '-1'
+starter_code: |-
+  def binary_search(nums: list[int], target: int) -> int:
+      # BUG 1: loop condition allows infinite loop on two-element arrays
+      # BUG 2: mid calculation can overflow in languages with fixed-size ints
+      #         (not a Python issue, but the idiomatic form is still preferred)
+      # BUG 3: boundary updates are wrong — can miss the target or loop forever
+
+      left, right = 0, len(nums)    # Bug 1: should be len(nums) - 1
+
+      while left < right:           # Bug 1 continued: should be left <= right
+          mid = (left + right) // 2 # Bug 2: idiomatic but acceptable in Python;
+                                    # non-Python: left + (right - left) // 2
+          if nums[mid] == target:
+              return mid
+          elif nums[mid] < target:
+              left = mid            # Bug 3: should be mid + 1 (infinite loop risk)
+          else:
+              right = mid + 1       # Bug 3: should be mid - 1
+
+      return -1
+follow_ups:
+- Write a version using Python's bisect module and explain how it handles duplicates.
+- Modify to return the leftmost index if there are duplicate targets.
+- Implement binary search on a rotated sorted array.
+key_skills:
+- debugging
+- binary search
+- loop invariants
+- boundary conditions
+test_type: function
+test_cases:
+- label: target in middle
+  args:
+  - - 1
+    - 3
+    - 5
+    - 7
+    - 9
+    - 11
+  - 7
+  expected: 3
+- label: target not present
+  args:
+  - - 1
+    - 3
+    - 5
+    - 7
+    - 9
+    - 11
+  - 6
+  expected: -1
+- label: target at start
+  args:
+  - - 2
+    - 4
+    - 6
+    - 8
+  - 2
+  expected: 0
+- label: target at end
+  args:
+  - - 2
+    - 4
+    - 6
+    - 8
+  - 8
+  expected: 3
+- label: single element found
+  args:
+  - - 5
+  - 5
+  expected: 0
+- label: empty array
+  args:
+  - []
+  - 1
+  expected: -1
+- label: two elements find second
+  args:
+  - - 3
+    - 7
+  - 7
+  expected: 1
+function_name: binary_search
+explanation: |-
+  The three bugs:
+
+  **Bug 1 — Initial right value**: `right = len(nums)` should be `right = len(nums) - 1`. Using len causes an index-out-of-bounds when accessing nums[mid] on a full-range search.
+
+  **Bug 2 — Loop condition**: `while left < right` should be `while left <= right`. With `<`, a single-element subarray (left == right) is never checked.
+
+  **Bug 3 — Boundary updates**:
+  - `left = mid` should be `left = mid + 1`. Without +1, if target > nums[mid] and the subarray is two elements, left never advances → infinite loop.
+  - `right = mid + 1` should be `right = mid - 1`. Without -1, we overshoot and re-check cells already ruled out.
+
+  Fixed version:
+  ```python
+  left, right = 0, len(nums) - 1
+  while left <= right:
+      mid = left + (right - left) // 2
+      if nums[mid] == target: return mid
+      elif nums[mid] < target: left = mid + 1
+      else: right = mid - 1
+  return -1
+  ```
+
+  The invariant: at the start of every iteration, target (if present) is within [left, right]. Each boundary update maintains this by excluding the ruled-out mid.
+references:
+- Memorize the fixed loop invariant — left <= right, left = mid+1, right = mid-1 — and never deviate.
+- The off-by-one family of binary search bugs is one of the most common sources of interview bugs.

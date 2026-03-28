@@ -9,9 +9,12 @@ description: >-
   length >= 8), "any_strong" (True if any password contains both a digit and an
   uppercase letter), "valid" (list of passwords that are both long AND strong,
   preserving order).
-scenario: >-
-  A user account service validates bulk-imported passwords to flag which ones meet
-  the minimum security policy before storing them.
+scenario: |-
+  A security engineering team at an enterprise SaaS company is building a bulk account provisioning tool that imports employee credentials from an HR system CSV export. Before any password hash is stored, the tool must verify whether the entire batch meets the minimum complexity policy, flag whether at least one password is already strong, and produce a list of passwords that pass both requirements. Failing the batch-wide checks triggers an email to the HR admin rather than an immediate error, so the logic must be precise.
+alt_scenarios:
+  - "**ML dataset validator:** A training pipeline uses any/all to check whether any sample in a batch has a null label and whether all samples meet the minimum token length before feeding the batch to the model."
+  - "**Deployment health check:** A release gate uses all() to confirm every replica has reported a healthy status and any() to detect whether at least one canary has seen elevated error rates."
+  - "**Contract compliance engine:** A legal tech tool uses all() to verify that every clause in a contract contains a required disclosure keyword and any() to detect at least one high-risk clause."
 constraints:
   - Passwords are non-empty strings of printable ASCII characters
   - An empty list results in all_long=True (vacuous truth) and any_strong=False

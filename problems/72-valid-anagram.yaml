@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Check if two strings contain the same letters with the same counts.
 description: Implement is_anagram(a, b) that returns True when two strings are anagrams of each other.
-scenario: This is a short counting warm-up that still rewards careful thinking about frequency maps.
+scenario: |-
+  A plagiarism-detection service at an edtech company needs to catch students who submit answers by rearranging the letters of a model answer. Before running a more expensive semantic diff, the pipeline runs a fast anagram check on each submitted token against the reference token — if the character counts match, the submission is flagged for human review. The engineer building this pre-filter wants a clean, O(n) implementation that handles tokens up to a few hundred characters.
+alt_scenarios:
+  - "**Search synonym index:** A search engine checks whether two query tokens are letter-for-letter rearrangements to deduplicate synonym entries in its index."
+  - "**Cryptography tooling:** A cipher utility verifies that an encrypted output is a character-level permutation of the plaintext before signing the result."
+  - "**Test data generator:** A QA tool confirms that a shuffled version of a test string contains identical character counts before injecting it as a fuzz input."
 constraints:
 - Assume lowercase ASCII letters.
 examples:

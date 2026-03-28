@@ -4,7 +4,12 @@ category: streaming
 difficulty: Easy
 summary: Count recent events within a rolling 3000ms window.
 description: Implement RecentCounter with ping(t) returning the number of timestamps in the inclusive range [t-3000, t]. Calls arrive in increasing timestamp order.
-scenario: A monitoring widget wants a quick rolling request count over the last few seconds without recomputing old events every time.
+scenario: |-
+  The SRE team at a SaaS company is building a live traffic dashboard that displays the rolling request rate for each API endpoint over a 3-second sliding window. The widget receives timestamped ping events from the load balancer at high frequency and must return an updated count with every new event. Recomputing the count by scanning the full event history on each ping is causing the widget to lag under load; you need a structure that evicts expired events incrementally so each ping is O(1) amortized.
+alt_scenarios:
+  - "**Rate limiter admission control:** An API gateway tracks how many requests a client has made in the last 3 seconds and rejects those that exceed a per-client quota."
+  - "**Anomaly detection trigger:** A security system counts login attempts within a rolling window and fires an alert when the count crosses a threshold, indicating a brute-force attack."
+  - "**Live sports stats:** A broadcast overlay system counts scoring events within the last 3 seconds of game time to power a real-time pace-of-play visualization."
 constraints:
 - Timestamps are strictly increasing
 - Use the inclusive window [t-3000, t]

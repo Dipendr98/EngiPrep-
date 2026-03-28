@@ -4,7 +4,12 @@ category: parsing
 difficulty: Medium
 summary: Parse a cron expression and compute the next N run times.
 description: Parse a simplified cron expression with five fields (minute, hour, day-of-month, month, day-of-week) supporting values, ranges (1-5), steps (*/15), and lists (1,3,5). Implement next_run(cron_string, after_datetime) that returns the next datetime matching the pattern.
-scenario: ''
+scenario: |-
+  The Data Platform team at an e-commerce company runs hundreds of nightly ETL jobs defined by cron expressions in a YAML manifest. When a new job is registered, the scheduler must compute its next five fire times so the team can audit that the expression does what the author intended before it goes to production. Expressions use the full five-field syntax with ranges, steps, and comma-separated lists, and the system needs to handle edge cases like month-end day-of-month overflow correctly.
+alt_scenarios:
+  - "**Cloud function scheduler:** A serverless platform parses user-supplied cron strings to determine the next invocation time for each function and pre-warms the container that many seconds in advance."
+  - "**Database backup orchestrator:** A backup service evaluates cron expressions to schedule snapshot jobs for thousands of database instances, ensuring no two large instances have overlapping windows."
+  - "**Email campaign platform:** A marketing tool computes the next send time for recurring newsletter campaigns defined as cron expressions so it can enqueue render jobs at the right moment."
 constraints: []
 examples: []
 starter_code: |-

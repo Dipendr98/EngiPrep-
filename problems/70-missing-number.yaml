@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Find the missing value from 0..n.
 description: Implement missing_number(nums) where nums contains n distinct numbers from the range [0, n]. Return the missing one.
-scenario: A small arithmetic or set-based warm-up helps you compare two different clean approaches quickly.
+scenario: |-
+  A data integrity team at a logistics company audits daily shipment ID sequences. Each day's batch is supposed to contain consecutive integer IDs starting from 0, but a bug in the warehouse scanner occasionally drops one scan. The on-call engineer needs a fast check that takes the scanned ID list and returns the missing ID so the warehouse team can rescan the right package before the truck departs.
+alt_scenarios:
+  - "**Database audit tool:** An ETL validator detects which row ID was skipped during a bulk insert into a sequential primary-key table."
+  - "**Sensor network health check:** A telemetry aggregator identifies the missing sequence number in a packet stream to trigger a retransmit request to the sensor."
+  - "**CI pipeline integrity:** A build system confirms which step number is absent from a reported run log before marking the pipeline as complete."
 constraints:
 - Exactly one value is missing.
 examples:

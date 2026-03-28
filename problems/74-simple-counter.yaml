@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Implement a tiny stateful counter API.
 description: Implement Counter with increment(), decrement(), reset(), and value() methods.
-scenario: A very small stateful warm-up helps you talk through invariants before deeper object-design problems.
+scenario: |-
+  A backend engineer at a ride-sharing company is building a lightweight session tracking object for a driver's consecutive-trip streak. Each completed trip calls increment(), a cancelled trip calls decrement(), and resetting at shift end calls reset(). The object is embedded in a Redis-backed driver session and must expose a clean value() read path for the real-time dashboard. Keeping the implementation minimal and correct is critical because bugs here silently corrupt bonus calculations.
+alt_scenarios:
+  - "**Rate limiter:** A gateway service uses a counter object to track the number of requests in the current time window before deciding to throttle a client."
+  - "**CI retry tracker:** A build system wraps retry state in a counter class to increment on each failed attempt and reset on a successful job completion."
+  - "**Inventory management:** A warehouse API tracks available stock units with increment/decrement operations that are audited on every update."
 constraints:
 - The counter starts at 0.
 examples:

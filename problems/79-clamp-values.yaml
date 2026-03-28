@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Clamp all numbers into an inclusive range.
 description: Implement clamp_values(nums, low, high) that returns a new list where every value below low becomes low and every value above high becomes high.
-scenario: A tiny numeric transformation is a good warm-up for clean iteration and edge-case handling.
+scenario: |-
+  A machine learning platform team at an autonomous-vehicle company applies sensor value clamping as a preprocessing step before feeding LiDAR distance readings into a neural network. Raw sensor output occasionally spikes beyond the physically valid range due to hardware noise, and unclamped values corrupt gradient calculations during training. The data engineer writes this clamping transform to run in the ingestion pipeline before data lands in the feature store.
+alt_scenarios:
+  - "**Audio DSP:** A digital signal processor clamps audio sample amplitudes to a hardware-safe range before writing PCM data to an output buffer."
+  - "**Game physics engine:** A physics simulation clamps velocity values for each entity to the engine's maximum speed constant to prevent tunneling artifacts."
+  - "**Financial risk system:** A risk calculator clamps raw position delta values to a regulatory exposure limit before aggregating them into the firm's daily VaR report."
 constraints:
 - Assume low <= high.
 examples:

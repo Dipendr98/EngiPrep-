@@ -7,9 +7,12 @@ description: >-
   Write a generator function `_running_avg_gen(nums)` that yields the running average
   after each element. Then implement `running_averages(nums: list[float]) -> list[float]`
   that returns the result as a list, with each value rounded to 2 decimal places.
-scenario: >-
-  A metrics dashboard computes a running average of response times as data points
-  arrive, displaying a smoothed trace without storing the full history at each step.
+scenario: |-
+  An observability team at a cloud company is building the data backend for a real-time latency chart that displays a smoothed p50 trace as API response times arrive. Rather than storing a growing history of raw values and recomputing the average on every frame, the engineer uses a generator that maintains only a running total and a count, yielding the updated average after each new data point. This keeps memory constant regardless of how long the dashboard session runs.
+alt_scenarios:
+  - "**ML training monitor:** A training loop uses a running-average generator to compute a smoothed loss trace over mini-batches without accumulating all batch losses in memory."
+  - "**IoT telemetry aggregator:** A sensor gateway yields a running average of temperature readings from a continuous data stream to populate a live equipment health display."
+  - "**Financial tick processor:** A market data feed handler computes a running average of trade prices using a generator to power a live VWAP indicator on a trading terminal."
 constraints:
   - nums is non-empty
   - Each yielded value is the mean of all elements seen so far

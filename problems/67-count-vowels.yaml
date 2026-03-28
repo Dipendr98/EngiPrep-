@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Count vowels in a string.
 description: Implement count_vowels(s) that returns the number of English vowels in the string, case-insensitive.
-scenario: A tiny counting task helps warm up loops, conditionals, and normalization.
+scenario: |-
+  The accessibility team at an e-learning platform is building a readability scoring tool that estimates how phonetically dense a passage of text is, using vowel count as a proxy metric. The scorer processes thousands of short text segments per second from student submissions and needs a fast, case-insensitive vowel counter that handles uppercase chapter headings and lowercase body text uniformly without normalizing the entire string first. You need a single-pass counter that correctly identifies a, e, i, o, and u regardless of case.
+alt_scenarios:
+  - "**Spam keyword heuristic:** A content filter scores messages by vowel density as one signal in a naive Bayes spam classifier, running the count over millions of incoming messages daily."
+  - "**Text-to-speech pre-processor:** A TTS engine counts vowels in each word to estimate syllable count for prosody modeling before sending text to the synthesis backend."
 constraints:
 - Count a, e, i, o, u only.
 examples:

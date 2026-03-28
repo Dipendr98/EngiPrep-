@@ -4,7 +4,12 @@ category: infra
 difficulty: Medium
 summary: Pub/sub event system with subscribe, unsubscribe, and emit.
 description: Implement an event emitter. on(event, callback) registers a listener. off(event, callback) removes it. emit(event, *args) calls all listeners for that event. once(event, callback) registers a listener that auto-removes after one call. Support wildcard listeners that receive all events.
-scenario: You're designing the core event system for a plugin architecture in a document editor. Plugins need to react to events like 'document.saved', 'cursor.moved', and 'selection.changed' without the core editor knowing about each plugin. You need a pub/sub emitter that supports registering listeners, one-shot listeners, removal, and a wildcard '*' listener that hears every event for cross-cutting concerns like analytics.
+scenario: |-
+  You're building the plugin architecture for an internal developer tool—a lightweight code-review assistant that editors and CI integrations extend with plugins. Plugins need to hook into lifecycle events like "review.opened," "comment.posted," and "approval.granted" without the core tool maintaining a hardcoded list of subscribers. You need a pub/sub emitter that lets each plugin register typed listeners, fire one-shot callbacks for initialization events, and supports a wildcard listener so a telemetry plugin can capture every event for usage analytics without being explicitly wired into each event type.
+alt_scenarios:
+  - "**Node.js stream library internals:** Implementing the EventEmitter that underlies readable and writable streams, where 'data,' 'end,' and 'error' events must be dispatched to multiple listeners in registration order."
+  - "**Game engine (Unity-style event bus):** Powering a decoupled event system where game systems like audio, UI, and physics subscribe to gameplay events ('enemy.killed,' 'level.completed') without holding direct references to each other."
+  - "**React state management library:** Building the subscription mechanism that notifies UI components when slices of shared state change, using one-time listeners for initialization effects and persistent listeners for ongoing re-renders."
 constraints:
 - Event names are strings
 - Callbacks are callable objects

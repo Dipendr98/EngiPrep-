@@ -7,9 +7,12 @@ description: >-
   Implement `format_leaderboard(names: list[str], scores: list[int]) -> list[str]` that
   takes a list of names and a corresponding list of scores and returns a list of strings
   formatted as "1. Alice: 90" with 1-based rank. Use zip and enumerate.
-scenario: >-
-  A gaming platform generates a formatted leaderboard display by pairing player
-  names with their scores and prepending a rank number to each entry.
+scenario: |-
+  A backend engineer at a mobile gaming studio is building the leaderboard API that powers the end-of-match results screen. The API receives two parallel arrays — player display names and their final scores — and must return a list of human-readable strings like "1. Alice: 90" to render in the client UI. Using zip and enumerate together keeps the implementation concise and avoids the fragile manual index counter that appeared in the previous implementation and caused off-by-one bugs during hotfixes.
+alt_scenarios:
+  - "**Sports analytics platform:** A stats service pairs athlete names with their recorded times and formats them into a ranked results table for a race event."
+  - "**CI test reporter:** A test framework zips test case names with their pass/fail results and enumerates them to produce a numbered test summary report."
+  - "**E-commerce inventory report:** A catalog tool pairs SKU names with stock counts and formats them into a ranked low-stock alert list for the operations team."
 constraints:
   - len(names) == len(scores)
   - Lists may be empty

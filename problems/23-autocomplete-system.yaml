@@ -4,7 +4,12 @@ category: search
 difficulty: Medium
 summary: Prefix-based search engine returning top results ranked by frequency.
 description: Implement an autocomplete system. add(sentence, frequency) adds or updates a sentence. search(prefix) returns the top 3 sentences matching the prefix, sorted by frequency then lexicographically. Typing should feel fast, so search must be efficient.
-scenario: You're working on the search bar for an internal knowledge base at a company with thousands of engineers. As someone types, we need to suggest the most relevant past queries instantly. The product team insists on ranking by frequency—and if there's a tie, alphabetical order. Anything above a few milliseconds feels laggy, so the data structure backing this needs to be fast on prefix lookups.
+scenario: |-
+  You're on the Search Platform team at a large e-commerce company, responsible for the product search bar that handles 50K queries per minute. As a shopper types "wire" in the search box, your system needs to surface the top 3 most-searched completions—"wireless earbuds," "wire shelving," "wireless charger"—within a single-digit millisecond budget. The product team mandates frequency-based ranking so popular queries surface first, with alphabetical tie-breaking for a stable user experience. You're building the in-process autocomplete engine that runs inside each search API pod, pre-loaded with query history from the past 30 days.
+alt_scenarios:
+  - "**IDE tooling team (JetBrains/VS Code plugin):** Surfacing the top method and variable name completions from a user's own codebase as they type, ranked by how often each symbol appears in the project."
+  - "**Customer support platform (Zendesk-style):** Suggesting the most-used saved reply templates as an agent begins typing, so common responses appear instantly without scrolling through a long list."
+  - "**CLI tool for a cloud provider:** Auto-completing resource names and flags in a terminal as engineers type partial commands, ranked by frequency of past invocations in that user's shell history."
 constraints:
 - Sentences are lowercase, containing letters, digits, and spaces
 - search() returns at most 3 results

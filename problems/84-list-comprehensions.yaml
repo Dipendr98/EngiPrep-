@@ -7,9 +7,12 @@ description: >-
   Implement `transform(words: list[str]) -> list[str]` that takes a list of strings
   and returns a new list containing the uppercase version of each string whose length
   is greater than 3, preserving original order.
-scenario: >-
-  A log parser filters short noise tokens from a tokenized log line and
-  normalizes the remaining tokens to uppercase for case-insensitive matching.
+scenario: |-
+  A platform engineering team at a cloud company is building a structured log parser that tokenizes raw log lines from their API gateway. Short tokens like "at", "in", and "to" are stop words that add noise to the alert-matching rules, so the pipeline filters them out and uppercases the surviving tokens before handing them off to the pattern matcher. The engineer wants a single-line list comprehension to keep the transformation readable and testable.
+alt_scenarios:
+  - "**Search indexer:** An inverted index builder filters single-character tokens from a tokenized document and upcases the rest before inserting them into the index."
+  - "**ETL pipeline:** A data cleaning job selects only long-form country codes from a mixed list and normalizes them to uppercase before joining with a reference table."
+  - "**Config validator:** A deployment tool extracts environment variable names longer than three characters and uppercases them to check against a policy allowlist."
 constraints:
   - Words consist of ASCII letters only
   - Preserve the relative order of qualifying words

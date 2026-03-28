@@ -8,9 +8,12 @@ description: >-
   dicts each with "name" (str) and "score" (int, 0-100), and returns a list of formatted
   strings like "Alice: 92/100 — A" where the grade is A (>=90), B (>=80), C (>=70),
   D (>=60), or F (<60). Use f-strings.
-scenario: >-
-  An online learning platform generates human-readable grade summaries for a batch
-  of student assessment results to include in email notifications.
+scenario: |-
+  An engineering team at an edtech company is building the notification service that emails grade summaries to students after each automated assessment. The service receives a batch of result records from the grading engine and must render each one as a human-readable string — including the letter grade — before handing it off to the email delivery system. Using f-strings keeps the formatting logic inline and easy to audit when the email template changes.
+alt_scenarios:
+  - "**HR performance system:** A people-ops tool formats employee review scores into a standardized summary string with letter ratings for inclusion in quarterly review PDFs."
+  - "**Compliance reporting:** A regulatory reporting service formats audit scores into structured strings with categorical labels before writing them to a compliance log."
+  - "**Game achievement system:** A mobile game backend formats player XP totals into rank strings using grade thresholds to display on the player's profile card."
 constraints:
   - score is an integer in the range [0, 100]
   - Grade thresholds are inclusive (score of exactly 90 is an A)

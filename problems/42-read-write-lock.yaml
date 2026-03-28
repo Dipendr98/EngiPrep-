@@ -4,7 +4,12 @@ category: concurrency
 difficulty: Hard
 summary: Lock that allows concurrent readers but exclusive writers.
 description: 'Implement a read-write lock. acquire_read() allows multiple concurrent readers. acquire_write() is exclusive: no other readers or writers. Prevent writer starvation: if a writer is waiting, new readers should not be granted access until the writer finishes.'
-scenario: We have a shared in-memory configuration cache that dozens of request-handler threads read on every request but that only gets updated a few times per minute by a background config-refresh thread. A plain mutex serializes everything and kills throughput. You need a lock that lets all those readers proceed in parallel but gives the writer exclusive access when it needs to swap the config — and you can't let a steady stream of new readers starve the writer indefinitely.
+scenario: |-
+  You're on the Core Infrastructure team at a high-throughput ad-serving platform. Every ad decision reads from an in-memory feature-flag store that's shared across 64 request-handler threads, but the store is refreshed from the configuration service only every 30 seconds by a single background goroutine. Using a plain mutex causes all 64 handlers to serialize on every flag check, adding milliseconds of contention at peak load and directly costing revenue. You need a lock that lets all readers proceed in parallel but gives the config-refresh writer exclusive access—and crucially, a continuous stream of incoming requests can't be allowed to starve the writer by always holding a read lock.
+alt_scenarios:
+  - "**In-memory cache layer (Guava/Caffeine-style):** Protecting a shared cache map where hundreds of threads read cached responses per second and only an async expiry thread writes, requiring readers to never block each other."
+  - "**DNS resolver cache:** Allowing concurrent reader threads to resolve cached hostnames while a single TTL-expiry thread invalidates stale entries under an exclusive write lock, without reader threads starving the expiry sweep."
+  - "**Routing table in a software-defined router:** Letting packet-forwarding threads read the forwarding table in parallel at line rate while a control-plane thread installs new routes under an exclusive write lock that doesn't get starved by continuous forwarding traffic."
 constraints:
 - Multiple readers may hold the lock concurrently.
 - A writer must have exclusive access — no other readers or writers.

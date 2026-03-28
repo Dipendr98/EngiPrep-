@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Count words in a sentence.
 description: Implement count_words(text) that returns the number of space-separated words, ignoring extra whitespace.
-scenario: This is a nice warm-up for trimming and tokenizing plain text without overthinking the parser.
+scenario: |-
+  A document ingestion service at a legal tech company enforces word-count limits on uploaded contract clauses before they are indexed. Lawyers paste text from Word documents that frequently contain irregular spacing and leading/trailing whitespace from formatting artifacts. The preprocessing step must return an accurate word count regardless of whitespace irregularities so the system can reject oversized clauses before they hit the database.
+alt_scenarios:
+  - "**CMS character budget:** A content management system counts words in user-authored descriptions to enforce a per-field word limit before saving a draft."
+  - "**ML feature extraction:** A text feature pipeline counts tokens in each document field as a numeric input to a bag-of-words classifier."
+  - "**Billing system:** A transcription service bills clients per word and uses a word counter on cleaned transcript text to calculate the invoice line item."
 constraints:
 - Treat runs of whitespace as a single separator.
 examples:

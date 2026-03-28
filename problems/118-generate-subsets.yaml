@@ -1,0 +1,94 @@
+id: 118
+title: Generate All Subsets
+category: backtracking
+difficulty: Medium
+summary: Return all possible subsets (power set) of a list of unique integers.
+description: Given an array of unique integers, return all possible subsets (the power set). The solution set must not contain duplicate subsets. The empty subset and the full set are both valid subsets.
+scenario: |-
+  You're a developer-experience engineer at LaunchDarkly building the automated regression harness for feature flag interactions. Before each major release, QA must validate every possible combination of the N experimental flags that are currently in beta — because flag interactions can produce emergent bugs that don't appear when flags are tested in isolation. Your harness generates the full power set of active flags and schedules one test run per subset, ensuring 100% combinatorial coverage without manually curating test matrices.
+alt_scenarios:
+  - "**Kubernetes label selector tester:** A platform team generates every subset of pod label key-value pairs to validate that all selector rule combinations in a Helm chart match the intended pods."
+  - "**ML feature ablation study:** A machine learning team enumerates all subsets of candidate input features to measure each subset's model performance and identify the minimum viable feature set."
+  - "**Microservice dependency graph generator:** A service-mesh team generates every subset of optional sidecar policies to validate that no subset combination causes proxy startup failures."
+constraints:
+- All integers in nums are unique
+- Return all 2^n subsets
+- The order of subsets in the output does not matter, but each subset should be sorted internally
+- Include the empty subset
+examples:
+- input: 'subsets([1,2,3])'
+  output: '[[],[1],[2],[3],[1,2],[1,3],[2,3],[1,2,3]]'
+- input: 'subsets([0])'
+  output: '[[],[0]]'
+starter_code: |-
+  def subsets(nums: list[int]) -> list[list[int]]:
+      pass
+follow_ups:
+- Subsets II — the input may contain duplicates; return unique subsets only.
+- Generate all subsets of size exactly k.
+- Iterate subsets in lexicographic order.
+key_skills:
+- backtracking
+- power set
+- recursion
+test_type: function
+test_cases:
+- label: three elements
+  setup_code: |-
+    def _test(nums):
+        result = subsets(nums)
+        return sorted([sorted(s) for s in result])
+  function_name: _test
+  args:
+  - - 1
+    - 2
+    - 3
+  expected:
+  - []
+  - - 1
+  - - 1
+    - 2
+  - - 1
+    - 2
+    - 3
+  - - 1
+    - 3
+  - - 2
+  - - 2
+    - 3
+  - - 3
+- label: single element
+  setup_code: |-
+    def _test(nums):
+        result = subsets(nums)
+        return sorted([sorted(s) for s in result])
+  function_name: _test
+  args:
+  - - 0
+  expected:
+  - []
+  - - 0
+function_name: subsets
+explanation: |-
+  Three equivalent approaches:
+
+  1. Backtracking: start with an empty current subset. At each index, choose to include or exclude nums[i], recurse, then undo (backtrack).
+     ```
+     def bt(start, curr):
+         result.append(list(curr))
+         for i in range(start, len(nums)):
+             curr.append(nums[i])
+             bt(i + 1, curr)
+             curr.pop()
+     ```
+
+  2. Iterative: start with [[]], and for each number, extend every existing subset with that number.
+
+  3. Bit manipulation: for each number 0..2^n-1, the set bits indicate which elements to include.
+
+  All produce 2^n subsets. Backtracking is the most interview-friendly and generalizes easily to Combinations and Permutations.
+
+  Time O(n * 2^n) — 2^n subsets, each up to length n to copy. Space O(n) for the recursion stack.
+references:
+- Backtracking template: append current state, loop from start to end, recurse, pop (undo).
+- The iterative approach (for each num, double the result set) is elegant and avoids recursion.

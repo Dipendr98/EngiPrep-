@@ -4,7 +4,12 @@ category: api_design
 difficulty: Medium
 summary: Extensible plugin system with registration, discovery, and lifecycle hooks.
 description: 'Implement a plugin registry. register(name, plugin) registers a plugin object. Plugins must implement an initialize() and shutdown() method. get(name) retrieves a plugin. Support dependency ordering: plugins can declare dependencies on other plugins, and initialize() must be called in dependency order.'
-scenario: You're architecting a modular analytics platform where teams ship features as plugins — a 'database' plugin, an 'auth' plugin that depends on 'database', a 'dashboard' plugin that depends on both. The registry needs to accept plugin registrations, resolve the dependency graph, and call initialize() in the right order so that by the time 'auth' starts up, 'database' is already live. On shutdown, the order reverses. If someone registers a plugin with a missing or circular dependency, you should fail fast with a clear error.
+scenario: |-
+  The platform engineering team at a B2B SaaS company is building a self-service extension system so that product squads can ship optional capabilities — a metrics-exporter plugin, an SSO plugin that depends on the auth-core plugin, a reporting plugin that depends on both — without modifying the main application binary. You need a plugin registry that accepts registrations at startup, resolves the dependency graph using a topological sort, and calls each plugin's initialize() in safe dependency order so that no plugin starts before its dependencies are live. On graceful shutdown the order reverses, and any circular or missing dependency must be caught before any plugin touches production state.
+alt_scenarios:
+  - "**Game engine modules:** A game studio's engine loads renderer, physics, and audio subsystems in dependency order at scene start and tears them down cleanly on exit."
+  - "**CI/CD pipeline steps:** A build system resolves step dependencies across lint, test, compile, and publish stages and refuses to start if the dependency graph contains a cycle."
+  - "**Kubernetes operator controllers:** A multi-controller operator initializes custom resource controllers in an order that satisfies inter-controller dependencies declared in their specs."
 constraints:
 - Each plugin object must have a 'dependencies' attribute (list of plugin name strings), and initialize() and shutdown() methods.
 - register(name, plugin) raises if name is already registered.

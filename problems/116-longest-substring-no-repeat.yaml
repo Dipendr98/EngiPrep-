@@ -1,0 +1,73 @@
+id: 116
+title: Longest Substring Without Repeating Characters
+category: strings
+difficulty: Medium
+summary: Find the length of the longest substring with all unique characters.
+description: Given a string, return the length of the longest substring that contains no repeated characters. A substring is a contiguous part of the string.
+scenario: |-
+  You're a security engineer at Auth0 building the token entropy validator that runs on every generated API key before it is issued to a customer. A key with long runs of repeated characters is trivially guessable by pattern, so the validator computes the longest substring without repeating characters as a quick entropy proxy — keys scoring below a threshold are rejected and regenerated. The check runs on the hot path of the token issuance endpoint, which handles over 2 million requests per minute during peak auth traffic.
+alt_scenarios:
+  - "**Network packet deduplication:** A streaming data pipeline finds the longest window of consecutive packet payloads with no repeated byte value, used to detect compression-resistant data segments."
+  - "**Password policy enforcer:** An identity provider scans a candidate password for the longest character run without repeats to enforce a minimum complexity requirement before acceptance."
+  - "**DNA motif scanner:** A bioinformatics tool finds the longest stretch of a genome string with no repeated nucleotide symbol, identifying low-complexity regions to exclude from variant calling."
+constraints:
+- The input can contain any ASCII characters (letters, digits, symbols, spaces)
+- Return 0 for an empty string
+- Substring must be contiguous (not a subsequence)
+examples:
+- input: 'longest_unique("abcabcbb")'
+  output: '3  # "abc"'
+- input: 'longest_unique("bbbbb")'
+  output: '1  # "b"'
+- input: 'longest_unique("pwwkew")'
+  output: '3  # "wke"'
+starter_code: |-
+  def longest_unique(s: str) -> int:
+      pass
+follow_ups:
+- Return the actual substring, not just its length.
+- Find the longest substring with at most k distinct characters.
+- Find the longest substring with exactly k distinct characters.
+key_skills:
+- sliding window
+- hash map
+- two pointers
+test_type: function
+test_cases:
+- label: repeating blocks
+  args:
+  - abcabcbb
+  expected: 3
+- label: all same
+  args:
+  - bbbbb
+  expected: 1
+- label: mixed
+  args:
+  - pwwkew
+  expected: 3
+- label: empty string
+  args:
+  - ''
+  expected: 0
+- label: all unique
+  args:
+  - abcdef
+  expected: 6
+function_name: longest_unique
+explanation: |-
+  Sliding window with a hash map: maintain a window [left, right] and a dict mapping each character to its most recent index.
+
+  For each character at right:
+  - If it's already in the window (char_index >= left), move left to char_index + 1.
+  - Update the character's index in the map.
+  - Update max_len = max(max_len, right - left + 1).
+
+  The key insight: when a duplicate is found, jump left directly to the position after the last occurrence — don't move one step at a time.
+
+  Time O(n), space O(min(n, alphabet_size)).
+
+  Alternative with a set: shrink the window by removing characters one at a time until no duplicate. Same complexity but slower in practice due to more iterations.
+references:
+- The hash-map approach is faster than the set approach because it jumps over already-processed characters in one step.
+- 'Sliding window template: expand right unconditionally, shrink left when the window is invalid.'

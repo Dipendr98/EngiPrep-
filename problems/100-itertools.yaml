@@ -8,9 +8,12 @@ description: >-
   takes a list of distinct integers and a target, and returns all unique pairs (as sorted
   [a, b] lists) that sum to the target. Use itertools.combinations. Return the pairs
   sorted by first element.
-scenario: >-
-  A portfolio optimizer finds all pairs of asset IDs whose combined return score
-  matches a target allocation value, using combinations to enumerate candidate pairs.
+scenario: |-
+  A quantitative research team at an asset management firm is building a portfolio construction tool that screens for pairs of securities whose combined factor scores hit a target exposure level for a long/short strategy. The universe of candidate securities changes daily, and the team needs a clean, readable implementation that enumerates all valid pairs without duplicates. They use itertools.combinations to make the combinatorial intent explicit and avoid the subtle bugs that appear in hand-rolled nested loops.
+alt_scenarios:
+  - "**Drug interaction checker:** A clinical decision support system uses combinations to find all pairs of prescribed medications whose combined toxicity index exceeds a safety threshold."
+  - "**Network topology planner:** A network engineer enumerates all pairs of data-center nodes whose combined bandwidth satisfies a minimum redundancy requirement for a proposed link."
+  - "**Test case generator:** A QA automation tool generates all pairs of input parameters whose combined hash value matches a specific collision target for boundary testing."
 constraints:
   - All integers in nums are distinct
   - Return pairs as [a, b] with a <= b, sorted by first element

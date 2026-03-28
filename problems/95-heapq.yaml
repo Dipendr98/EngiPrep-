@@ -6,9 +6,12 @@ summary: Use heapq.nsmallest to efficiently retrieve the k smallest values from 
 description: >-
   Implement `k_smallest(nums: list[int], k: int) -> list[int]` that takes a list of
   integers and an integer k, and returns the k smallest values in ascending order.
-scenario: >-
-  A monitoring system identifies the k lowest-latency nodes in a large cluster
-  metric snapshot to prioritize routing decisions.
+scenario: |-
+  A site reliability team at a cloud infrastructure company is building a latency-aware request router that needs to identify the k lowest-latency nodes in a cluster of hundreds of replicas before routing a batch of user requests. The latency snapshot is collected every 500ms from a health-check daemon, and the router must pick the top candidates without the overhead of sorting the full list on every tick. The engineer implementing this uses heapq to get O(n log k) selection instead of O(n log n) full sort.
+alt_scenarios:
+  - "**Fraud scoring:** A risk engine identifies the k transactions with the lowest fraud scores from a batch to fast-path them through as low-risk without full scoring."
+  - "**Recommendation system:** A candidate retrieval layer picks the k lowest-distance embedding vectors from an ANN search result list to pass to the re-ranker."
+  - "**Log sampling:** A telemetry service selects the k shortest log messages from a high-volume stream to use as lightweight canary samples in a debugging session."
 constraints:
   - k >= 1 and k <= len(nums)
   - nums is non-empty

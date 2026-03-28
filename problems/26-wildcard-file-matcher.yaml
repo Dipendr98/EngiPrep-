@@ -4,7 +4,12 @@ category: search
 difficulty: Medium
 summary: Match file paths against glob patterns with *, ?, and ** support.
 description: Implement match(pattern, path) that returns True if the path matches the glob pattern. * matches any sequence within a path segment, ? matches a single character, and ** matches zero or more path segments. For example, 'src/**/*.py' matches 'src/lib/utils/helpers.py'.
-scenario: You're working on a build system that uses glob patterns to decide which source files get bundled into a release artifact. Developers write patterns like 'src/**/*.py' in their config and expect it to correctly match deeply nested Python files. We need to implement the matching logic from scratch—no calling out to fnmatch or glob libraries—supporting the standard *, ?, and ** wildcards.
+scenario: |-
+  You're building the file-selection engine for an internal monorepo CI system that determines which build targets need to be re-evaluated after a code change. Engineers declare watch patterns like "services/**/*.go" or "config/prod_?.yaml" in their BUILD files, and the CI scheduler matches changed file paths against those patterns to decide which pipelines to trigger. The pattern engine must run from scratch—no fnmatch or glob library calls—because you need precise control over how "**" crosses directory boundaries, and the existing library semantics don't match your monorepo conventions.
+alt_scenarios:
+  - "**Cloud storage (S3-compatible API team):** Implementing server-side object key filtering so ListObjects requests with prefix/wildcard patterns efficiently select matching blobs without scanning the full bucket."
+  - "**Security scanning platform:** Matching file paths in a repository against a configurable allowlist of patterns (e.g., 'tests/**/*.json') to decide which files are exempt from secret-detection scans."
+  - "**Log archival pipeline:** Routing log files to different retention tiers by matching their paths against glob rules defined by each product team in a central config file."
 constraints:
 - Paths use '/' as the separator
 - '''*'' matches zero or more characters within a single path segment (never crosses ''/'')'

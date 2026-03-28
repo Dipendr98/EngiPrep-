@@ -4,7 +4,12 @@ category: search
 difficulty: Easy
 summary: Find the two indices whose values add up to a target.
 description: Implement two_sum(nums, target) that returns the indices of two distinct elements whose sum equals target. Return the pair in ascending index order.
-scenario: A product analytics job needs to quickly match two event counts that combine to a known threshold, and the caller only needs the original positions.
+scenario: |-
+  The data engineering team at an e-commerce company runs a nightly reconciliation job that checks whether any two line-item amounts in an order batch sum to a known discrepancy value flagged by the accounting system. The dataset can contain hundreds of thousands of entries, so the naive O(n²) double-loop approach is timing out on large settlement files. You need an O(n) solution that uses a hash map to find the pair in a single pass and returns the original array positions so the downstream report can cite the exact records.
+alt_scenarios:
+  - "**Fraud detection:** A risk engine checks whether any two transaction amounts in a daily ledger combine to a suspicious round-number total that matches a known laundering pattern."
+  - "**Chemistry simulation:** A molecular modeling tool finds two atom masses in a compound list whose combined weight matches a target reaction threshold for bond prediction."
+  - "**Logistics optimization:** A warehouse packing system finds two item weights that together exactly fill a container capacity slot, scanning a pre-loaded SKU inventory list."
 constraints:
 - Exactly one valid answer exists
 - Do not reuse the same element twice

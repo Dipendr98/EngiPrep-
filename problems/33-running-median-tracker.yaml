@@ -4,7 +4,12 @@ category: streaming
 difficulty: Hard
 summary: Maintain the median of a growing stream of numbers efficiently.
 description: Implement add(num) which adds a number to the stream and median() which returns the current median. If the count is even, return the average of the two middle values. Both operations should be better than O(n).
-scenario: You're working on a real-time analytics service that monitors API response latencies. The product team wants a live P50 display on the dashboard that updates as each new request completes. You need a data structure that can absorb a continuous stream of latency values and return the current median at any time, without re-sorting the entire history on every query.
+scenario: |-
+  You're on the Reliability Engineering team at a payments processor, and the SLA for your authorization API is defined in terms of P50 latency—not average—because a small fraction of slow calls can mask a degraded backend when using a mean. The dashboard widget labeled "P50 latency (live)" must update every time a new authorization response is recorded, and it's queried hundreds of times per minute by automated alerting rules. Re-sorting the full latency history on each request would burn CPU on every pod; you need a data structure that absorbs new samples in O(log n) and returns the current median in O(1).
+alt_scenarios:
+  - "**Streaming media platform (video encoding pipeline):** Tracking the rolling median encoding time across thousands of concurrent jobs so the scheduler can dynamically allocate worker capacity based on actual job durations rather than historical averages."
+  - "**Healthcare device monitoring:** Maintaining the running median of a patient's heart rate readings from a continuous ECG stream so bedside alert logic uses a robust central-tendency measure that isn't skewed by sensor noise spikes."
+  - "**Financial data feed (market data team):** Computing the live median trade size for a given equity symbol across a session's tick stream so a trading algorithm can distinguish between institutional and retail order flow in real time."
 constraints:
 - Numbers can be integers or floats
 - add() should be O(log n)

@@ -4,7 +4,12 @@ category: streaming
 difficulty: Easy
 summary: Compute a moving average over a sliding window of values.
 description: Implement a class that computes the moving average of the last N values in a stream. add(value) adds a new value and returns the current average. The window size N is set at initialization.
-scenario: We have a service that monitors API latency. Every time a request completes, we record its response time. The dashboard needs to show the average latency over the last N requests so on-call engineers can spot regressions quickly. We need a lightweight class that keeps a sliding window and recomputes the average in O(1) on each new value—no rescanning the whole window.
+scenario: |-
+  You're on the Observability Platform team at a SaaS company, building the metrics pipeline that powers the on-call dashboard. Every HTTP response emits its latency in microseconds to a stream processor, and the dashboard widget labeled "P50-ish avg (last 100 requests)" needs to update on each new data point. With hundreds of services each emitting thousands of requests per minute, the computation must be O(1) per event—re-scanning the window on every sample would make the pipeline a bottleneck. You're implementing the moving average primitive that every service-level dashboard widget will use under the hood.
+alt_scenarios:
+  - "**Algorithmic trading system:** Computing a short-window exponential moving average of bid-ask spreads tick-by-tick so a market-making algorithm can detect when the spread widens beyond a threshold."
+  - "**IoT sensor platform:** Smoothing noisy temperature or vibration readings from factory-floor sensors in real time, discarding old samples as new ones arrive, to feed an anomaly-detection rule engine."
+  - "**Video streaming quality monitor (Netflix-style CDN):** Tracking the rolling average rebuffer ratio over the last N playback sessions per edge node so CDN engineers can spot regional degradations without a full dataset scan."
 constraints:
 - Window size N is a positive integer set at construction
 - Values are integers or floats

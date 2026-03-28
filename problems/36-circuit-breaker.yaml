@@ -4,7 +4,12 @@ category: infra
 difficulty: Medium
 summary: Protect downstream services by tripping a breaker after repeated failures.
 description: 'Implement a circuit breaker with three states: CLOSED (normal), OPEN (failing, reject all calls), and HALF_OPEN (testing recovery). Track failure rate. Trip to OPEN when failure_threshold is exceeded within a window. After a cooldown period, move to HALF_OPEN and allow one test call. If it succeeds, close; if it fails, reopen.'
-scenario: You're building a gateway service that proxies requests to several downstream microservices. When a downstream goes unhealthy, you don't want to keep hammering it — that makes recovery slower and wastes your own resources on doomed requests. You need a circuit breaker that automatically stops sending traffic after enough failures, waits a cooldown period, then cautiously tests whether the service has recovered.
+scenario: |-
+  You're on the API Gateway team at a large e-commerce platform. During the holiday peak, a downstream inventory service fell into a crash-loop—and the gateway kept dutifully forwarding 30K requests per minute to it, each timing out after 5 seconds, which exhausted the gateway's own thread pool and caused a total outage that outlasted the original inventory incident by 40 minutes. You're retrofitting every downstream proxy with a circuit breaker so the next time a dependency degrades, the gateway fails fast, gives the downstream room to recover, and cautiously resumes traffic once the cooldown elapses.
+alt_scenarios:
+  - "**Mobile app backend (BFF layer):** Wrapping calls to a third-party credit-score API so that after several consecutive failures the BFF returns a cached fallback response immediately, rather than holding the mobile client connection open for a 30-second timeout."
+  - "**Database access layer:** Protecting a read replica from cascading overload by tripping a breaker when connection errors exceed a threshold, so application threads stop queuing queries and shed load until the replica recovers."
+  - "**Microservice mesh (service-to-service calls):** Implementing per-downstream breakers in a service mesh sidecar so any single flaky dependency can't exhaust the calling service's connection pool and bring down unrelated features."
 constraints:
 - failure_threshold is the number of failures within the window that trips the breaker
 - window_seconds is the sliding window length for counting failures

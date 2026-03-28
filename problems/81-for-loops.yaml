@@ -7,9 +7,12 @@ description: >-
   Implement `pair_products(a: list[int], b: list[int]) -> list[int]` that takes two lists
   of equal length and returns a new list where each element is the product of the
   corresponding elements. Use a for loop with range or zip.
-scenario: >-
-  A data pipeline multiplies two aligned feature vectors element-wise before
-  feeding them into a scoring model.
+scenario: |-
+  A recommendations ML team at a streaming company is building the feature interaction layer of their real-time ranking model. Two pre-computed feature vectors — one for user affinity and one for item relevance — must be multiplied element-wise before being summed into a dot-product score. The engineer implementing this step wants a readable loop-based version first, before the team decides whether to vectorize with NumPy.
+alt_scenarios:
+  - "**Ad auction engine:** A bidding system computes element-wise products of bid multipliers and quality scores across a ranked list of ad candidates."
+  - "**Physics simulation:** A game engine multiplies corresponding mass and acceleration vectors element-wise to compute force vectors for each rigid body."
+  - "**Financial risk model:** A risk calculator multiplies position weights by scenario returns element-wise to produce per-scenario P&L values before aggregation."
 constraints:
   - len(a) == len(b)
   - Elements may be zero or negative

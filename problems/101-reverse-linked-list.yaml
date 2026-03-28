@@ -1,0 +1,129 @@
+id: 101
+title: Reverse Linked List
+category: linked lists
+difficulty: Easy
+summary: Reverse a singly linked list in-place and return the new head.
+description: Given the head of a singly linked list, reverse it in-place and return the new head. The ListNode class has `val` and `next` attributes.
+scenario: |-
+  You're a senior engineer on Figma's collaborative editing team, where every user action — draw, move, resize — is appended as a node to a per-session linked list. When a user triggers "undo all," the client must replay the action chain in reverse to restore the canvas to its original state. Allocating a new list for millions of active sessions would blow the memory budget, so the reversal must happen in-place in O(1) space.
+alt_scenarios:
+  - "**Browser history engine:** A tab's back-stack is a linked list; navigating to the beginning of history requires reversing the chain without copying nodes."
+  - "**Log replay system:** An append-only audit log stored as a linked list must be traversed newest-to-oldest for incident reconstruction, requiring in-place reversal."
+  - "**Blockchain validator:** Transaction chains in a lightweight node are reversed in-place to walk from the latest block back to genesis during a chain reorg check."
+constraints:
+- Reverse in-place using O(1) extra space
+- Return the new head node
+- An empty list (None input) should return None
+examples:
+- input: reverse_linked_list(1 -> 2 -> 3 -> 4 -> 5)
+  output: 5 -> 4 -> 3 -> 2 -> 1
+- input: reverse_linked_list(1 -> 2)
+  output: 2 -> 1
+starter_code: |-
+  class ListNode:
+      def __init__(self, val=0, next=None):
+          self.val = val
+          self.next = next
+
+  def reverse_linked_list(head: ListNode) -> ListNode:
+      pass
+follow_ups:
+- Reverse only the nodes between positions left and right (inclusive).
+- Reverse in groups of k nodes.
+- Determine if a linked list is a palindrome using reversal.
+key_skills:
+- linked list
+- in-place pointer manipulation
+- iterative traversal
+test_type: function
+test_cases:
+- label: reverse five nodes
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(arr):
+        return _read(reverse_linked_list(_make(arr)))
+  function_name: _test
+  args:
+  - - 1
+    - 2
+    - 3
+    - 4
+    - 5
+  expected:
+  - 5
+  - 4
+  - 3
+  - 2
+  - 1
+- label: reverse two nodes
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(arr):
+        return _read(reverse_linked_list(_make(arr)))
+  function_name: _test
+  args:
+  - - 1
+    - 2
+  expected:
+  - 2
+  - 1
+- label: single node
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(arr):
+        return _read(reverse_linked_list(_make(arr)))
+  function_name: _test
+  args:
+  - - 42
+  expected:
+  - 42
+function_name: reverse_linked_list
+explanation: |-
+  The key insight is maintaining three pointers: prev (starts None), curr (starts at head), and a saved next_node.
+
+  At each step: save curr.next, point curr.next to prev, advance prev to curr, advance curr to saved next. After the loop, prev is the new head.
+
+  The invariant: at the start of each iteration, everything before curr is already reversed and prev points to the last reversed node.
+
+  Edge cases: empty list returns None immediately; single node requires no work but the loop still handles it correctly.
+
+  Time O(n), space O(1). Recursive version is elegant but uses O(n) stack frames.
+references:
+- Think about what three things you need to remember at each step before you overwrite the next pointer.
+- The iterative approach is preferred over recursive for large lists due to stack overflow risk.

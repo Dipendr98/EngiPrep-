@@ -4,7 +4,12 @@ category: parsing
 difficulty: Medium
 summary: Extract structured fields from log lines using pattern templates.
 description: 'Implement a log parser that takes a pattern like ''{timestamp} [{level}] {message}'' and a log line like ''2024-01-15 [ERROR] disk full'', returning {''timestamp'': ''2024-01-15'', ''level'': ''ERROR'', ''message'': ''disk full''}. Patterns have named fields in braces and literal text between them.'
-scenario: ''
+scenario: |-
+  The Site Reliability team at a cloud provider ingests billions of log lines per day from dozens of services, each with a slightly different log format. On-call engineers need to extract structured fields—timestamp, severity, request ID, error message—from raw text without writing a brittle regex for every service. You need a pattern-based parser where the team defines a template like `{timestamp} [{level}] {request_id} - {message}` and the engine extracts the named fields from any matching log line, failing fast with a clear error when a line doesn't conform.
+alt_scenarios:
+  - "**Security audit pipeline:** A SIEM ingestion layer parses firewall log lines using field-named patterns to extract source IP, destination port, and action into a structured event schema."
+  - "**Distributed tracing tool:** A trace collector parses heterogeneous span log formats from multiple languages using named-field templates to normalize them into a unified span record."
+  - "**Network device monitoring:** A NOC tool extracts structured fields from syslog messages emitted by routers and switches so alert rules can reference named fields like interface and error_count."
 constraints: []
 examples: []
 starter_code: |-

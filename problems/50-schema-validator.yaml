@@ -4,7 +4,12 @@ category: api_design
 difficulty: Medium
 summary: Validate nested data structures against a declarative schema definition.
 description: 'Implement validate(data, schema) where schema defines expected types, required fields, and constraints. Support types: string, int, float, bool, list, dict. Support nested schemas, optional fields, and validation rules like min/max for numbers and min_length/max_length for strings. Return all validation errors, not just the first.'
-scenario: You're building the request-validation layer for a REST API. Every incoming JSON payload needs to be checked against a schema before it reaches business logic — correct types, required fields present, string lengths in range, numeric values within bounds. You want the validator to report every error at once rather than bailing on the first one, so the client can fix all issues in a single round-trip. Schemas are nested dicts that mirror the expected data shape.
+scenario: |-
+  The developer-platform team at a payments company is hardening the public REST API that partners use to submit transaction requests. Before any business logic runs, every incoming JSON payload must be validated against a contract — required fields present, amounts within allowed ranges, account IDs meeting minimum length requirements — and the API must return all violations in a single response so that integrating partners can fix every problem in one round-trip rather than playing whack-a-mole with sequential rejections. You are building the declarative schema validator that traverses nested dict and list structures and accumulates error messages with full dot-notation paths.
+alt_scenarios:
+  - "**Healthcare data ingestion:** An EHR integration service validates incoming HL7-style JSON patient records against strict field and range requirements before writing to the clinical database."
+  - "**Infrastructure-as-code linting:** A platform CLI validates user-authored YAML/JSON resource definitions against a schema before sending them to the provisioning API."
+  - "**Event bus consumer:** A stream processor validates each incoming Kafka message against a versioned schema before routing it downstream, rejecting malformed events with full field-level error detail."
 constraints:
 - 'Supported types: ''string'', ''int'', ''float'', ''bool'', ''list'', ''dict''.'
 - 'For ''string'': optional ''min_length'' and ''max_length'' constraints.'

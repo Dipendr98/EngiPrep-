@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Find the shared prefix across a list of strings.
 description: Implement longest_common_prefix(words) that returns the longest shared starting substring across all words.
-scenario: This warm-up is useful for practicing early exits and careful index bounds on string comparisons.
+scenario: |-
+  A cloud storage team at a SaaS company is building a prefix-based namespace resolver for their object store. Given a list of object keys that are supposed to share a common path prefix, the resolver must compute the longest shared prefix to determine the bucket namespace at ingestion time. If the keys diverge unexpectedly, the empty-string result triggers an alert and routes the objects to a quarantine bucket for manual review.
+alt_scenarios:
+  - "**CLI tab-completion:** A shell autocomplete engine finds the longest common prefix across all matching command candidates to fill in the shared portion automatically."
+  - "**Trie optimization:** A search index builder computes the longest common prefix of sibling nodes to collapse redundant trie edges before serializing to disk."
+  - "**Config namespace resolver:** A Kubernetes operator extracts the common prefix of a set of ConfigMap keys to determine the shared annotation namespace."
 constraints:
 - If the list is empty, return an empty string.
 examples:

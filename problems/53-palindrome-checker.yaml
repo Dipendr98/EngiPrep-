@@ -4,7 +4,12 @@ category: search
 difficulty: Easy
 summary: Decide if a string is a palindrome after normalization.
 description: Implement is_palindrome(s) that ignores non-alphanumeric characters and letter case, then returns whether the normalized string reads the same forward and backward.
-scenario: A moderation pipeline wants a quick normalization pass that can flag mirrored tokens without caring about punctuation or case.
+scenario: |-
+  The content moderation team at a social platform is building a fast pre-filter for their submission pipeline that detects certain classes of spam, one of which is the use of mirrored or reversed phrases that evade keyword blacklists. Before the expensive ML classifier runs, the pipeline applies a lightweight pass that normalizes each token — stripping punctuation, folding case — and checks whether the result reads the same forward and backward. The check must run in O(n) time on strings up to several thousand characters without allocating a reversed copy.
+alt_scenarios:
+  - "**Genomics sequencing:** A bioinformatics tool checks whether a DNA strand segment forms a palindromic sequence, which indicates a restriction enzyme recognition site."
+  - "**Password policy enforcement:** A security service rejects passwords that, after lowercasing, are palindromes, as they appear disproportionately in leaked credential datasets."
+  - "**Search autocorrect:** A search engine's query-normalization layer identifies symmetric query strings as likely mis-keys before routing them to spell-check suggestions."
 constraints:
 - Treat letters and digits as significant
 - An empty normalized string counts as a palindrome

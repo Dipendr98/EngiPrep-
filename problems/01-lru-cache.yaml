@@ -4,7 +4,12 @@ category: stateful
 difficulty: Hard
 summary: Build a cache that evicts the least recently used entry when full.
 description: Design and implement a Least Recently Used cache. It should support get(key) which returns the value or -1 if not found, and put(key, value) which inserts or updates. When capacity is exceeded, evict the least recently used item. Both operations must be O(1).
-scenario: Imagine you're building a caching layer for a high-traffic web service. Every database lookup costs around 50ms, so you keep recently accessed records in memory. But memory is finite—when the cache is full, you need to drop the item that nobody has touched in the longest time. Both reads and writes have to stay O(1), so you can't just scan the whole cache on every operation.
+scenario: |-
+  The Feeds team at a social platform stores user profile metadata in PostgreSQL, but every feed render triggers dozens of profile lookups that each cost ~50ms round-trip. You've been asked to add an in-process LRU cache in the API server to absorb repeated reads for hot profiles. The cache must fit in a fixed 512 MB heap budget, evict the coldest entry the moment it's full, and keep both reads and writes at O(1) so it doesn't become the bottleneck itself.
+alt_scenarios:
+  - "**DNS resolver:** A recursive resolver caches recently answered records in a bounded LRU table to avoid re-querying upstream nameservers on every request."
+  - "**Browser engine:** A rendering engine keeps a fixed-size LRU cache of decoded image bitmaps so repeatedly visited assets don't require re-decoding from disk."
+  - "**ML feature store:** An online inference server caches the most recently computed user embeddings in an LRU store to avoid redundant model forward passes between requests."
 constraints:
 - Keys and values are integers
 - Capacity is always a positive integer

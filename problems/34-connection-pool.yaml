@@ -4,7 +4,12 @@ category: infra
 difficulty: Hard
 summary: Manage a pool of reusable connections with checkout, return, and health checks.
 description: Implement a connection pool with a max size. acquire() returns an available connection or blocks/waits if all are in use. release(conn) returns a connection to the pool. Connections should be health-checked before reuse. Support a max_idle_time after which unused connections are closed.
-scenario: Your team runs a service that talks to a PostgreSQL database, and you're seeing connection-creation latency spikes during traffic bursts. The infra lead asks you to build a connection pool that pre-creates and reuses connections, with health checks so you never hand out a stale connection, and an idle timeout so you don't hold resources you're not using during quiet periods.
+scenario: |-
+  Your team owns a high-throughput order-processing service that talks to a PostgreSQL primary. During flash sales, traffic spikes 10x in seconds and you're seeing P99 latency jump from 20ms to 800ms—profiling reveals that most of that time is spent in SSL handshake during new connection establishment. The database admin has also capped max_connections at 200, which you're blowing past under load. You're building a connection pool that pre-warms connections, reuses them across requests, health-checks before handing one out, and releases idle connections after a configurable timeout so you don't hold slots during the long quiet periods between sales.
+alt_scenarios:
+  - "**Data pipeline team (Snowflake or Redshift):** Pooling expensive warehouse sessions across multiple ETL worker threads so batch jobs don't each spend seconds authenticating and negotiating a new session per query."
+  - "**Redis client library internals:** Managing a pool of TCP connections to a Redis cluster so application threads can check out a connection, run a command, and return it without paying the connection-setup cost on every cache read."
+  - "**gRPC service mesh:** Reusing long-lived HTTP/2 streams to downstream microservices across concurrent request handlers, with health-check pings to detect stale streams before handing them to a caller."
 constraints:
 - max_size is a positive integer (maximum number of connections)
 - max_idle_time is in seconds

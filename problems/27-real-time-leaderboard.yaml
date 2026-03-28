@@ -4,7 +4,12 @@ category: search
 difficulty: Medium
 summary: Leaderboard supporting score updates, rank queries, and top-K retrieval.
 description: Implement a leaderboard. update(player_id, score) sets a player's score. top(k) returns the top K players sorted by score descending. rank(player_id) returns the 1-based rank. All operations should be efficient for 100K+ players.
-scenario: We're building the backend for a competitive coding platform. After every contest submission, a player's score updates and we need to immediately reflect their new rank. The front-end calls top(k) to show the leaderboard page and rank(player_id) to show a user their position. With over 100K active players, we can't afford to sort the entire list on every request.
+scenario: |-
+  You're on the Games Backend team at a mobile gaming company running a live tournament with 150K concurrent players. Every time a player completes a match, their score is updated and the global leaderboard must reflect the change immediately—players refresh the leaderboard page constantly during the event window. The front-end makes two high-frequency calls: top(k) to render the public leaderboard and rank(player_id) to show each player their own position. Sorting the full player set on every request is not an option given the event traffic, so the data structure needs to support sub-millisecond rank queries.
+alt_scenarios:
+  - "**Fantasy sports platform:** Updating team standings in real-time as live game scores change, so millions of users see their league rank shift play-by-play without expensive full-table sorts."
+  - "**Sales performance dashboard (Salesforce-style CRM):** Showing each account executive their current rank among hundreds of peers by quota attainment, updated each time a deal is closed in the CRM."
+  - "**Crypto exchange:** Maintaining a real-time leaderboard of traders ranked by 24-hour P&L, with thousands of position updates per second flowing in from the matching engine."
 constraints:
 - Player IDs are unique strings
 - Scores are non-negative integers

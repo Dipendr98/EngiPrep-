@@ -4,7 +4,12 @@ category: parsing
 difficulty: Medium
 summary: Parse a nested INI/TOML-like config file into a dictionary.
 description: 'Parse a config file format with sections, key-value pairs, comments, and nested sections. Sections are delimited by [section.subsection]. Keys are ''key = value''. Lines starting with # are comments. Values can reference other keys via ${section.key} interpolation. Return a nested dictionary.'
-scenario: ''
+scenario: |-
+  The Platform team at a fintech company manages hundreds of microservice deployments, each with its own INI-style config file that can reference shared values from a `[global]` section using `${global.key}` interpolation. An engineer just introduced a circular reference between two config keys that caused the startup loader to hang indefinitely. You need to write a parser that resolves interpolation in dependency order, detects cycles before they deadlock a deployment, and returns a fully materialized nested dictionary ready for the application to consume.
+alt_scenarios:
+  - "**Game engine asset pipeline:** A build tool parses layered TOML configs where artist-facing settings inherit from base presets and can reference other keys via interpolation to reduce duplication."
+  - "**Kubernetes operator:** A cluster operator reads a custom resource definition in INI-like format, resolves cross-section references, and merges the result into the runtime configuration struct."
+  - "**ML training framework:** A hyperparameter config loader resolves `${base.lr}` references across experiment config files so researchers can share common values without copy-pasting."
 constraints: []
 examples: []
 starter_code: |-

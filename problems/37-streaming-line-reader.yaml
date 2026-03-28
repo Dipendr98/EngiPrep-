@@ -4,7 +4,12 @@ category: infra
 difficulty: Medium
 summary: Buffered reader that yields complete lines from chunked byte input.
 description: Implement a streaming reader that receives arbitrary byte chunks via feed(chunk) and yields complete lines as they become available. Lines are delimited by newline characters. Partial lines are buffered until the next chunk completes them. Support a max_line_length to prevent memory issues.
-scenario: You're building a log tail feature that reads from a network socket. Data arrives in arbitrary-sized chunks — sometimes half a line, sometimes three lines jammed together. You need a component that buffers incoming data and emits complete lines as soon as they're available, while protecting against a malicious or misconfigured sender that never sends a newline and would otherwise eat all your memory.
+scenario: |-
+  You're building the log-streaming feature for an internal developer portal that lets engineers tail their service's stdout in real time from a browser, piped through a WebSocket from the Kubernetes pod. The kubelet streams log bytes to your backend in arbitrary TCP chunks—sometimes arriving mid-line, sometimes three lines bundled together in a single packet—and your backend must parse out complete lines to forward to the browser as discrete messages. You also need to guard against a runaway service that emits a single enormous line (a JSON blob, a stack trace with no newlines) that would otherwise buffer unbounded in memory until the connection closes.
+alt_scenarios:
+  - "**SSH session proxy:** Parsing command output from a remote shell where stdout arrives in variable-length read() chunks, and the proxy must reconstruct complete lines before forwarding them to a terminal emulator."
+  - "**Network protocol parser (SMTP/FTP command channel):** Reading client commands from a TCP socket where protocol lines may span multiple recv() calls, requiring a buffer that accumulates bytes until a CRLF delimiter is found."
+  - "**CSV streaming importer:** Processing a large CSV file upload sent in multipart chunks over HTTP, emitting complete rows to a downstream validator as soon as they are delimited, without loading the entire file into memory."
 constraints:
 - Lines are delimited by '\n' (newline character)
 - Chunks are Python strings

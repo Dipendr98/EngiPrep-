@@ -4,7 +4,12 @@ category: scheduling
 difficulty: Medium
 summary: Find the minimum rooms needed and allocate meetings to rooms.
 description: 'Given a list of meetings with [start, end] times, determine the minimum number of rooms required. Additionally, return the room assignments: which meeting goes in which room. Rooms should be reused when possible.'
-scenario: ''
+scenario: |-
+  The Workplace Infrastructure team at a mid-sized tech company is building a conference room booking system for a new 12-floor office. When a batch of meeting requests is imported from calendar invites, the system must determine the minimum number of rooms needed to host all of them without conflicts and produce a deterministic room assignment so the facilities team can print room placards. Rooms should be reused as aggressively as possible—a room freed at time T is immediately eligible for the next meeting starting at T.
+alt_scenarios:
+  - "**Operating system process scheduler:** A kernel scheduler determines the minimum number of CPU cores needed to run a set of non-preemptible processes with fixed start and end times without overlap."
+  - "**Video streaming CDN:** An edge capacity planner assigns live stream sessions to a minimum number of transcoding slots, reusing a slot the moment its current stream ends."
+  - "**Hospital operating room planner:** A surgical scheduling system assigns procedures to the fewest available ORs, reusing a room as soon as its prior procedure and turnover window complete."
 constraints: []
 examples: []
 starter_code: |-

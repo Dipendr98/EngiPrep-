@@ -7,9 +7,12 @@ description: >-
   Implement `split_first_rest(lst: list) -> list` that takes a non-empty list and
   returns a two-element list `[first, rest]` where `first` is the first element and
   `rest` is a list of all remaining elements. Use Python's starred unpacking.
-scenario: >-
-  A recursive list processor peels the head element off an input sequence on each
-  call and recurses on the tail, mimicking functional-style list decomposition.
+scenario: |-
+  A data pipeline team at a bioinformatics company is building a recursive sequence processor that walks a list of genomic feature annotations one element at a time. On each call the processor needs to peel off the first annotation, process it, and pass the remainder to the next stage. The team uses Python's starred unpacking idiom to keep the head/tail split clean and avoid off-by-one errors that would appear with manual indexing in a recursive function.
+alt_scenarios:
+  - "**CLI argument parser:** A command-line tool unpacks the first argument as the subcommand and captures the rest as subcommand-specific flags using starred assignment."
+  - "**Functional stream processor:** A Haskell-inspired Python library peels the head event from an event stream and recurses on the tail to build a pure transformation pipeline."
+  - "**Protocol parser:** A binary protocol decoder extracts the first byte as the opcode and passes the remaining bytes to the payload parser using starred unpacking."
 constraints:
   - lst is non-empty (len(lst) >= 1)
   - Do not use indexing (lst[0], lst[1:]) — use starred unpacking

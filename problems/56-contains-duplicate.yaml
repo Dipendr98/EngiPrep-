@@ -4,7 +4,12 @@ category: search
 difficulty: Easy
 summary: Return whether any value appears more than once.
 description: Implement contains_duplicate(nums) that returns True if any value is repeated, otherwise False.
-scenario: A preprocessing step wants to reject duplicate IDs before writing a batch to a downstream system that expects uniqueness.
+scenario: |-
+  The data platform team at a fintech company runs a nightly ETL job that loads transaction records from partner banks into a central ledger. The downstream ledger database has a strict uniqueness constraint on transaction IDs, and a failed bulk insert mid-batch leaves the system in a partially loaded state that requires manual remediation. You need a preprocessing guard that scans each incoming batch for duplicate IDs before the write begins, failing fast and surfacing a clear error so the pipeline can route the batch to a quarantine queue instead of attempting a partial write.
+alt_scenarios:
+  - "**User registration service:** An identity provider checks a batch of new account requests for duplicate email addresses before creating any records, preventing partial user creation."
+  - "**Inventory import:** A warehouse management system validates a supplier's SKU upload for duplicate product codes before writing to the catalog, avoiding phantom stock entries."
+  - "**DNS zone file loader:** A DNS provisioning tool scans a zone file for duplicate A-record hostnames before committing the zone, preventing ambiguous resolution behavior."
 constraints:
 - The list may be empty
 - Values can be negative or positive

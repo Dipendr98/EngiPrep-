@@ -4,7 +4,12 @@ category: api_design
 difficulty: Medium
 summary: Fluent API for building filter/sort/limit queries on a dataset.
 description: 'Implement a query builder with a fluent API. Support where(field, op, value) for filtering (ops: eq, ne, gt, lt, in, contains), order_by(field, direction), limit(n), and offset(n). execute(data) applies all conditions to a list of dicts and returns matching results.'
-scenario: You're building an internal admin dashboard that lets support engineers search through user records, orders, and events. Instead of writing raw filter code every time, you want a reusable query builder with a chainable API so that code like `Query().where('status', 'eq', 'active').where('age', 'gt', 21).order_by('name').limit(10).execute(users)` reads almost like SQL. The builder accumulates predicates and applies them all at execution time.
+scenario: |-
+  The Trust and Safety team at a SaaS company needs to build an internal admin console where investigators can slice through millions of user account records — filtering by account status, creation date, subscription tier, and geographic region — without requiring a backend engineer to write a new SQL query for every request. You are tasked with implementing a reusable, chainable query builder that accumulates filter predicates, a sort key, and a page limit, then applies them all in a single pass over a dataset at execution time, keeping the caller's code readable and the builder itself free of mutation side-effects.
+alt_scenarios:
+  - "**Data pipeline testing:** A QA team builds test fixtures by composing field filters and sort orders over in-memory records without touching the production database."
+  - "**IoT device management:** A fleet management service lets operators search thousands of registered sensors by status, firmware version, and last-seen timestamp through a unified API."
+  - "**Feature flag targeting:** A growth team targets experiment cohorts by chaining demographic and behavioral filters over a user registry loaded into memory for fast iteration."
 constraints:
 - 'Supported operators: ''eq'', ''ne'', ''gt'', ''lt'', ''in'', ''contains''.'
 - '''in'' checks membership in a list; ''contains'' checks substring in a string field.'

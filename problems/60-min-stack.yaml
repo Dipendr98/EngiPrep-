@@ -4,7 +4,12 @@ category: stateful
 difficulty: Easy
 summary: Support push, pop, top, and retrieving the current minimum in constant time.
 description: Implement MinStack with push(val), pop(), top(), and get_min(), each in O(1).
-scenario: An interview tool wants an example of keeping derived state updated incrementally instead of rescanning a full collection on every query.
+scenario: |-
+  The trading systems team at a hedge fund maintains an order-book processing pipeline where each incoming price tick is pushed onto a stack representing the current depth of a limit-order queue. A risk monitor queries get_min() hundreds of times per second to enforce a circuit-breaker rule: if the lowest observed price in the current stack drops below a threshold, halt trading on that instrument. Scanning the full stack on every query is too slow at tick frequency, so you need a MinStack that maintains the running minimum as an O(1) side structure updated on every push and pop.
+alt_scenarios:
+  - "**Browser undo history:** A web-based document editor tracks the minimum font size used across all undo states so the accessibility toolbar can instantly report the smallest text currently in history."
+  - "**Network packet buffer:** A router's packet processing unit tracks the minimum TTL value among buffered packets to determine when the next expiry event will occur without scanning the buffer."
+  - "**Game engine entity stack:** A game's scene manager pushes and pops active entity layers and must report the lowest z-index in the current stack in O(1) for render-order decisions."
 constraints:
 - All operations are valid
 - get_min returns the smallest element currently in the stack

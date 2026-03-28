@@ -4,7 +4,12 @@ category: stateful
 difficulty: Hard
 summary: Reassemble sequenced events arriving out of order into correct order.
 description: Events arrive out of order, each with a sequence number starting from 1. Implement add(seq, data) which buffers the event and returns a list of all consecutive events that can now be delivered in order. For example, if events 1,3,2 arrive, adding 1 returns [1], adding 3 returns [], adding 2 returns [2,3].
-scenario: ''
+scenario: |-
+  The Streaming Infrastructure team at a video platform ships live event data over UDP, where packets routinely arrive out of order due to network jitter. Each packet carries a monotonically increasing sequence number, and the consumer layer must deliver events to downstream handlers in exact sequence order. Your reassembler must buffer out-of-order arrivals, detect when a contiguous prefix is complete, and flush it downstream immediately—without waiting for a full window to fill.
+alt_scenarios:
+  - "**TCP-like reliable transport:** A custom messaging library over UDP buffers out-of-order segments by sequence number and delivers them in order to the application layer once gaps are filled."
+  - "**Log shipping agent:** A distributed tracing pipeline reassembles log chunks that arrive from parallel worker threads in arbitrary order before writing them to an append-only store."
+  - "**Financial market data feed:** An exchange feed handler reorders quote updates from multiple redundant network paths before passing them to the order-book engine to prevent stale-state errors."
 constraints: []
 examples: []
 starter_code: |-

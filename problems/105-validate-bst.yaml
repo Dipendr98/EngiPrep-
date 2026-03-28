@@ -1,0 +1,140 @@
+id: 105
+title: Validate Binary Search Tree
+category: trees
+difficulty: Medium
+summary: Determine whether a binary tree satisfies the BST property at every node.
+description: Given the root of a binary tree, return True if it is a valid binary search tree (BST), False otherwise. A valid BST requires that for every node, all values in its left subtree are strictly less than the node's value, and all values in its right subtree are strictly greater. Comparing only immediate children is not sufficient.
+scenario: |-
+  You're on the infrastructure team at DoorDash, where region-to-zone routing tables are serialized as BSTs and snapshotted to S3 every five minutes. After a botched migration script wrote incorrect pointers, a subtree appeared locally valid (each node satisfied its immediate parent) but violated the global BST property, causing O(n) lookups instead of O(log n) and silently degrading delivery ETA calculations. You now run a full structural validator on every snapshot before it is promoted to production.
+alt_scenarios:
+  - "**Database index integrity check:** A B-tree index on a Postgres replica is scanned after a replication lag event to ensure no key ordering violations were introduced."
+  - "**In-memory cache validation:** A Redis-backed sorted-set exported as a BST snapshot is validated before being loaded into the hot path of a recommendation engine."
+  - "**Compiler symbol table audit:** A language server validates its symbol-table BST after an incremental parse to ensure refactored identifiers did not corrupt the ordering invariant."
+constraints:
+- All node values are unique integers
+- Left subtree values must be strictly less than the node value
+- Right subtree values must be strictly greater than the node value
+- An empty tree is a valid BST
+examples:
+- input: 'is_valid_bst([2,1,3])'
+  output: 'True'
+- input: 'is_valid_bst([5,1,4,null,null,3,6])'
+  output: 'False  # 4 is in right subtree of 5 but 4 < 5'
+starter_code: |-
+  from typing import Optional
+
+  class TreeNode:
+      def __init__(self, val=0, left=None, right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+
+  def is_valid_bst(root: Optional[TreeNode]) -> bool:
+      pass
+follow_ups:
+- Find the k-th smallest element in a BST in O(h) time.
+- Recover a BST where exactly two nodes are swapped.
+- Convert a sorted array to a height-balanced BST.
+key_skills:
+- binary search tree
+- DFS
+- range propagation
+test_type: function
+test_cases:
+- label: valid BST
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals):
+        return is_valid_bst(_make(vals))
+  function_name: _test
+  args:
+  - - 2
+    - 1
+    - 3
+  expected: true
+- label: invalid BST (deep violation)
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals):
+        return is_valid_bst(_make(vals))
+  function_name: _test
+  args:
+  - - 5
+    - 1
+    - 4
+    - null
+    - null
+    - 3
+    - 6
+  expected: false
+- label: single node
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _test(vals):
+        return is_valid_bst(TreeNode(1))
+  function_name: _test
+  args:
+  - - 1
+  expected: true
+- label: looks valid locally but isnt globally
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals):
+        return is_valid_bst(_make(vals))
+  function_name: _test
+  args:
+  - - 10
+    - 5
+    - 15
+    - null
+    - null
+    - 6
+    - 20
+  expected: false
+function_name: is_valid_bst
+explanation: |-
+  The common mistake: checking only that left.val < node.val < right.val. This misses cases like [10, 5, 15, null, null, 6, 20] where 6 is locally valid (6 < 15) but globally invalid (6 < 10, so it can't be in 10's right subtree).
+
+  The correct approach: propagate a (min_val, max_val) range through the recursion. For the root, the range is (-inf, +inf). When descending left, update max to the current node's value. When descending right, update min.
+
+  A node is invalid if its value falls outside the range. Return True only if both subtrees are valid with updated ranges.
+
+  Time O(n), space O(h) for the call stack.
+references:
+- The in-order traversal of a valid BST yields a strictly increasing sequence — that is an alternative O(n) check.
+- Range propagation is the canonical interview approach because it is O(n) with no extra list allocation.

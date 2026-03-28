@@ -1,0 +1,85 @@
+id: 119
+title: Word Break
+category: dynamic programming
+difficulty: Medium
+summary: Determine if a string can be segmented into dictionary words.
+description: Given a string s and a list of words (the dictionary), return True if s can be segmented into a space-separated sequence of one or more dictionary words. Words in the dictionary can be reused.
+scenario: |-
+  You're an engineer on GitHub Copilot's token-normalization team, pre-processing minified JavaScript identifiers like "getuserprofilebyid" before feeding them into the suggestion model. The normalizer first checks whether the identifier can be validly segmented into known English or API-vocabulary words — if it can't, the identifier is passed through as an opaque token rather than wasting the expensive segmentation pass. This feasibility check runs on every identifier in every file the editor indexes, so a naive recursive solution would stack-overflow on long minified variable names.
+alt_scenarios:
+  - "**URL slug validator:** A CMS validates that a generated URL slug like 'sportsnewsupdate' can be broken into real dictionary words before publishing, to ensure human readability."
+  - "**Chatbot intent parser:** An NLU pipeline checks whether a concatenated multi-word user input can be segmented into known intent vocabulary before running the heavier entity extraction model."
+  - "**Hashtag splitter:** A social media moderation tool checks whether a trending hashtag like '#nowthatcherisdead' can be segmented into recognizable words to detect potentially harmful hidden meanings."
+constraints:
+- Dictionary words can be reused any number of times
+- s consists of lowercase letters only
+- Return False if no valid segmentation exists
+- An empty string returns True (trivially segmented)
+examples:
+- input: 'word_break("leetcode", ["leet","code"])'
+  output: 'True  # "leet" + "code"'
+- input: 'word_break("applepenapple", ["apple","pen"])'
+  output: 'True  # "apple" + "pen" + "apple"'
+- input: 'word_break("catsandog", ["cats","dog","sand","and","cat"])'
+  output: 'False'
+starter_code: |-
+  def word_break(s: str, word_dict: list[str]) -> bool:
+      pass
+follow_ups:
+- Return all valid segmentations (word_break II).
+- What if each word can be used at most once?
+- Minimize the number of words in the segmentation.
+key_skills:
+- dynamic programming
+- string
+- hash set
+test_type: function
+test_cases:
+- label: leet code
+  args:
+  - leetcode
+  - - leet
+    - code
+  expected: true
+- label: reuse words
+  args:
+  - applepenapple
+  - - apple
+    - pen
+  expected: true
+- label: impossible
+  args:
+  - catsandog
+  - - cats
+    - dog
+    - sand
+    - and
+    - cat
+  expected: false
+- label: empty string
+  args:
+  - ''
+  - - word
+  expected: true
+- label: single word match
+  args:
+  - hello
+  - - hello
+    - world
+  expected: true
+function_name: word_break
+explanation: |-
+  Bottom-up DP: dp[i] = True if s[:i] can be segmented using the dictionary.
+
+  Base case: dp[0] = True (empty prefix is always valid).
+
+  For each position i from 1 to len(s): for each word in the dictionary, if dp[i - len(word)] is True and s[i-len(word):i] == word, then dp[i] = True.
+
+  Optimization: convert word_dict to a set for O(1) lookup. Inner loop over words is often faster than checking all prefixes.
+
+  Time O(n * m * k) where n = len(s), m = len(word_dict), k = avg word length. Space O(n).
+
+  Alternative: for each dp[i] that is True, try all words starting at position i (forward direction). Equivalent but sometimes more cache-friendly.
+references:
+- dp[0] = True is the seed — without it, no position can ever become True.
+- Convert the word list to a set before the DP loop so membership checks are O(1) not O(m*k).

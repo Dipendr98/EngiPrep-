@@ -4,7 +4,12 @@ category: infra
 difficulty: Medium
 summary: Wrapper that retries failed operations with configurable backoff and jitter.
 description: Implement a retry decorator/wrapper. Given a function that may raise exceptions, retry it up to N times with exponential backoff (delay doubles each attempt). Add random jitter to prevent thundering herd. Support configurable retryable exception types and a max total timeout.
-scenario: We have a microservice that calls a flaky third-party payments API. About 2% of calls fail with transient errors — timeouts, 503s, connection resets. Rather than having every team reimplement retry logic, you're building a shared retry wrapper so callers can just say 'run this with retries' and get automatic exponential backoff with jitter out of the box.
+scenario: |-
+  You're on the Platform Engineering team at a fintech company and you've just done a postmortem on three separate incidents, each caused by a different microservice team implementing retry logic incorrectly—some retrying non-transient errors, others hammering a recovering downstream with tight fixed-interval retries and triggering thundering-herd restarts. You're building a shared retry utility that the whole org will adopt. It needs to handle exponential backoff with jitter, respect a configurable list of retryable exception types, and abort cleanly if a max wall-clock timeout is exceeded, all without the caller needing to write a single while loop.
+alt_scenarios:
+  - "**Cloud storage client library (S3/GCS SDK team):** Wrapping object upload and download operations with retry-with-backoff so transient network errors and throttling responses are handled transparently without application code needing to implement retry loops."
+  - "**Email delivery service:** Retrying SMTP delivery attempts to recipient mail servers that return 4xx temporary failures, with exponential backoff to avoid being blocklisted, while immediately surfacing 5xx permanent failures to the caller."
+  - "**ML training infrastructure:** Re-submitting failed Kubernetes job steps that error due to transient spot-instance preemption, with jittered backoff to avoid all retried jobs competing for the same newly available node simultaneously."
 constraints:
 - max_retries is a non-negative integer (0 means only the initial call, no retries)
 - base_delay is in seconds; each retry doubles the delay

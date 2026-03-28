@@ -4,7 +4,12 @@ category: stateful
 difficulty: Medium
 summary: Dictionary that tracks history and supports rollback to any prior version.
 description: Implement a dictionary where every put and delete creates a new version. Support get(key) for the current version, get_at(key, version) for a historical version, and rollback(version) to revert to a previous state. Version numbers are auto-incrementing integers starting at 0.
-scenario: You’re designing an in-memory document store for a collaborative editor backend. Every mutation—whether it’s setting a field or deleting one—needs to be versioned so users can browse the full history, inspect any prior state, and roll back to a checkpoint without losing anything. Think of it like a lightweight version-control system for a dictionary.
+scenario: |-
+  The Developer Experience team is building a secrets manager that stores environment variables for CI pipelines. Every time an engineer updates or deletes a secret, the system must record a new immutable version so auditors can inspect what value a given key held during any historical build. Pipelines that fail can be re-run pinned to the exact variable state at their original launch time, and an operator can roll back the entire set of secrets to any past checkpoint with a single call.
+alt_scenarios:
+  - "**Infrastructure as Code platform:** A Terraform-as-a-service backend versions every workspace variable mutation so engineers can diff state between deployments and roll back a bad variable change without touching the Terraform state file."
+  - "**Game save system:** A mobile game server snapshots player inventory and stats after each action, letting support engineers restore any prior save point without data loss."
+  - "**Healthcare EHR system:** A patient-record service versions every field update to a clinical document so clinicians can view any prior state and auditors can reconstruct the record as it existed at a specific timestamp."
 constraints:
 - Keys are strings; values can be any type
 - Version numbering starts at 0 (empty state) and auto-increments on each put or delete

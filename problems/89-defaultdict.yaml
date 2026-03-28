@@ -7,9 +7,12 @@ description: >-
   Implement `group_by_length(words: list[str]) -> dict` that takes a list of strings
   and returns a dict mapping each word length to the list of words with that length,
   in the order they appear.
-scenario: >-
-  A tokenizer groups extracted words by token length so downstream components
-  can process short tokens (stopwords) and long tokens (content words) separately.
+scenario: |-
+  An NLP pipeline team at a document intelligence company is preprocessing legal contracts for a classification model. The tokenizer needs to bucket extracted words by their character length so the downstream stopword filter can quickly discard short tokens and the entity recognizer can focus on longer content words. Maintaining insertion order within each bucket is important so positional context is preserved for the next stage.
+alt_scenarios:
+  - "**Log aggregator:** A monitoring service groups log event strings by their length bucket to route them to different storage tiers based on verbosity."
+  - "**Genome analysis tool:** A bioinformatics pipeline groups DNA k-mer strings by length to separate primers from full-length reads before alignment."
+  - "**Compiler symbol table:** A code analysis tool groups identifier tokens by name length to apply different linting rules to short variable names versus long function names."
 constraints:
   - Words are non-empty strings
   - Words within the same length group preserve their original order

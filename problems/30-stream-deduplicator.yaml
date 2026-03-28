@@ -4,7 +4,12 @@ category: streaming
 difficulty: Medium
 summary: Detect and filter duplicate items in a stream with bounded memory.
 description: Implement a deduplicator for a stream of events, each with an ID. is_duplicate(event_id) returns True if this ID was seen within the last N events (or last T seconds). Memory usage should be bounded regardless of total stream size.
-scenario: We have a webhook ingestion service that occasionally receives duplicate deliveries from upstream providers. Each event carries a unique ID, but retries can send the same ID multiple times. We need a deduplicator that checks whether an event ID was seen recently—within the last N events—and rejects duplicates. Crucially, we can't store every ID we've ever seen, because this stream runs forever. Memory must stay bounded.
+scenario: |-
+  You're on the Payments Infrastructure team responsible for the webhook receiver that processes Stripe, Adyen, and Braintree event notifications. All three providers guarantee "at-least-once" delivery, meaning they will re-send a webhook if they don't receive a 2xx response within their timeout window. During network blips, your service can receive the same charge.succeeded event ID three or four times within a few seconds, and if your order-fulfillment handler isn't idempotent, duplicate orders get shipped. You need a deduplicator that flags re-deliveries seen within the last N events, with strictly bounded memory since this ingestion service runs continuously.
+alt_scenarios:
+  - "**IoT telemetry pipeline:** Filtering duplicate sensor readings that arrive from edge devices with unreliable cellular connections, where the same timestamp+device reading can appear multiple times in a burst."
+  - "**Message queue consumer (Kafka/SQS at-least-once):** Detecting and dropping messages that were reprocessed after a consumer crash, so downstream database writes remain idempotent without persisting every seen message ID forever."
+  - "**Multiplayer game server:** Deduplicating player action packets that are retransmitted over UDP when the client suspects packet loss, so each button press or move is applied exactly once to the game state."
 constraints:
 - window_size N is a positive integer set at construction
 - Event IDs are strings

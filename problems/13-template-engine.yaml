@@ -4,7 +4,12 @@ category: parsing
 difficulty: Medium
 summary: Render templates with variable substitution, loops, and conditionals.
 description: Implement render(template, context) for a simple template language. Support variable interpolation {{ name }}, conditionals {% if condition %}...{% endif %}, and loops {% for item in list %}...{% endfor %}. Context is a dictionary of variables.
-scenario: ''
+scenario: |-
+  The Notifications team at a B2B SaaS company lets product managers define email and Slack message templates that mix static copy with dynamic data—customer name, plan tier, a list of failed checks, and conditional sections that only appear for enterprise accounts. Rather than shipping a full Jinja2 dependency into the notifications microservice, you need a lightweight template engine that handles variable interpolation, `{% if %}` blocks, and `{% for %}` loops so PMs can iterate on copy without deploying code.
+alt_scenarios:
+  - "**Infrastructure-as-code generator:** A scaffolding CLI renders Kubernetes manifest templates with project-specific variables, loops over replica counts, and conditionally includes sidecar definitions."
+  - "**Legal document automation:** A contracts platform renders NDAs and MSAs from templates that loop over signatory names and conditionally include jurisdiction-specific clauses based on customer metadata."
+  - "**Code generation tool:** A developer SDK generator renders language-specific client stubs from a shared template that loops over API endpoints and conditionally emits async variants."
 constraints: []
 examples: []
 starter_code: |-

@@ -4,7 +4,12 @@ category: parsing
 difficulty: Easy
 summary: Parse a URL-style query string into keys and values.
 description: Implement parse_query(query) that converts a query string like "a=1&b=2" into a dictionary. Percent decoding is not required. If a key appears multiple times, store its values in order in a list.
-scenario: A simple internal tool receives raw query strings and needs a tiny parser before routing or validation happens.
+scenario: |-
+  The platform team at a SaaS company is building a lightweight edge proxy that inspects incoming HTTP request URLs to enforce routing rules and access control before forwarding traffic to backend services. The proxy receives raw request lines from the socket and must parse the query string portion into a structured map — without pulling in a full HTTP library — so that downstream middleware can read parameters like `tenant_id`, `version`, and repeated `tag` values as plain key-value pairs. You need a parser that handles missing values, repeated keys aggregated into lists, and empty query strings gracefully.
+alt_scenarios:
+  - "**Analytics event router:** A server-side tag manager parses query strings from pixel-tracking URLs to extract campaign parameters and route events to the correct analytics destination."
+  - "**Webhook dispatcher:** A webhook relay service parses query parameters from inbound URLs to determine which subscriber endpoint should receive each incoming payload."
+  - "**CLI argument normalizer:** A developer tool parses query-string-formatted config overrides passed on the command line into a structured options map before applying them to a config file."
 constraints:
 - The input omits the leading ?
 - Keys may appear without values, which should map to an empty string

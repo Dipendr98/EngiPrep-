@@ -4,7 +4,12 @@ category: api_design
 difficulty: Medium
 summary: Paginate through a sorted dataset using opaque cursors instead of page numbers.
 description: Implement a paginator for a sorted dataset. paginate(cursor, page_size) returns a page of items and a next_cursor. The cursor should be opaque to the client. Support forward and backward pagination. Handle items being added or deleted between pages without skipping or duplicating.
-scenario: You're building the pagination API for a feed of user-generated posts sorted by creation time. Offset-based pagination breaks when new posts are inserted — users see duplicates or skip items. Your API needs cursor-based pagination where the client passes back an opaque cursor token and gets the next page. The cursor encodes enough information to find exactly where to resume even if rows were inserted or deleted between requests.
+scenario: |-
+  The platform team at a social media company is redesigning the Activity Feed API after users report missing posts and duplicate entries when paginating through their notification history. The root cause is offset-based pagination: a new post inserted at position 5 during scrolling shifts every subsequent row, causing the mobile client to re-fetch items it already showed or skip ones it never saw. You need a cursor-based paginator where an opaque token encodes the exact sort key of the last returned item so that page resumption is stable regardless of concurrent inserts or deletes.
+alt_scenarios:
+  - "**E-commerce order history:** A checkout platform lets customers page through years of orders and must stay stable when orders are retrospectively updated or cancelled between requests."
+  - "**Log streaming UI:** An observability dashboard pages through structured log events by timestamp and must not skip or duplicate entries even as new logs stream in continuously."
+  - "**Admin audit trail:** A compliance tool exposes paginated access logs for regulators and requires every page boundary to be reproducible on demand, days after the initial query."
 constraints:
 - Cursors must be opaque strings (e.g., base64-encoded JSON). Clients should not parse them.
 - The underlying dataset is a list of dicts sorted by sort_key.

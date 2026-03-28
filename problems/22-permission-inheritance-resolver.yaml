@@ -4,7 +4,12 @@ category: search
 difficulty: Medium
 summary: Resolve effective permissions through a role/resource hierarchy.
 description: Given a tree of resources (like file system directories) and a role hierarchy, determine the effective permission for a user on a resource. Permissions are inherited from parent resources but can be overridden at any level. Support ALLOW, DENY, and INHERIT.
-scenario: We have an internal tool with a resource tree—think Google Drive folders. Each folder can have permissions set for different roles, and child folders inherit permissions from their parents unless someone explicitly overrides them. A PM just filed a bug where a user can access a document they shouldn't. We need you to build the permission resolver that walks the tree and figures out the effective permission for any role on any resource.
+scenario: |-
+  The Security Platform team at an enterprise SaaS company manages access to a deep folder hierarchy of customer documents, similar to Google Drive. Each folder can carry explicit ALLOW or DENY rules per role, and child resources inherit the nearest ancestor's rule when none is set locally. A customer filed a P1 ticket after a `viewer` role accessed a confidential `/contracts/enterprise` subfolder that was supposed to be locked down. You need to build the permission resolver that correctly walks the ancestor chain, respects local overrides, and defaults to DENY when no rule is found all the way up to root.
+alt_scenarios:
+  - "**AWS IAM policy evaluator:** A cloud permissions engine walks a resource ARN hierarchy, evaluating attached policies from most-specific to least-specific path segment, and denies by default when no explicit rule matches."
+  - "**Git repository access control:** A self-hosted code platform resolves effective read/write permissions for a repository by walking from the repo up through project and organization-level access rules, with repo-level overrides taking precedence."
+  - "**Healthcare record access system:** A patient data platform resolves clinician access to records by walking a department hierarchy, where a hospital-wide DENY on sensitive record types overrides ward-level ALLOW grants."
 constraints:
 - Resources form a tree rooted at '/' (no cycles)
 - Permission values are 'ALLOW', 'DENY', or 'INHERIT'

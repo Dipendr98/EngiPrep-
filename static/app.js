@@ -11,6 +11,7 @@ let selectedDifficulties = new Set();
 let warmupOnly = false;
 let attemptedProblems = {};
 let codeSaveTimeout = null;
+let visibleCount = 30;
 
 // ── STUDY / RESEARCH STATE ──
 let currentStudyProblem = null;
@@ -175,6 +176,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('mouseup', onUp);
   });
 
+  // ── OUTPUT PANEL RESIZER ──
+  const outputResizer = document.getElementById('output-resizer');
+  const outputPanel = document.getElementById('output-panel');
+
+  outputResizer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = outputPanelCollapsed ? 0 : outputPanel.offsetHeight;
+
+    outputResizer.classList.add('dragging');
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const delta = startY - e.clientY;
+      const newHeight = Math.max(60, Math.min(startHeight + delta, window.innerHeight * 0.65));
+      outputPanelHeight = newHeight;
+      outputPanel.style.height = newHeight + 'px';
+      if (outputPanelCollapsed) {
+        outputPanelCollapsed = false;
+        document.getElementById('output-body').style.display = '';
+      }
+      editor.refresh();
+    };
+
+    const onUp = () => {
+      outputResizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      editor.refresh();
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
   // ── INTERVIEW PANEL RESIZER (chat | editor) ──
   const interviewResizer = document.getElementById('interview-resizer');
   const chatPanel = document.querySelector('.chat-panel');
@@ -303,6 +342,14 @@ const CATEGORY_LABELS = {
   concurrency: 'Concurrency',
   api_design: 'API Design',
   syntax: 'Python Syntax',
+  arrays: 'Arrays',
+  strings: 'Strings',
+  'linked lists': 'Linked Lists',
+  trees: 'Trees',
+  graphs: 'Graphs',
+  'dynamic programming': 'Dynamic Programming',
+  backtracking: 'Backtracking',
+  debugging: 'Debugging',
 };
 
 async function loadProblems() {
@@ -445,6 +492,16 @@ function renderProblemDetails(problem) {
       <div class="study-section">
         <div class="study-section-title">Scenario</div>
         <div class="study-section-body">${renderMarkdown(problem.scenario)}</div>
+      </div>
+    `;
+  }
+
+  if (problem.alt_scenarios && problem.alt_scenarios.length) {
+    const altItems = problem.alt_scenarios.map(s => `<li>${renderMarkdown(s)}</li>`).join('');
+    html += `
+      <div class="study-section">
+        <div class="study-section-title">Same Pattern, Different Contexts</div>
+        <ul class="study-constraints">${altItems}</ul>
       </div>
     `;
   }
@@ -1677,6 +1734,7 @@ function clearEditor() {
 // ── OUTPUT PANEL ──
 
 let outputPanelCollapsed = true;
+let outputPanelHeight = 200;
 
 function switchOutputTab(el) {
   document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('selected'));
@@ -1688,8 +1746,15 @@ function switchOutputTab(el) {
 
 function toggleOutputPanel() {
   const body = document.getElementById('output-body');
+  const panel = document.getElementById('output-panel');
   outputPanelCollapsed = !outputPanelCollapsed;
-  body.style.display = outputPanelCollapsed ? 'none' : '';
+  if (outputPanelCollapsed) {
+    panel.style.height = '';
+    body.style.display = 'none';
+  } else {
+    panel.style.height = outputPanelHeight + 'px';
+    body.style.display = '';
+  }
   setTimeout(() => editor.refresh(), 50);
 }
 
@@ -1703,6 +1768,7 @@ function resetOutputPanel() {
   document.getElementById('output-content').classList.add('active');
   outputPanelCollapsed = true;
   document.getElementById('output-body').style.display = 'none';
+  document.getElementById('output-panel').style.height = '';
 }
 
 function clearOutput() {
@@ -1880,6 +1946,7 @@ function showOutputPanel() {
   if (outputPanelCollapsed) {
     outputPanelCollapsed = false;
     document.getElementById('output-body').style.display = '';
+    document.getElementById('output-panel').style.height = outputPanelHeight + 'px';
     setTimeout(() => editor.refresh(), 50);
   }
 }

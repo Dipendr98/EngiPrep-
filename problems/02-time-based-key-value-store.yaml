@@ -4,7 +4,12 @@ category: stateful
 difficulty: Medium
 summary: Key-value store where each key can hold multiple timestamped values.
 description: Implement a data structure that stores key-value pairs with timestamps. set(key, value, timestamp) stores the value. get(key, timestamp) returns the value with the largest timestamp <= the given timestamp, or empty string if none exists. Timestamps are strictly increasing for each key.
-scenario: We have a configuration service where clients push versioned settings throughout the day. When another service needs a config value, it asks ‘what was the value of this key at time T?’ You need to store every version and efficiently look up the most recent value at or before a given timestamp. Think of it like a Git history for individual keys.
+scenario: |-
+  The Platform Infrastructure team runs a centralized feature-flag service where hundreds of microservices read flag values. Operators push new flag states throughout the day via the control plane, and every write is stamped with a Unix timestamp. When a service replica starts up, it needs to reconstruct the exact flag state it should have seen at its boot time—not the current state—so you need an efficient "what was the value of flag X at time T?" lookup across a potentially long history of writes.
+alt_scenarios:
+  - "**Financial audit system:** A trading platform records every price feed update with a timestamp and lets the compliance team reconstruct the exact market state at any point during a trading session."
+  - "**IoT device shadow:** A device-management service stores each sensor reading with a server-assigned timestamp so dashboards can replay historical telemetry at arbitrary points in time."
+  - "**A/B testing framework:** An experimentation platform tracks every experiment assignment change with a timestamp so analysts can attribute conversions to the correct variant even after the experiment ends."
 constraints:
 - Keys and values are strings
 - Timestamps are positive integers

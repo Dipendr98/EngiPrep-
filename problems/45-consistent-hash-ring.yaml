@@ -4,7 +4,12 @@ category: concurrency
 difficulty: Hard
 summary: Distribute keys across nodes with minimal reassignment on node changes.
 description: Implement a consistent hash ring for distributing keys across N server nodes. add_node(node_id) and remove_node(node_id) should minimize key reassignment. get_node(key) returns which node a key belongs to. Use virtual nodes for better balance.
-scenario: We run a distributed caching layer in front of our database — think a simplified Memcached cluster. When a cache server is added or removed (scaling event, hardware failure), we need to redistribute as few keys as possible to avoid a thundering-herd of cache misses. A naive modulo-N hash reshuffles almost every key on topology changes. Build a consistent hash ring with virtual nodes so that only ~1/N of keys move when a single node joins or leaves.
+scenario: |-
+  Your team operates a multi-region Memcached fleet that sits in front of a high-traffic PostgreSQL cluster at a fintech company processing millions of sessions per hour. During a routine scale-out event, you discover that adding a single cache node causes a thundering herd of 40% cache-miss spikes because the naive modulo-N hash reassigns nearly every key. You need to implement a consistent hash ring with virtual nodes so that topology changes — whether a node joins during peak traffic or fails at 3 AM — affect only the minimum number of keys, roughly 1/N.
+alt_scenarios:
+  - "**Distributed object storage:** A media platform shards video chunks across storage nodes and needs minimal re-balancing when a node is decommissioned for maintenance."
+  - "**Message queue partitioning:** A Kafka-like broker assigns producer keys to partition leaders and must reroute as few producers as possible when a broker is replaced."
+  - "**Microservice routing:** An API gateway distributes sticky-session traffic across backend pods and needs to preserve session affinity as the pod count scales up or down."
 constraints:
 - Use virtual nodes (configurable count per physical node) for even distribution.
 - get_node(key) must return a consistent result given the same ring state.

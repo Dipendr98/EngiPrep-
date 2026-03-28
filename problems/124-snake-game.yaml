@@ -1,0 +1,146 @@
+id: 124
+title: Snake Game
+category: stateful
+difficulty: Medium
+summary: Simulate the Snake game — grow on food, detect wall and self-collision.
+description: Design a SnakeGame class that simulates the classic Snake game on an m×n grid. The snake starts at (0,0) with length 1. Food appears at predefined positions in order. move(direction) advances the snake one cell in the given direction ('U','D','L','R'), eats food if present, and returns the current score (number of food eaten). Return -1 if the snake hits a wall or itself.
+scenario: |-
+  You're a backend engineer on the Arcade team building a server-authoritative game engine for a retro gaming platform. The snake game runs entirely server-side: each player tick sends a direction command over WebSocket and the engine responds with the current score or a game-over signal. The body deque and occupied-cell set must be kept perfectly in sync on every tick to prevent desync bugs that would let clients spoof their score on the leaderboard.
+alt_scenarios:
+  - "**Packet routing simulation:** A network simulation service models a fixed-length sliding packet window traversing a topology grid, detecting routing loops when a packet's path revisits a node it currently occupies."
+  - "**CI pipeline queue:** A build orchestration system maintains an ordered queue of active jobs with a fixed concurrency limit, advancing the front job to completion and admitting a new one from the tail only when capacity allows."
+  - "**Robot arm path planner:** A warehouse robotics controller tracks the sequence of grid cells currently occupied by an articulated arm, detecting collisions with the arm's own body before committing each incremental move."
+constraints:
+- Grid is m rows × n cols (0-indexed)
+- Snake starts at (0,0) facing right; initial length 1
+- Food list is given at construction; food at index i appears only after food at index i-1 is eaten
+- If the snake's head moves to the current food cell, score increments and the tail does NOT shrink
+- If the snake moves out of bounds or into its own body (excluding the tail tip it just left), return -1
+- Directions are 'U' (row-1), 'D' (row+1), 'L' (col-1), 'R' (col+1)
+examples:
+- input: |-
+    g = SnakeGame(3, 3, [[0,1],[1,2],[2,1]])
+    g.move('R')   # eat food at (0,1) -> score 1
+    g.move('D')   # -> score 1 (no food)
+    g.move('R')   # eat food at (1,2) -> score 2
+  output: '1, 1, 2'
+- input: g.move('U')  # crashes into body -> -1
+  output: '-1'
+starter_code: |-
+  from collections import deque
+
+  class SnakeGame:
+      def __init__(self, width: int, height: int, food: list[list[int]]):
+          """
+          width: number of columns
+          height: number of rows
+          food: list of [row, col] positions in order of appearance
+          """
+          pass
+
+      def move(self, direction: str) -> int:
+          """Move snake one step. Return current score or -1 on game over."""
+          pass
+follow_ups:
+- Add a pause/resume feature and track the high score across games.
+- Implement wrap-around mode (walls are passable, snake exits one side and enters the other).
+- Record and replay the full move history.
+key_skills:
+- deque for O(1) head/tail operations
+- set for O(1) body collision detection
+- game state management
+- simulation
+test_type: class
+class_name: SnakeGame
+test_cases:
+- label: eat food and grow
+  init_args:
+  - 3
+  - 3
+  - - - 0
+      - 1
+    - - 1
+      - 2
+  ops:
+  - move
+  - move
+  - move
+  op_args:
+  - [R]
+  - [D]
+  - [R]
+  expected:
+  - 1
+  - 1
+  - 2
+- label: wall collision returns negative one
+  init_args:
+  - 3
+  - 3
+  - []
+  ops:
+  - move
+  - move
+  - move
+  - move
+  op_args:
+  - [U]
+  - [U]
+  - [U]
+  - [U]
+  expected:
+  - 0
+  - 0
+  - 0
+  - -1
+- label: self collision returns negative one
+  init_args:
+  - 4
+  - 4
+  - - - 0
+      - 1
+    - - 0
+      - 2
+    - - 0
+      - 3
+  ops:
+  - move
+  - move
+  - move
+  - move
+  - move
+  - move
+  op_args:
+  - [R]
+  - [R]
+  - [R]
+  - [D]
+  - [L]
+  - [U]
+  expected:
+  - 1
+  - 2
+  - 3
+  - 3
+  - 3
+  - -1
+explanation: |-
+  Data model:
+  - `body`: a deque of (row, col) tuples, front = head, back = tail.
+  - `body_set`: a set of (row, col) for O(1) collision detection.
+  - `food_idx`: index into the food list tracking which food is next.
+  - `score`: number of food eaten.
+
+  move logic:
+  1. Compute new head position.
+  2. If out of bounds → return -1.
+  3. Remove the tail from body_set FIRST (the tail moves out before checking collision — the head can legally enter the cell the tail just vacated).
+  4. If new head is in body_set → collision, return -1.
+  5. Append new head.
+  6. If new head == current food: score++, advance food_idx, do NOT remove tail (add it back to body_set).
+  7. Else: popleft (remove tail tip, don't add back).
+
+  Step 3 is the subtlety: remove tail from set before collision check, then conditionally add it back. This handles the edge case where the snake's head chases its own tail.
+references:
+- Remove the tail from the set before the collision check — the head can enter the cell the tail is vacating.
+- Use a deque for O(1) append (new head) and popleft (old tail); use a set for O(1) body collision detection.

@@ -4,7 +4,12 @@ category: infra
 difficulty: Medium
 summary: Composable middleware chain for request/response processing.
 description: Implement a middleware pipeline where each middleware can inspect/modify a request, call the next middleware, and then inspect/modify the response. Support use(middleware_fn) to add middleware and handle(request) to process a request through the chain. Each middleware receives (request, next_fn) and returns a response.
-scenario: 'You''re building a lightweight HTTP framework and need a middleware system similar to Express or Django. Each middleware should be able to do things like log the request, check authentication, add CORS headers, or measure timing — all composable in any order. The key insight is that each middleware wraps the next one like layers of an onion: it can act before and after the downstream call.'
+scenario: |-
+  You're on the Platform team at a startup building an internal micro-framework used by 15 backend services. Each service needs cross-cutting behaviors—request ID injection, JWT validation, structured logging, response-time headers—but you don't want to copy-paste this logic into every service or force teams to inherit from a bloated base class. You're designing a composable middleware pipeline inspired by Express.js where each concern is an independent function that wraps the next, so teams can assemble exactly the middleware stack they need in a single place and reason about execution order at a glance.
+alt_scenarios:
+  - "**gRPC interceptor chain:** Building a composable chain of server-side interceptors for authentication, rate-limiting, and distributed tracing that each service configures independently, following the same before/after wrapping pattern."
+  - "**CLI tool plugin system:** Implementing a command pipeline where each plugin can preprocess arguments, call the next handler, and post-process the output—for example, one plugin adds verbose logging while another reformats the result as JSON."
+  - "**GraphQL server (Apollo-style):** Chaining resolver middleware for field-level authorization checks, caching, and dataloader batching, where each layer decides whether to short-circuit or call through to the next."
 constraints:
 - 'A middleware function has signature: middleware(request, next_fn) -> response'
 - request and response are plain Python dicts

@@ -4,7 +4,12 @@ category: scheduling
 difficulty: Medium
 summary: Find a valid course order respecting prerequisites, or report impossible.
 description: Given N courses numbered 0 to N-1 and prerequisite pairs [course, prereq], determine if all courses can be completed. If yes, return a valid ordering. If there's a cycle, return which courses are involved in the deadlock.
-scenario: ''
+scenario: |-
+  The Learning Platform team at an edtech company lets curriculum designers define prerequisite chains for hundreds of online courses—for example, "Machine Learning Fundamentals" requires "Linear Algebra" and "Python Basics." Before publishing a new curriculum, the system must verify that all prerequisites can actually be completed in some order and return that order for display in the onboarding flow. When a designer accidentally creates a circular prerequisite (Course A requires B, B requires C, C requires A), the system must report exactly which courses are involved so the designer can fix it immediately.
+alt_scenarios:
+  - "**Onboarding task orchestrator:** An HR platform builds a sequenced list of employee onboarding tasks where some tasks cannot start until others (like provisioning access) are completed first."
+  - "**Microservice boot sequencer:** A service mesh startup controller determines the order in which dependent services should be brought online so that no service starts before its dependencies are ready."
+  - "**Compiler pass manager:** An LLVM-style compiler arranges optimization passes in dependency order, detecting and rejecting any pass configuration that contains a circular dependency."
 constraints: []
 examples: []
 starter_code: |-

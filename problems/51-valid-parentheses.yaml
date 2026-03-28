@@ -4,7 +4,12 @@ category: parsing
 difficulty: Easy
 summary: Check whether brackets in a string are balanced and properly nested.
 description: Implement is_valid(s) that returns True if the input string contains properly matched (), [], and {} pairs in the correct order, otherwise False.
-scenario: You are building a lightweight syntax checker for an editor extension and need a fast pass that catches obviously malformed bracket structure before deeper parsing runs.
+scenario: |-
+  The developer tooling team at a IDE company is shipping a real-time syntax-check extension for their cloud-based code editor. Before invoking the full language-server parse, the extension runs a lightweight pre-pass that catches obviously unbalanced or mis-nested brackets — a fast rejection that prevents wasted round-trips to the language server on every keystroke. You need a validator that checks whether all bracket types are properly matched and closed in the correct nesting order, returning a result in linear time with constant extra space.
+alt_scenarios:
+  - "**Template engine safety check:** A marketing platform validates user-authored Liquid templates for balanced block tags before rendering them against live customer data."
+  - "**Database query linter:** A SQL editor extension checks that subquery parentheses are balanced before sending the query to the database, avoiding expensive parse errors at the server."
+  - "**JSON streaming pre-filter:** A log ingestion pipeline rejects malformed JSON fragments at the network edge by checking brace balance before passing bytes to a full JSON parser."
 constraints:
 - The input contains only the characters (, ), [, ], {, }
 - An empty string is considered valid

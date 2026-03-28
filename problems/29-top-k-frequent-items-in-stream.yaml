@@ -4,7 +4,12 @@ category: streaming
 difficulty: Medium
 summary: Track the K most frequently occurring items in a data stream.
 description: Implement a streaming heavy-hitters tracker. add(item) records an occurrence. top_k() returns the K most frequent items seen so far with their counts. The stream may be very large, but K is small.
-scenario: We have a logging pipeline that processes millions of events per hour. The ops team wants a live dashboard showing the top K most frequent error codes at any moment. The stream is way too large to store entirely, but K is small—usually 5 or 10. You need a tracker that ingests events one at a time and can report the current top K on demand without scanning every event seen so far.
+scenario: |-
+  Your team runs the centralized error-aggregation pipeline for a microservices platform that ingests 8 million log events per hour across 200 services. The SRE team wants a live "Top 10 Error Codes Right Now" panel in their incident dashboard, updated every 30 seconds, without storing or replaying the full log history. K is always small (5–10 entries), but the event stream is unbounded and can't fit in memory. You're building the streaming heavy-hitter tracker that powers that panel—something that ingests one event at a time and answers top_k() queries in sub-millisecond time.
+alt_scenarios:
+  - "**Ad-tech platform:** Tracking the top K most-clicked creative IDs in a real-time bidding event stream so campaign managers can identify breakout ads without querying the full impression database."
+  - "**E-commerce search team:** Identifying the K most-searched product queries in the current hour's session stream so the merchandising team can monitor trending searches and adjust promoted results."
+  - "**Network security appliance:** Surfacing the top K source IP addresses by packet volume in a live traffic stream so a firewall can flag potential DDoS sources without storing every packet header."
 constraints:
 - K is a positive integer set at construction
 - Items are hashable (strings or integers)

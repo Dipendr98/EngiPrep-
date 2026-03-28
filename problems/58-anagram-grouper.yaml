@@ -4,7 +4,12 @@ category: search
 difficulty: Easy
 summary: Group words that are anagrams of each other.
 description: Implement group_anagrams(words) that groups together strings containing the same multiset of letters. Sort groups by the first original appearance of any member.
-scenario: A search feature wants to cluster typo-tolerant suggestions that are letter rearrangements of one another before presenting them to users.
+scenario: |-
+  The search relevance team at a legal research platform is building a query-expansion feature that broadens searches to include term variants — for example, a search for "contracts" should also surface documents containing "crantcots" or other anagrammatic mis-scans from OCR'd case files. Before ranking, the system clusters all candidate terms into anagram groups so that each group can be treated as a single semantic unit. You need an efficient grouper that canonicalizes each word to a sorted-character key and buckets all words sharing that key, preserving the order in which each group is first encountered.
+alt_scenarios:
+  - "**Scrabble word solver:** A word game assistant groups a dictionary of valid plays by their letter multiset so the engine can enumerate all legal moves from a given rack in one lookup."
+  - "**Duplicate asset detection:** A digital asset management system clusters filename variants that are letter-rearrangements of each other to surface potential duplicate uploads before storage."
+  - "**Network intrusion detection:** A security tool groups domain names by character multiset to identify anagram-based domain generation algorithms used in botnet C2 communication."
 constraints:
 - All input strings are lowercase ASCII letters
 - Preserve stable group ordering by first appearance

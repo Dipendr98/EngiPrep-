@@ -4,7 +4,12 @@ category: concurrency
 difficulty: Hard
 summary: Producer-consumer queue with blocking put and get operations.
 description: Implement a thread-safe bounded queue. put(item) blocks if the queue is full. get() blocks if the queue is empty. Support a timeout parameter for both operations. The queue should be efficient and avoid busy-waiting.
-scenario: Imagine you're building the internal message-passing layer for a data pipeline. Producer threads ingest events from Kafka and push them into an in-process buffer, while consumer threads pick items off that buffer, enrich them, and write to a database. If the consumers fall behind, you need the producers to block rather than eat unbounded memory. If the buffer is empty, consumers should sleep efficiently instead of spinning.
+scenario: |-
+  You're building the in-process handoff layer for a real-time data enrichment pipeline at a logistics company. A pool of Kafka consumer threads pulls shipment tracking events off a topic and pushes them into a shared buffer, while a separate pool of enrichment threads calls a geo-lookup service and writes the enriched records to PostgreSQL. During network slowdowns the enrichment threads fall behind, and without a bounded buffer the Kafka threads would pile up millions of raw events in memory until the pod OOM-kills. You need a queue where producers block when the buffer is full, consumers block when it's empty, and no thread burns CPU spinning in a wait loop.
+alt_scenarios:
+  - "**Video transcoding service:** Passing raw video frames from a decoder thread to a pool of encoder threads through a bounded in-memory queue, so a slow encoder naturally applies back-pressure to the decoder instead of buffering an entire video in RAM."
+  - "**Web crawler:** Coordinating between URL-discovery threads (which find new links) and URL-fetch threads (which download pages), using a bounded queue so a burst of discovered links doesn't spawn unbounded memory growth before fetchers can keep up."
+  - "**Print spooler / job queue:** Accepting print jobs from multiple application threads into a fixed-capacity buffer while a printer driver thread drains the queue sequentially, blocking application threads if the spooler is full rather than silently dropping jobs."
 constraints:
 - Capacity is a positive integer set at construction time.
 - put() and get() accept an optional timeout in seconds (float); None means block forever.

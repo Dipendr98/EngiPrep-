@@ -4,7 +4,12 @@ category: streaming
 difficulty: Medium
 summary: Aggregate log entries by key with configurable reducers.
 description: 'Implement a pipeline that processes a stream of log entries (key-value dicts). Support group_by(field), then apply reducers: count(), sum(field), avg(field), min/max(field). Return the aggregated results. For example, group by ''status_code'' and count each.'
-scenario: You're on the observability team and engineers keep filing requests for ad hoc queries over structured logs — things like 'group by status code and count' or 'group by endpoint and show me average latency.' Rather than spinning up a full data warehouse for every question, you're building a lightweight in-process aggregation pipeline that can ingest a stream of log dicts and answer these queries on the fly.
+scenario: |-
+  You're on the Observability Platform team at a B2B SaaS company, and every week an engineer opens a Jira ticket asking "can someone run a quick query to count 5xx responses by endpoint?" Spinning up Athena or BigQuery for every ad hoc question takes 20 minutes of setup and costs money. You're building a lightweight in-process log aggregation tool that ingests a batch of structured log dicts captured during a time window and lets engineers chain group_by and reducer calls—count, sum, avg, min, max—to answer these questions instantly in a Python notebook or CLI, without touching the data warehouse.
+alt_scenarios:
+  - "**A/B testing platform:** Aggregating experiment event logs by variant ID to compute per-variant conversion counts and average revenue without loading the full dataset into a SQL engine."
+  - "**DevOps cost analysis tool:** Grouping cloud billing line-item records by service and region, then summing spend and computing average cost-per-request, so teams can audit costs from a local CSV export."
+  - "**Customer success team tooling:** Grouping support ticket records by account tier and computing average resolution time and ticket count so the CS team can spot accounts at risk of churn without a BI tool."
 constraints:
 - Log entries are Python dicts with string keys and string or numeric values
 - The group_by field must exist in every log entry
@@ -22,7 +27,7 @@ examples:
 - input: agg.group_by('endpoint').avg('latency_ms')
   output: '{''/api/users'': 48.5, ''/api/orders'': 210.0}'
 - input: agg.group_by('status').sum('latency_ms')
-  output: '{200: 97, 500: 210}'
+  output: "{'200': 97, '500': 210}"
 starter_code: |-
   class LogAggregator:
       def __init__(self):
@@ -69,13 +74,13 @@ test_cases:
   - __eval__
   op_args:
   - - endpoint: /api/users
-      status: 200
+      status: "200"
       latency_ms: 45
   - - endpoint: /api/users
-      status: 200
+      status: "200"
       latency_ms: 52
   - - endpoint: /api/orders
-      status: 500
+      status: "500"
       latency_ms: 210
   - - obj.group_by('endpoint').count()
   - - obj.group_by('status').sum('latency_ms')
@@ -85,8 +90,8 @@ test_cases:
   - null
   - /api/users: 2
     /api/orders: 1
-  - 200: 97
-    500: 210
+  - "200": 97
+    "500": 210
 class_name: LogAggregator
 explanation: |-
   This problem is mainly about choosing a clean invariant around **hash map grouping** and then preserving it on every operation.

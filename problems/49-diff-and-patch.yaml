@@ -4,7 +4,12 @@ category: api_design
 difficulty: Hard
 summary: Compute the diff between two data structures and apply patches.
 description: Implement diff(old, new) that returns a list of operations (add, remove, replace) to transform old into new. Works on nested dicts and lists. Implement patch(data, operations) that applies those operations. Paths should use dot notation for nesting.
-scenario: 'You''re building a configuration management system where operators edit large nested JSON configs for deployment environments. When someone submits a change, you want to compute a precise diff — ''field X was added'', ''field Y changed from A to B'', ''field Z was removed'' — display it for review, and then apply the patch to the live config. The diff format needs to support deeply nested structures using dot-notation paths so that ops like ''database.pool.max_size: 10 → 20'' are human-readable.'
+scenario: |-
+  The infrastructure team at a cloud provider manages thousands of per-environment Terraform-style JSON configs stored in a Git-like versioning system. When an SRE submits a change to production — bumping a connection pool limit, toggling a feature flag, updating a TLS certificate path — the review system must surface a precise, human-readable diff that names every changed, added, or removed field using dot-notation paths before the change is applied. You need diff() to produce a minimal list of typed operations over deeply nested structures and patch() to apply those operations atomically without mutating the original document.
+alt_scenarios:
+  - "**Collaborative document editing:** A real-time editor tracks changes between successive auto-saved JSON document states so that concurrent edits can be merged or surfaced as conflicts."
+  - "**API response regression testing:** A test harness diffs expected versus actual JSON responses from a REST API, reporting only the fields that changed between software versions."
+  - "**Database schema migration auditing:** A schema management tool diffs two versions of a table definition object to generate a human-readable migration summary before executing DDL."
 constraints:
 - Supports nested dicts and lists of arbitrary depth.
 - 'Paths use dot notation: ''a.b.c'' for nested dicts, ''a.0'' for list indices.'

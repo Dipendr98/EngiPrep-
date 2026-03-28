@@ -7,9 +7,12 @@ description: >-
   Implement `sorted_insert(lst: list[int], val: int) -> list[int]` that takes a sorted
   list and a value, and returns a new sorted list with the value inserted at the correct
   position. Use bisect. Do not sort the whole list.
-scenario: >-
-  A real-time leaderboard maintains a sorted list of scores and inserts each new
-  score at the right position incrementally to avoid expensive full re-sorts.
+scenario: |-
+  A gaming backend team at a mobile studio maintains a live leaderboard that accepts new score submissions at a rate of thousands per minute during peak play sessions. Re-sorting the entire list on each insertion would be prohibitively expensive at this volume, so the engineer implements an incremental sorted insert using bisect to find the correct position in O(log n) and shift only the affected elements. The sorted invariant must be preserved across every insertion to ensure rank reads are always correct.
+alt_scenarios:
+  - "**Time-series database:** A metrics store inserts incoming timestamped data points into a sorted index buffer using bisect to maintain chronological order without full re-indexing."
+  - "**Order book:** A trading exchange inserts new limit orders into a sorted price-level list using bisect to place them at the correct price priority without re-sorting."
+  - "**Event scheduler:** A task runner uses bisect to insert new scheduled jobs into a sorted execution queue ordered by trigger timestamp."
 constraints:
   - lst is sorted in ascending order
   - lst may be empty

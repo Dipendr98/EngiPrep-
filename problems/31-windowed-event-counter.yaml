@@ -4,7 +4,12 @@ category: streaming
 difficulty: Medium
 summary: Count events in multiple time windows (1min, 5min, 1hr) efficiently.
 description: Implement a counter that tracks events over time. record(timestamp) records an event. count(timestamp, window_seconds) returns the number of events in the last window_seconds as of the given timestamp. Support multiple window sizes efficiently.
-scenario: Imagine you're building the monitoring dashboard for a high-traffic API gateway. The ops team wants real-time counters — 'how many 5xx errors in the last minute?' or 'total requests in the last hour?' — all queryable at any point in time with different window sizes. Your job is to build the underlying counter that powers those widgets.
+scenario: |-
+  You're building the metrics backend for an API gateway that handles 50K requests per second across a global fleet of edge nodes. The SRE team's dashboard has three widgets per service: "5xx errors in the last 60s," "requests in the last 5 minutes," and "total traffic in the last hour"—all queried independently with different window sizes and all expected to update within a second of real events. The counters must stay accurate as time advances without re-scanning historical data, and a single pod needs to support dozens of services simultaneously with predictable memory use.
+alt_scenarios:
+  - "**Fraud detection platform:** Counting how many payment attempts a given card number has made in the last 60 seconds and last 15 minutes to trigger velocity-based fraud rules in real time."
+  - "**Rate-limiting service (API gateway):** Tracking how many requests each API key has made within a rolling 1-minute window to enforce per-customer quotas without storing the full request history."
+  - "**Content moderation pipeline:** Counting how many posts a user account has submitted in sliding windows of 1 minute and 1 hour to detect automated spam bursts before they reach human reviewers."
 constraints:
 - Timestamps are positive integers representing Unix seconds
 - Timestamps passed to record() are non-decreasing

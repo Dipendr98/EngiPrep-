@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Build cumulative sums across an array.
 description: Implement running_sum(nums) that returns a list where each position contains the sum of all values up to that index.
-scenario: This warm-up gets you thinking about carrying state forward in a single pass.
+scenario: |-
+  The analytics team at a subscription software company tracks daily new sign-up counts in an array and needs to display a cumulative growth curve on the executive dashboard. Instead of querying a running total from the database on every render, the front-end receives the daily delta array and must compute the cumulative series client-side in a single pass before plotting. The resulting array must be a new allocation so that the original daily deltas remain unchanged for other chart components.
+alt_scenarios:
+  - "**Inventory tracking:** A warehouse system computes a running total of units received across daily shipment counts to determine current stock levels without querying the database repeatedly."
+  - "**Battery charge estimation:** An embedded power-management module accumulates instantaneous current readings into a running total to estimate remaining battery capacity between full calibration cycles."
 constraints:
 - Return a new list.
 examples:

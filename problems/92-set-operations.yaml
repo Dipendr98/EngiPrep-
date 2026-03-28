@@ -7,9 +7,12 @@ description: >-
   Implement `set_summary(a: list, b: list) -> dict` that takes two lists and returns a
   dict with keys: "both" (elements in both, sorted), "only_a" (in a but not b, sorted),
   "only_b" (in b but not a, sorted). Use set operations.
-scenario: >-
-  A deployment tool compares the set of services running in two environments to
-  identify shared services, services only in staging, and services only in production.
+scenario: |-
+  A platform reliability team at a cloud company runs a nightly drift detector that compares the set of microservices deployed in staging versus production. Services present in both environments are healthy; services only in staging haven't been promoted yet; and services only in production may be orphaned or incorrectly rolled back. The engineer writing the detector needs a clean, O(n) implementation using set operations to generate all three categories in a single pass.
+alt_scenarios:
+  - "**Feature flag audit:** A release engineering tool compares feature flags enabled in two regional deployments to find flags that are only live in one region."
+  - "**Database schema diff:** A migration tool computes the intersection and differences of column sets between two table versions to generate an ALTER TABLE plan."
+  - "**Access control review:** A security audit script compares IAM permission sets between two user roles to identify over-permissioned capabilities unique to each role."
 constraints:
   - Elements within each list are unique (no duplicates within a single list)
   - Elements are comparable and sortable

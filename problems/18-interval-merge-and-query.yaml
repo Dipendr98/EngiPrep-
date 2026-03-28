@@ -4,7 +4,12 @@ category: scheduling
 difficulty: Medium
 summary: Maintain a set of intervals supporting add, remove, and query operations.
 description: Implement an interval collection that supports add(start, end) which merges overlapping intervals, remove(start, end) which removes a range (possibly splitting intervals), and query(point) which returns True if any interval contains the point.
-scenario: ''
+scenario: |-
+  The Ads Targeting team at a media company models user "active hours" as a dynamic set of time intervals that are added as users engage and removed when users explicitly opt out of certain windows. During ad serving, the system must instantly answer "is this user active right now?" against a point in time. Because engagement windows frequently overlap and the opt-out ranges can bisect existing intervals, the underlying structure must merge overlapping additions and correctly split intervals on removal—all while keeping point queries fast.
+alt_scenarios:
+  - "**Network firewall rule engine:** A packet filter maintains a merged set of allowed IP address ranges, adds new CIDRs as allow-list entries arrive, and punches holes when specific ranges are blocked."
+  - "**Calendar free/busy API:** A scheduling service tracks a user's busy intervals, merges overlapping calendar events, and removes intervals when meetings are cancelled so it can answer free-slot queries."
+  - "**Genomics coverage analyzer:** A bioinformatics pipeline tracks which base-pair regions of a genome have been sequenced, merges overlapping read alignments, and queries whether a specific position has adequate coverage."
 constraints: []
 examples: []
 starter_code: |-

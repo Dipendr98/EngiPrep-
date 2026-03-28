@@ -7,9 +7,12 @@ description: >-
   Implement `merge_configs(base: dict, overrides: dict) -> dict` that merges two dicts:
   start with base, apply overrides on top, then remove any key whose final value is None.
   Return the resulting dict.
-scenario: >-
-  A configuration loader merges a default config with environment-specific overrides,
-  treating a None value as an explicit signal to remove that key from the final config.
+scenario: |-
+  A platform engineering team at a SaaS company is building the configuration resolution layer for their multi-tenant deployment system. Each tenant starts with a shared base config, and a per-environment override file is layered on top at startup. A None value in the override file is a deliberate signal to strip a key that exists in the base config — for example, to disable a feature that should not run in production. The merged result must not mutate the originals, since other tenants share the same base config object.
+alt_scenarios:
+  - "**Feature flag resolver:** A feature management service merges a default flag state dict with a per-user override dict, removing flags set to None to respect explicit opt-outs."
+  - "**Kubernetes operator:** A controller merges a base pod spec with a per-namespace override patch, treating null values as explicit deletions of inherited spec fields."
+  - "**ML experiment tracker:** An experiment config builder merges a base hyperparameter dict with a sweep override, removing None-valued keys before passing the config to the trainer."
 constraints:
   - Keys may be any hashable type; values may be any Python object including None
   - The original base and overrides dicts must not be modified

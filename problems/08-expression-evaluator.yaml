@@ -4,7 +4,12 @@ category: parsing
 difficulty: Hard
 summary: Evaluate arithmetic expressions with operators, parentheses, and variables.
 description: Implement evaluate(expression, variables) that computes the result of an arithmetic expression string containing integers, +, -, *, /, parentheses, and variable names. Variables are provided as a dictionary. Handle operator precedence correctly. Division is integer division.
-scenario: ''
+scenario: |-
+  The Analytics team at a SaaS company lets customers write custom metric formulas in a dashboard builder—expressions like `(revenue - refunds) * conversion_rate / 100`. The formula engine must evaluate these strings safely at query time, substituting named variables with values pulled from the warehouse, and respecting standard operator precedence without calling `eval`. Malformed or variable-missing expressions should surface a clear error rather than silently return a wrong number.
+alt_scenarios:
+  - "**Infrastructure cost estimator:** A cloud-pricing tool evaluates user-defined cost formulas containing resource variables (cpu_hours, storage_gb) to produce bill estimates before provisioning."
+  - "**Spreadsheet engine:** A browser-based spreadsheet evaluates cell formulas referencing named ranges, handling operator precedence and parenthesized sub-expressions across thousands of cells."
+  - "**CI pipeline condition evaluator:** A build system evaluates branch-protection rule expressions like `changed_files > 10 * (base_coverage - head_coverage)` to decide whether to require additional reviewer approval."
 constraints: []
 examples: []
 starter_code: |-

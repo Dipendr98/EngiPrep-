@@ -1,0 +1,79 @@
+id: 114
+title: Container With Most Water
+category: arrays
+difficulty: Medium
+summary: Find the two lines that form the container holding the most water.
+description: Given an array height where height[i] is the height of a vertical line at position i, find two lines that together with the x-axis form a container that holds the most water. Return the maximum amount of water the container can hold.
+scenario: |-
+  You're a storage infrastructure engineer at Snowflake designing the cross-region replication pairing system. Each storage node reports its sustained write throughput in MB/s (the "height"), and replication bandwidth between a primary and replica is limited by the slower node and is also inversely proportional to their geographic distance (the "width" between indices). You need to select the primary-replica pair that maximizes effective replication bandwidth across all possible pairings — the brute-force O(n²) scan across thousands of nodes exceeds the 100ms planning SLA.
+alt_scenarios:
+  - "**Load balancer pairing:** A traffic engineering tool selects the two servers in a fleet whose combined minimum capacity and network separation maximize sustainable pairwise throughput for active-active failover."
+  - "**Solar panel layout optimizer:** A photovoltaic design tool finds the two panel rows whose shared minimum irradiance and physical separation maximize the total harvestable energy corridor."
+  - "**Histogram water trapping setup:** A civil engineering simulator identifies the two retaining walls in a flood-control channel that maximize total water retention capacity."
+constraints:
+- You may not slant the container (must be vertical lines)
+- Return the maximum water volume (integer)
+- At least two elements in height
+examples:
+- input: 'max_water([1,8,6,2,5,4,8,3,7])'
+  output: '49  # lines at index 1 and 8, height=min(8,7)=7, width=7'
+- input: 'max_water([1,1])'
+  output: '1'
+starter_code: |-
+  def max_water(height: list[int]) -> int:
+      pass
+follow_ups:
+- What if you want to find all pairs that achieve the maximum water?
+- Trapping Rain Water (different problem — compute water trapped between all bars, not just two).
+- How does the two-pointer approach prove its correctness?
+key_skills:
+- two pointers
+- greedy
+- array
+test_type: function
+test_cases:
+- label: classic example
+  args:
+  - - 1
+    - 8
+    - 6
+    - 2
+    - 5
+    - 4
+    - 8
+    - 3
+    - 7
+  expected: 49
+- label: two elements
+  args:
+  - - 1
+    - 1
+  expected: 1
+- label: decreasing heights
+  args:
+  - - 4
+    - 3
+    - 2
+    - 1
+  expected: 4
+- label: all same height
+  args:
+  - - 3
+    - 3
+    - 3
+    - 3
+  expected: 9
+function_name: max_water
+explanation: |-
+  Two-pointer approach: start left=0, right=len(height)-1. At each step, compute water = (right - left) * min(height[left], height[right]) and update the max.
+
+  Move the pointer with the shorter height inward (the shorter side is the bottleneck). Moving the taller side would only decrease the width without any chance of increasing the min height.
+
+  Why this is correct: for any pair (l, r), if height[l] < height[r], no pairing of l with any inner index can beat moving l rightward, because width only shrinks from here. So we safely discard l from further consideration.
+
+  Time O(n), space O(1).
+
+  The brute force O(n²) approach checks all pairs — mention it first in an interview, then optimize.
+references:
+- The correctness proof hinges on showing that when you discard a pointer, you're not skipping the optimal pair.
+- Don't confuse with Trapping Rain Water — that problem counts water above every bar, not just between two endpoints.

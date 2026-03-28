@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Find the index of the first non-repeating character.
 description: Implement first_unique_char(s) that returns the index of the first character appearing exactly once, or -1 if none exists.
-scenario: A simple two-pass counting warm-up gives you a clean confidence boost before harder interviews.
+scenario: |-
+  A real-time chat platform at a fintech startup needs to deduplicate rapid-fire user input events. When a trader types a command string, the backend must identify the first character that appears exactly once to determine the canonical intent signal — repeated characters are treated as accidental key-holds from a noisy keyboard. The platform's event processor calls this function on every raw keystroke buffer before dispatching to the order router.
+alt_scenarios:
+  - "**Stream deduplication:** A Kafka consumer scans incoming event-type codes to find the first code that has not yet been seen twice, flagging it as a novel signal."
+  - "**Log anomaly detection:** A log parser finds the first character in a compressed error signature that appears uniquely, used to classify the error family."
+  - "**Autocomplete ranking:** A mobile keyboard app identifies the first non-repeated letter in a partial word to break ties in its candidate suggestion ranking."
 constraints:
 - Assume lowercase ASCII letters.
 examples:

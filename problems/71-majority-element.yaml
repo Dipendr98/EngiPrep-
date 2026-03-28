@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Return the element appearing more than half the time.
 description: Implement majority_element(nums) that returns the value that appears more than n/2 times.
-scenario: This warm-up is a nice chance to choose between a counting approach and a more elegant voting approach.
+scenario: |-
+  A distributed voting service at a social platform aggregates replica responses to determine the authoritative result for a replicated state machine. Each replica returns a proposed value, and because the system uses a simple majority quorum, the correct value always appears more than half the time. The coordinator must extract that dominant value quickly before acknowledging the write to the client.
+alt_scenarios:
+  - "**A/B test analysis:** A feature-flag service identifies which variant was served to the majority of users in a sampled session log to declare a winner."
+  - "**Consensus protocol:** A Raft leader identifies the majority term number from a batch of follower responses to confirm a log entry is safely committed."
+  - "**Fraud detection:** A rules engine finds the dominant risk label across an ensemble of classifier outputs to produce a final fraud/non-fraud verdict."
 constraints:
 - A majority element always exists.
 examples:

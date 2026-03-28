@@ -1,0 +1,86 @@
+id: 115
+title: Three Sum
+category: arrays
+difficulty: Medium
+summary: Find all unique triplets that sum to zero.
+description: Given an array of integers, return all unique triplets [a, b, c] such that a + b + c = 0. The solution set must not contain duplicate triplets. Each triplet should be sorted in non-decreasing order.
+scenario: |-
+  You're a fraud engineer at Plaid building the wash-trade detection module for the brokerage data feed. A wash trade leaves a net-zero footprint when three transaction amounts — a buy, a sell, and a fee offset — sum to exactly zero across a settlement window. Given a list of signed transaction deltas for a single account, your scanner must find every unique zero-sum triplet and deduplicate them before flagging for compliance review, because duplicate alerts trigger regulatory re-filing penalties.
+alt_scenarios:
+  - "**Chemical equilibrium solver:** A computational chemistry tool finds all triplets of reaction enthalpy values that sum to zero, identifying thermodynamically neutral reaction pathways."
+  - "**Game balance validator:** A game economy team finds all combinations of three item value deltas that net to zero, flagging exploit loops where players can infinitely cycle resources."
+  - "**Accounting reconciliation:** A fintech back-office tool finds all triplets of journal entry amounts that cancel out, identifying unintentional round-trip transfers in a general ledger."
+constraints:
+- The solution set must not contain duplicate triplets
+- Each triplet must be sorted in non-decreasing order
+- Triplets can reuse values at different indices, but not the same index
+- Return an empty list if no such triplets exist
+examples:
+- input: 'three_sum([-1,0,1,2,-1,-4])'
+  output: '[[-1,-1,2],[-1,0,1]]'
+- input: 'three_sum([0,1,1])'
+  output: '[]'
+- input: 'three_sum([0,0,0])'
+  output: '[[0,0,0]]'
+starter_code: |-
+  def three_sum(nums: list[int]) -> list[list[int]]:
+      pass
+follow_ups:
+- Generalize to k-sum — find all unique k-tuples summing to a target.
+- Count the number of triplets instead of returning them.
+- What if you want pairs summing to a target instead (two-sum sorted)?
+key_skills:
+- two pointers
+- sorting
+- deduplication
+test_type: function
+test_cases:
+- label: two triplets
+  setup_code: |-
+    def _test(nums):
+        return sorted([sorted(t) for t in three_sum(nums)])
+  function_name: _test
+  args:
+  - - -1
+    - 0
+    - 1
+    - 2
+    - -1
+    - -4
+  expected:
+  - - -1
+    - -1
+    - 2
+  - - -1
+    - 0
+    - 1
+- label: no triplets
+  args:
+  - - 0
+    - 1
+    - 1
+  expected: []
+- label: all zeros
+  args:
+  - - 0
+    - 0
+    - 0
+  expected:
+  - - 0
+    - 0
+    - 0
+function_name: three_sum
+explanation: |-
+  Sort the array first. For each index i (as the leftmost element), use two pointers (left=i+1, right=end) to find pairs summing to -nums[i].
+
+  Deduplication: skip duplicates for i (if nums[i] == nums[i-1] and i > 0, skip). After finding a triplet, advance both pointers and skip duplicate values for both.
+
+  Time O(n²) — sorting is O(n log n), but the two-pointer scan is O(n) per element. Space O(1) excluding output.
+
+  Common mistakes:
+  1. Not sorting first (two pointers require sorted input).
+  2. Missing the deduplication skips, causing repeated triplets.
+  3. Using i+1 instead of i as the left pointer start, or starting i at the wrong index.
+references:
+- Sort first — this is what makes two pointers work and deduplication easy.
+- The deduplication pattern (skip while arr[ptr] == arr[ptr-1]) appears in many k-sum variants.

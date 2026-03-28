@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Return the length of the final word in a string.
 description: Implement length_of_last_word(s) that returns the length of the last word, ignoring trailing spaces.
-scenario: This is a small string-trimming warm-up that rewards careful handling of whitespace.
+scenario: |-
+  The natural language processing team at a document intelligence company is building a preprocessing pipeline that extracts the last token from raw OCR-produced text lines before passing them to a named-entity classifier. OCR output frequently contains trailing spaces, line-feed artifacts, or padding from the scanner, so the extractor must trim whitespace from the right before measuring the final word — which is often a key entity like a city name, currency code, or date. You need a function that handles trailing whitespace correctly and returns the character length of the last word in O(n) time.
+alt_scenarios:
+  - "**Log parser:** A log ingestion service extracts the final field from whitespace-delimited syslog lines to determine the status code or error token before routing to the right alert rule."
+  - "**Command-line argument handler:** A shell scripting helper extracts the last word of a user-supplied string argument as the target filename before opening or writing the file."
 constraints:
 - Words are separated by spaces.
 examples:

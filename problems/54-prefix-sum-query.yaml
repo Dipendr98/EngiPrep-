@@ -4,7 +4,12 @@ category: streaming
 difficulty: Easy
 summary: Answer range-sum queries using precomputed cumulative totals.
 description: Implement a PrefixSum class with sum_range(left, right) returning the inclusive sum between two indices.
-scenario: A dashboard repeatedly asks for totals across subranges of a static metric array, and recomputing each sum from scratch is wasting time.
+scenario: |-
+  The observability team at a cloud infrastructure company exposes a metrics dashboard that lets engineers query aggregate resource usage — total CPU seconds, total memory-hours — across arbitrary time-window slices of a pre-loaded daily metric array. Because the underlying dataset is static for the duration of a dashboard session and the same ranges get queried dozens of times per page load, recomputing each sum from scratch with a loop is causing noticeable latency. You need a PrefixSum structure that precomputes cumulative totals once at construction time so that every range query answers in O(1).
+alt_scenarios:
+  - "**Financial reporting:** A BI tool computes cumulative revenue over arbitrary fiscal date ranges from a pre-loaded time series, serving hundreds of concurrent analyst queries."
+  - "**Game score tracking:** A leaderboard service answers range-sum queries over a sorted score array to compute region-specific total points without re-scanning on every request."
+  - "**Image processing:** A computer vision pipeline uses 2D prefix sums to answer rectangular region-intensity queries over fixed image matrices in constant time during feature extraction."
 constraints:
 - The array is fixed after construction
 - Indices are valid and inclusive

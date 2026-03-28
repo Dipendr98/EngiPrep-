@@ -3,12 +3,17 @@ title: Task Scheduler with Cooldowns
 category: scheduling
 difficulty: Medium
 summary: Schedule tasks respecting a cooldown between identical task types.
-description: Given a list of tasks (characters) and a cooldown period N, find the minimum time to execute all tasks. Between two same tasks, there must be at least N intervals. You can insert idle intervals. Return the total time and the schedule.
-scenario: ''
+description: Given a list of tasks (characters) and a cooldown period N, find the minimum time to execute all tasks. Between two same tasks, there must be at least N intervals. You can insert idle intervals. Return a list [total_time, schedule] where schedule is the ordered list of tasks/idles.
+scenario: |-
+  The ML Infrastructure team runs a GPU cluster where model training jobs are submitted as typed task categories—each category represents a specific model family that requires exclusive access to a subset of specialized CUDA kernels. Vendor firmware imposes a mandatory cooldown period between consecutive jobs of the same type to prevent thermal throttling and memory corruption. You need a scheduler that minimizes total wall-clock runtime by interleaving task categories optimally, inserting idle cycles only when no alternative task type is available.
+alt_scenarios:
+  - "**Manufacturing line scheduler:** A factory control system enforces a cooldown between runs of the same product type on a shared stamping machine to allow die cooling, and minimizes total production time by interleaving SKUs."
+  - "**Database vacuum scheduler:** A storage engine schedules maintenance operations (VACUUM, ANALYZE, REINDEX) on tables, enforcing a minimum gap between repeated operations on the same table to avoid I/O saturation."
+  - "**Content moderation queue:** A trust-and-safety platform schedules human review tasks with cooldowns between identical content categories to prevent reviewer fatigue bias from reviewing the same type repeatedly."
 constraints: []
 examples: []
 starter_code: |-
-  def schedule_tasks(tasks: list[str], cooldown: int) -> tuple[int, list[str]]:
+  def schedule_tasks(tasks: list[str], cooldown: int) -> list:
       pass
 follow_ups:
 - Add priorities so higher-priority tasks run first.

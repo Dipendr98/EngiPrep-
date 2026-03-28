@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Find the index of a target in a sorted array.
 description: Implement binary_search(nums, target) that returns the index of target in a sorted array or -1 if not found.
-scenario: You want a classic loop-invariant warm-up before moving to bigger problems.
+scenario: |-
+  The search infrastructure team at a streaming music platform maintains a sorted in-memory index of track IDs for each genre playlist. When a user requests a specific track, the lookup service must confirm whether the track ID is present in the playlist index and return its position in O(log n) — the playlists can contain tens of thousands of entries, and a linear scan would cause noticeable latency at peak request rates. You need a clean binary search implementation with an explicit loop invariant that handles the single-element and not-found edge cases correctly.
+alt_scenarios:
+  - "**Feature flag rollout:** A rollout system checks whether a user's numeric ID falls within a sorted list of opted-in IDs using binary search to evaluate targeting rules at request time."
+  - "**Firmware version lookup:** An OTA update service binary-searches a sorted release manifest to find whether a device's current firmware version is eligible for a specific update channel."
 constraints:
 - nums is sorted ascending.
 - Return any correct index when duplicates exist.

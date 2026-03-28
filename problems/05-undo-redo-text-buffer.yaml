@@ -4,7 +4,12 @@ category: stateful
 difficulty: Medium
 summary: Text buffer supporting insert, delete, undo, and redo operations.
 description: Implement a text buffer that supports insert(position, text), delete(position, length), undo(), and redo(). Undo reverts the last operation, redo re-applies it. A new operation after an undo should clear the redo history. Operations should handle boundary conditions gracefully.
-scenario: You’re building the core text-editing engine for a lightweight code editor. Users expect fluid insert and delete operations, plus full undo/redo support. The tricky part is keeping the undo and redo stacks consistent—especially when a user undoes a few steps, types something new, and that should discard the entire redo future.
+scenario: |-
+  The Editor team at a developer-tools company is building the core buffer engine for a cloud-based IDE. The engine must support character-level insert and delete, plus full undo/redo so engineers can recover from mistyped refactors. The hardest invariant to maintain is stack coherence after a branch point—if a user undoes three edits and then types new content, the entire redo future must be discarded rather than left dangling as an inconsistent ghost history.
+alt_scenarios:
+  - "**Vector graphics tool:** A design application’s drawing engine tracks every shape transformation in an undo stack so artists can step back through a complex illustration without repainting from scratch."
+  - "**Spreadsheet formula editor:** A business-intelligence tool records each cell edit as a reversible command so analysts can undo formula changes that broke a dashboard calculation."
+  - "**Database migration CLI:** A schema-migration tool implements undo/redo over a sequence of DDL operations so engineers can reverse a botched column rename during an interactive session."
 constraints:
 - Position is a 0-based index into the current text
 - insert(pos, text) inserts before the character at pos

@@ -1,0 +1,88 @@
+id: 117
+title: Subarray Sum Equals K
+category: arrays
+difficulty: Medium
+summary: Count contiguous subarrays whose elements sum to exactly k.
+description: Given an array of integers and a target k, return the total number of contiguous subarrays whose sum equals k. The array may contain negative numbers.
+scenario: |-
+  You're a data engineer on Amplitude's behavioral analytics team, processing event streams for mobile apps where each event carries a signed engagement score — positive for productive actions like sharing or completing a task, negative for friction events like crashes or abandoned flows. A product manager wants to know how many contiguous time windows of consecutive events sum to exactly a target engagement score, to identify recurring behavior patterns that reliably precede conversion. Because scores can be negative, a sliding window won't work and you need the prefix-sum approach to scan windows in O(n).
+alt_scenarios:
+  - "**Financial audit tool:** A compliance system counts the number of contiguous journal entry sequences in a ledger that sum to exactly zero, flagging potential round-trip transactions for review."
+  - "**Signal processing pipeline:** A sensor fusion system counts contiguous windows of IMU delta readings that sum to a target displacement value, used to detect a specific physical gesture."
+  - "**A/B test analyzer:** An experimentation platform counts how many consecutive experiment cohort deltas (which can be negative for regressions) sum to a target lift value to identify sustained treatment effects."
+constraints:
+- The array may contain negative numbers
+- Subarrays must be contiguous
+- The same elements can appear in multiple counted subarrays
+- An empty array returns 0
+examples:
+- input: 'subarray_sum([1,1,1], 2)'
+  output: '2  # [1,1] at indices [0,1] and [1,2]'
+- input: 'subarray_sum([1,2,3], 3)'
+  output: '2  # [3] and [1,2]'
+starter_code: |-
+  def subarray_sum(nums: list[int], k: int) -> int:
+      pass
+follow_ups:
+- Find the length of the longest subarray summing to k.
+- Return one subarray that sums to k (any valid one).
+- What if elements are all non-negative? Can you use a sliding window instead?
+key_skills:
+- prefix sum
+- hash map
+- subarray
+test_type: function
+test_cases:
+- label: two subarrays
+  args:
+  - - 1
+    - 1
+    - 1
+  - 2
+  expected: 2
+- label: mixed lengths
+  args:
+  - - 1
+    - 2
+    - 3
+  - 3
+  expected: 2
+- label: negative numbers
+  args:
+  - - 1
+    - -1
+    - 1
+    - -1
+  - 0
+  expected: 4
+- label: k equals total sum
+  args:
+  - - 3
+    - 4
+    - 7
+  - 7
+  expected: 2
+- label: no match
+  args:
+  - - 1
+    - 2
+    - 3
+  - 7
+  expected: 0
+function_name: subarray_sum
+explanation: |-
+  Naive O(n²): check all subarrays. Works but too slow for large inputs.
+
+  Optimal O(n) using prefix sums and a hash map:
+  - Track the running prefix sum.
+  - For each position, check if (prefix_sum - k) was seen before. If yes, those many subarrays ending here sum to k.
+  - Store prefix_sum counts in a dict. Initialize with {0: 1} to handle subarrays starting from index 0.
+
+  Why {0: 1}: a prefix sum equal to k means the subarray from index 0 is valid — the {0:1} seed counts it.
+
+  Why not sliding window: negative numbers mean a growing sum can decrease, so the window can't be contracted when the sum exceeds k.
+
+  Time O(n), space O(n).
+references:
+- Initialize the prefix-sum map with {0: 1} — this is the most common source of off-by-one errors.
+- Prefix sum + hash map is the general pattern for range sum queries with a target; sliding window only works for non-negative arrays.

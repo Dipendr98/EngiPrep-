@@ -4,7 +4,12 @@ category: search
 difficulty: Medium
 summary: Normalize file paths handling ., .., symlinks, and absolute/relative references.
 description: Given a mapping of symlinks and a path string, implement resolve(path) that returns the canonical absolute path. Handle . (current), .. (parent), consecutive slashes, trailing slashes, and symlink chains. Detect and report symlink cycles.
-scenario: Imagine you're building a deployment tool that resolves file paths inside containers. Users specify paths full of symlinks, relative references, and double slashes. Your tool needs to figure out the true canonical path so it can mount volumes correctly. You also need to catch symlink cycles before your tool spins forever following links in circles.
+scenario: |-
+  The Container Runtime team at a cloud company is building a layer that mounts volumes into pods based on paths specified in deployment manifests. Operators frequently use symlinks, `..` traversals, and double slashes in their paths, and the runtime must resolve each to a canonical absolute path before performing the bind mount. A misconfigured symlink loop once caused a deployment agent to spin in an infinite resolution loop and OOM—your resolver must detect cycles and fail fast with a clear diagnostic instead of hanging.
+alt_scenarios:
+  - "**Security sandbox:** A sandboxed code execution environment canonicalizes every file path requested by user code to prevent path-traversal attacks that attempt to escape the chroot via `../` sequences."
+  - "**Build system artifact resolver:** A hermetic build tool resolves all input file paths through a virtual filesystem layer, following workspace symlinks and normalizing relative references before hashing inputs for cache keys."
+  - "**IDE workspace indexer:** A language server resolves every file URI in an open workspace, following project-relative symlinks and normalizing paths, to produce a canonical index with no duplicate file entries."
 constraints:
 - Paths are always absolute (start with '/')
 - Symlink keys and values are absolute paths

@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Maintain a set where repeating an item removes it.
 description: Implement ToggleSet with toggle(item) and items() methods. If toggle sees a new item it adds it; if the item already exists it removes it. items() returns the current items sorted ascending.
-scenario: This warm-up gives you a tiny stateful API plus a chance to talk through membership checks and deterministic output.
+scenario: |-
+  A developer tools team at a code review platform is building a "pinned reviewers" feature where clicking a reviewer's user ID toggles their pinned status on or off. The backend stores the active set of pinned IDs and must return them in a stable sorted order for the UI to render consistently. Because the same reviewer can be toggled on or off multiple times in a session, the toggle-set abstraction must handle repeated operations cleanly.
+alt_scenarios:
+  - "**Feature flag manager:** A configuration service lets operators toggle feature flags on and off by ID, maintaining a sorted list of currently active flags."
+  - "**Multi-select filter UI:** A search backend tracks which filter tags a user has selected, adding on first click and removing on second click."
+  - "**Playlist editor:** A music streaming service lets users toggle track IDs into a collaborative playlist, with the current track list returned in sorted order."
 constraints:
 - Assume items are comparable for sorting.
 examples:

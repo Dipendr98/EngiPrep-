@@ -7,9 +7,12 @@ description: >-
   Implement `rotate_list(lst: list, k: int) -> list` that takes a list and an integer k
   and returns a new list rotated right by k positions. Use collections.deque. k may be
   larger than len(lst); k may also be negative for left rotation.
-scenario: >-
-  A round-robin scheduler cycles through worker slots by rotating the task queue
-  by the number of slots processed each tick.
+scenario: |-
+  A platform infrastructure team at a cloud company is implementing a round-robin task dispatcher for their distributed job queue. On each scheduling tick, the dispatcher processes a fixed number of worker slots and then rotates the worker list right by that count so the next tick starts with a fresh lead worker. The rotation must handle negative offsets (for rewind scenarios) and oversized k values gracefully, and the original worker list must not be mutated since it is shared across goroutines.
+alt_scenarios:
+  - "**Carousel ad rotation:** A digital advertising platform rotates a ranked list of ad creatives by the number of impressions served each second to implement fair exposure."
+  - "**Network switch:** A packet scheduler rotates its port service queue after each burst to implement deficit round-robin scheduling across active ports."
+  - "**Game turn manager:** A multiplayer game server rotates its ordered player list at the end of each round so the lead player changes predictably."
 constraints:
   - lst may be empty
   - k may be any integer (positive, negative, or zero)

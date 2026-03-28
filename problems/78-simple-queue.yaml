@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Implement a tiny FIFO queue API.
 description: Implement SimpleQueue with enqueue(x), dequeue(), peek(), and is_empty().
-scenario: A small FIFO object is a nice stateful warm-up before more complex queue or scheduler questions.
+scenario: |-
+  A backend engineer at a fintech company is building a lightweight request buffer for their payment processing service. During peak traffic, incoming payment requests must be queued in arrival order and processed strictly FIFO to prevent out-of-order transaction side effects. The team wants a minimal queue abstraction that they can unit-test in isolation before wiring it into the async worker pool.
+alt_scenarios:
+  - "**Print spooler:** An OS-level print manager queues print jobs in arrival order and dequeues them one at a time as the printer becomes available."
+  - "**BFS graph traversal:** A graph search algorithm uses a FIFO queue to track the frontier of unvisited nodes during breadth-first exploration."
+  - "**Event bus:** A microservice event dispatcher buffers incoming domain events in a queue and delivers them to subscribers in the order they were published."
 constraints:
 - dequeue() and peek() are only called when the queue is not empty.
 examples:

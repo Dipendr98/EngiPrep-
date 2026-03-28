@@ -4,7 +4,12 @@ category: concurrency
 difficulty: Hard
 summary: Fetch multiple URLs concurrently with a rate limit on requests per second.
 description: Implement a fetcher that processes a list of URLs concurrently with at most max_concurrent in-flight requests and at most max_per_second requests started per second. Return results as they complete. Handle individual request failures without aborting the batch.
-scenario: Your team maintains an internal link-checker that validates thousands of URLs referenced in documentation. External services will throttle or ban you if you blast them with hundreds of simultaneous connections or exceed a per-second request cap. You need to fetch all URLs as fast as the rate limits allow, keep going when individual URLs 404 or timeout, and stream back results so the caller can process them incrementally instead of waiting for the entire batch.
+scenario: |-
+  You're on the Data Integrations team at a company that syncs product catalog data from dozens of third-party supplier APIs nightly. Each supplier enforces both a concurrency limit (no more than 5 simultaneous connections) and a rate limit (no more than 20 requests per second) in their API terms of service—exceeding either results in a 429 or an IP ban. You need a fetcher that saturates the allowed bandwidth—processing thousands of product URLs as fast as the constraints permit—without aborting the entire batch when one supplier URL returns a 404 or times out, and you need to stream results back so the catalog writer can start persisting records without waiting for the last URL to resolve.
+alt_scenarios:
+  - "**SEO audit tool:** Crawling thousands of pages on a customer's website to check for broken links and metadata issues, respecting the site's crawl-delay directive and keeping concurrent connections low enough to avoid triggering bot-protection rules."
+  - "**Security vulnerability scanner:** Querying the NVD or GitHub Advisory Database API for CVE details across a large set of package versions, observing their published rate limits, and collecting results even when some version identifiers return 404."
+  - "**Price monitoring service:** Fetching current prices from hundreds of competitor product pages concurrently with per-domain rate limits so individual slow or failing domains don't block progress on the rest of the batch."
 constraints:
 - max_concurrent limits simultaneous in-flight requests (use a semaphore).
 - max_per_second limits how many new requests may be started in any 1-second sliding window.

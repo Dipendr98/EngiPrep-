@@ -4,7 +4,12 @@ category: scheduling
 difficulty: Hard
 summary: Priority job queue with retry logic, backoff, and dead letter handling.
 description: Implement a job queue where jobs have priorities and can fail. Failed jobs are retried with exponential backoff (1s, 2s, 4s, ...) up to max_retries. Jobs exceeding max_retries go to a dead letter queue. Support enqueue(job, priority), process_next() which returns the highest-priority ready job, and get_dead_letters().
-scenario: ''
+scenario: |-
+  The Payments Infrastructure team processes asynchronous charge jobs that occasionally fail due to transient downstream errors—network timeouts, rate-limit rejections from the card network, or momentary database unavailability. Failed jobs must be retried with exponential backoff so the team doesn't hammer an already-struggling dependency, while higher-priority jobs (like subscription renewals) must jump ahead of lower-priority ones (like invoice PDF generation) in the ready queue. Jobs that exhaust all retries are moved to a dead-letter queue for manual review by the on-call engineer.
+alt_scenarios:
+  - "**Email delivery service:** A transactional email platform retries failed SMTP deliveries with exponential backoff, prioritizes time-sensitive password-reset emails over bulk digests, and dead-letters messages after five failures."
+  - "**Webhook dispatcher:** An integration platform retries failed webhook deliveries to customer endpoints with backoff, prioritizes critical event types, and moves permanently failing endpoints to a quarantine queue."
+  - "**ML training job scheduler:** A distributed training platform retries jobs that fail due to spot-instance preemption, applies exponential backoff to avoid thrashing the cluster, and pages the team when a job exceeds its retry budget."
 constraints: []
 examples: []
 starter_code: |-

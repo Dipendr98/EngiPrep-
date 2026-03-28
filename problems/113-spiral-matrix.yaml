@@ -1,0 +1,115 @@
+id: 113
+title: Spiral Matrix
+category: arrays
+difficulty: Medium
+summary: Traverse a 2D matrix in spiral order and return all elements.
+description: Given an m x n matrix, return all elements in spiral order (clockwise from the top-left corner).
+scenario: |-
+  You're a firmware engineer at iRobot working on the coverage-path-planning module for the Roomba j9+. The room is represented as an m×n occupancy grid, and the vacuum's cleaning strategy spirals clockwise from the top-left corner to maximize coverage with minimal direction changes — which reduces motor wear. Your path serializer must emit cell coordinates in exact spiral order so the motion controller can execute them as a sequential command queue without lookahead buffering.
+alt_scenarios:
+  - "**CNC milling path generator:** A CAM tool serializes a rectangular stock grid in spiral order so the mill bit traces the tightest outward path, minimizing rapid (non-cutting) travel moves."
+  - "**Cache warming strategy:** A CDN pre-warms edge caches by requesting assets in spiral read order across a geographic grid of PoPs, prioritizing central high-traffic regions first."
+  - "**Telescope survey scheduler:** An astronomical survey system generates spiral observation sequences across a sky-grid so the telescope slews in the shortest arc between adjacent pointings."
+constraints:
+- Traverse clockwise starting from the top-left
+- Return all elements in a flat list
+- Handle non-square matrices (m != n)
+- Empty matrix returns an empty list
+examples:
+- input: 'spiral_order([[1,2,3],[4,5,6],[7,8,9]])'
+  output: '[1,2,3,6,9,8,7,4,5]'
+- input: 'spiral_order([[1,2,3,4],[5,6,7,8],[9,10,11,12]])'
+  output: '[1,2,3,4,8,12,11,10,9,5,6,7]'
+starter_code: |-
+  def spiral_order(matrix: list[list[int]]) -> list[int]:
+      pass
+follow_ups:
+- Fill a matrix of size n x n with values 1..n² in spiral order (Spiral Matrix II).
+- Traverse in counter-clockwise order.
+- Traverse diagonally instead of spirally.
+key_skills:
+- matrix
+- boundary tracking
+- simulation
+test_type: function
+test_cases:
+- label: 3x3 matrix
+  args:
+  - - - 1
+      - 2
+      - 3
+    - - 4
+      - 5
+      - 6
+    - - 7
+      - 8
+      - 9
+  expected:
+  - 1
+  - 2
+  - 3
+  - 6
+  - 9
+  - 8
+  - 7
+  - 4
+  - 5
+- label: 3x4 matrix
+  args:
+  - - - 1
+      - 2
+      - 3
+      - 4
+    - - 5
+      - 6
+      - 7
+      - 8
+    - - 9
+      - 10
+      - 11
+      - 12
+  expected:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 8
+  - 12
+  - 11
+  - 10
+  - 9
+  - 5
+  - 6
+  - 7
+- label: single row
+  args:
+  - - - 1
+      - 2
+      - 3
+  expected:
+  - 1
+  - 2
+  - 3
+- label: single element
+  args:
+  - - - 42
+  expected:
+  - 42
+function_name: spiral_order
+explanation: |-
+  Boundary-shrinking approach: maintain four pointers — top, bottom, left, right. Collect one layer at a time:
+  1. Traverse top row left to right; increment top
+  2. Traverse right column top to bottom; decrement right
+  3. If top <= bottom: traverse bottom row right to left; decrement bottom
+  4. If left <= right: traverse left column bottom to top; increment left
+
+  Repeat until top > bottom or left > right.
+
+  The guard conditions in steps 3 and 4 prevent double-counting the last row or column when the remaining region is a single row or column.
+
+  Time O(m*n), space O(1) excluding the output list.
+
+  Alternative: use a direction array [(0,1),(1,0),(0,-1),(-1,0)] and rotate when hitting a wall — more elegant but same complexity.
+references:
+- Shrinking boundaries is easier to debug than the direction-rotation approach — pick whichever you can reliably implement.
+- Guard the inner two traversals to handle the case where only a single row or column remains.

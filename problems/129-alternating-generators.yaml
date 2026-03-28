@@ -1,0 +1,144 @@
+id: 129
+title: Coroutine Pipeline — Alternating Producers
+category: concurrency
+difficulty: Medium
+summary: Build a generator-based pipeline where two producers alternate output in strict order.
+description: Implement interleave(gen_a, gen_b) that takes two generators and returns a new generator that alternates values between them — first one from gen_a, then one from gen_b, then gen_a, and so on. When one generator is exhausted, yield all remaining values from the other. Also implement merge_sorted(gen_a, gen_b) that merges two sorted generators into a single sorted output stream without buffering everything into memory.
+scenario: |-
+  You're a data engineering lead at a logistics company whose real-time ETL pipeline ingests sorted shipment events from two regional Kafka partitions — East and West — that must be merged into a single chronologically ordered stream before being written to the warehouse. Pulling all events into memory before merging is infeasible at peak volume (50M events/day). You need a lazy merge that buffers at most one element from each partition at a time, so the downstream Avro writer maintains constant memory pressure regardless of event volume.
+alt_scenarios:
+  - "**Log stream merger:** A site reliability tool merges two timestamped log streams from primary and replica database nodes into a single ordered feed for a real-time anomaly detector, without buffering more than one line per source."
+  - "**Round-robin load balancer:** An API gateway alternates requests between two upstream service pools in strict round-robin order, draining all remaining capacity from the live pool if the other goes offline mid-stream."
+  - "**Sensor data fusion:** An IoT platform interleaves readings from two calibrated sensor arrays into a single ordered time series for a ML feature pipeline, processing one reading at a time to stay within embedded memory constraints."
+constraints:
+- interleave must alternate strictly (a, b, a, b…) until one is exhausted, then drain the other
+- merge_sorted assumes both input generators are sorted in ascending order
+- Both functions must be implemented as generators (use yield, not return list)
+- Neither function may buffer the full input — O(1) memory per step
+examples:
+- input: 'list(interleave(iter([1,3,5]), iter([2,4,6])))'
+  output: '[1,2,3,4,5,6]'
+- input: 'list(interleave(iter([1,2,3]), iter([A,B])))'
+  output: '[1,A,2,B,3]'
+- input: 'list(merge_sorted(iter([1,3,5,7]), iter([2,4,6,8])))'
+  output: '[1,2,3,4,5,6,7,8]'
+starter_code: |-
+  from typing import Iterator, Any
+
+  def interleave(gen_a: Iterator, gen_b: Iterator) -> Iterator:
+      """Yield values alternating between gen_a and gen_b.
+      When one is exhausted, yield remaining values from the other."""
+      pass
+
+
+  def merge_sorted(gen_a: Iterator, gen_b: Iterator) -> Iterator:
+      """Merge two sorted input generators into a single sorted output stream.
+      O(1) memory — do not collect all values first."""
+      pass
+follow_ups:
+- Generalize interleave to accept k generators (round-robin).
+- Implement merge_sorted for k sorted streams using a min-heap.
+- Add a rate-limited version of interleave where each source has a different weight.
+key_skills:
+- generators
+- itertools patterns
+- lazy evaluation
+- merge algorithms
+test_type: function
+test_cases:
+- label: interleave equal length
+  setup_code: |-
+    def _test_interleave(a, b):
+        return list(interleave(iter(a), iter(b)))
+  function_name: _test_interleave
+  args:
+  - - 1
+    - 3
+    - 5
+  - - 2
+    - 4
+    - 6
+  expected:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- label: interleave unequal length drains remainder
+  setup_code: |-
+    def _test_interleave(a, b):
+        return list(interleave(iter(a), iter(b)))
+  function_name: _test_interleave
+  args:
+  - - 1
+    - 2
+    - 3
+  - - 10
+    - 20
+  expected:
+  - 1
+  - 10
+  - 2
+  - 20
+  - 3
+- label: merge sorted two streams
+  setup_code: |-
+    def _test_merge(a, b):
+        return list(merge_sorted(iter(a), iter(b)))
+  function_name: _test_merge
+  args:
+  - - 1
+    - 3
+    - 5
+    - 7
+  - - 2
+    - 4
+    - 6
+    - 8
+  expected:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+- label: merge sorted one empty
+  setup_code: |-
+    def _test_merge(a, b):
+        return list(merge_sorted(iter(a), iter(b)))
+  function_name: _test_merge
+  args:
+  - []
+  - - 1
+    - 2
+    - 3
+  expected:
+  - 1
+  - 2
+  - 3
+function_name: interleave
+explanation: |-
+  interleave: use a SENTINEL to detect exhaustion. Wrap each generator with a try/except StopIteration or use next(gen, SENTINEL). Alternate between the two; when one returns SENTINEL, drain the other.
+
+  ```python
+  _DONE = object()
+  def interleave(a, b):
+      while True:
+          va = next(a, _DONE)
+          if va is not _DONE: yield va
+          vb = next(b, _DONE)
+          if vb is not _DONE: yield vb
+          if va is _DONE and vb is _DONE: break
+  ```
+
+  merge_sorted: peek one element from each generator (using next + sentinel). While both have values, yield the smaller one and advance that generator. When one is exhausted, yield the remaining elements from the other.
+
+  Both are O(1) memory — only one element is buffered from each source at any time.
+
+  This is the generator-based equivalent of thread alternation: two "threads" (generators) must coordinate their output in a deterministic, interleaved order without real concurrency or locks.
+references:
+- Use a sentinel object (not None, which could be a valid value) to signal generator exhaustion.
+- merge_sorted is the same algorithm as merging two sorted arrays — just adapted for pull-based generators.

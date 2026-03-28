@@ -6,9 +6,12 @@ summary: Use a dict comprehension to invert a dictionary with unique values.
 description: >-
   Implement `invert_dict(d: dict) -> dict` that takes a dict with unique values and
   returns a new dict with keys and values swapped.
-scenario: >-
-  A symbol table reversal maps compiled addresses back to their original variable
-  names for a debugger's memory inspector.
+scenario: |-
+  A developer tools team at a compiler startup is building a post-mortem debugger that needs to map raw memory addresses back to human-readable variable names for a crash report. The symbol table produced by the compiler maps variable names to addresses, but the debugger needs the inverse lookup at runtime. Rather than storing two copies of the data, the engineer generates the inverted dict on demand using a single dict comprehension.
+alt_scenarios:
+  - "**API gateway:** A routing layer inverts a map of route aliases to canonical endpoint paths so incoming canonical paths can be reverse-mapped to their display aliases."
+  - "**Localization service:** An i18n tool inverts a language-code-to-locale-name mapping so the UI can look up the code for a given locale name selected by the user."
+  - "**Feature store:** A ML platform inverts a feature-name-to-column-index mapping to reconstruct named features from a raw numpy array during model inference."
 constraints:
   - All values in d are unique and hashable
   - d may be empty

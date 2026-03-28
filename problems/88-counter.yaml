@@ -7,9 +7,12 @@ description: >-
   Implement `top_k_words(words: list[str], k: int) -> list[str]` that takes a list of
   strings and an integer k, and returns the k most common strings in descending order
   of frequency. Break ties alphabetically (ascending).
-scenario: >-
-  A search analytics service surfaces the top-k trending query terms from a stream
-  of logged search strings to populate a "trending now" widget.
+scenario: |-
+  A search analytics team at a consumer marketplace is building a "Trending Searches" widget that surfaces the most frequently typed queries over the past hour. Every minute, a batch job reads the latest log slice, counts query occurrences, and returns the top-k terms to populate the widget's cache. Alphabetical tie-breaking ensures the widget displays consistent results when two queries have identical counts, avoiding flicker on the frontend.
+alt_scenarios:
+  - "**Social media platform:** A hashtag analytics service identifies the k most-used hashtags in a batch of posts to populate a trending topics sidebar."
+  - "**Security audit tool:** A log analysis script finds the k most frequently occurring IP addresses in an access log to flag potential DDoS sources."
+  - "**E-commerce recommendation:** A product analytics job surfaces the k most frequently co-purchased item SKUs from a session log to drive a 'frequently bought together' module."
 constraints:
   - k >= 1 and k <= len(set(words))
   - Words are non-empty strings

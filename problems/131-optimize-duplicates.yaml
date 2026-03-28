@@ -1,0 +1,127 @@
+id: 131
+title: Optimize — Remove Duplicates from a Stream
+category: debugging
+difficulty: Easy
+summary: Replace an O(n²) duplicate-removal implementation with an O(n) one.
+description: The implementation below correctly removes duplicates from a list while preserving the first occurrence order, but runs in O(n²) time. Your task is to rewrite it to run in O(n) time and O(n) space while producing identical output. Do not change the function signature.
+scenario: |-
+  You're a backend engineer on the Recommendations team at a streaming platform. The deduplication step that removes already-watched titles from a user's recommendation feed is timing out on accounts with large watch histories — a Datadog trace shows the function taking 4+ seconds on lists of 100k titles. A profiler pinpoints the inner membership check against a list as the culprit, running in O(n) per item and blowing the 200ms SLA. You need to drop the function to O(n) without changing its output contract.
+alt_scenarios:
+  - "**Event deduplication in a message bus:** A Kafka consumer deduplicates incoming event IDs before writing to a downstream database; replacing the seen-list with a seen-set drops per-message latency from O(n) to O(1) and eliminates consumer lag at high throughput."
+  - "**Search autocomplete filter:** An autocomplete service deduplicates candidate suggestions drawn from multiple indices before ranking; the same list-to-set fix reduces response time from 800ms to under 50ms on large candidate pools."
+  - "**ETL row deduplication:** A data warehouse ingestion job deduplicates incoming rows by primary key before upsert; switching the membership check from a list to a set reduces a 10-minute nightly batch to under 30 seconds."
+constraints:
+- Preserve the order of first occurrence
+- Return a new list; do not modify the input
+- All elements are hashable
+- Must be O(n) time and O(n) extra space
+- Output must be identical to the naive implementation for all inputs
+examples:
+- input: 'remove_duplicates([3,1,4,1,5,9,2,6,5,3,5])'
+  output: '[3,1,4,5,9,2,6]'
+- input: 'remove_duplicates([])'
+  output: '[]'
+starter_code: |-
+  def remove_duplicates(items: list) -> list:
+      # SLOW: O(n²) — 'item in seen' is O(n) because seen is a list
+      seen = []
+      result = []
+      for item in items:
+          if item not in seen:   # O(n) linear scan every iteration
+              seen.append(item)  # O(1) amortized append, but seen grows
+              result.append(item)
+      return result
+follow_ups:
+- What if elements are unhashable (e.g., dicts)? How do you preserve order then?
+- What if you need to remove duplicates in-place without extra memory?
+- Extend to keep the last occurrence instead of the first.
+key_skills:
+- optimization
+- hash set
+- time complexity
+- profiling mindset
+test_type: function
+test_cases:
+- label: mixed duplicates
+  args:
+  - - 3
+    - 1
+    - 4
+    - 1
+    - 5
+    - 9
+    - 2
+    - 6
+    - 5
+    - 3
+    - 5
+  expected:
+  - 3
+  - 1
+  - 4
+  - 5
+  - 9
+  - 2
+  - 6
+- label: empty list
+  args:
+  - []
+  expected: []
+- label: all duplicates
+  args:
+  - - 7
+    - 7
+    - 7
+    - 7
+  expected:
+  - 7
+- label: no duplicates
+  args:
+  - - 1
+    - 2
+    - 3
+    - 4
+  expected:
+  - 1
+  - 2
+  - 3
+  - 4
+- label: strings
+  args:
+  - - a
+    - b
+    - a
+    - c
+    - b
+  expected:
+  - a
+  - b
+  - c
+function_name: remove_duplicates
+explanation: |-
+  The fix: replace the `seen` list with a `seen` set. The `in` operator is O(1) for sets vs O(n) for lists.
+
+  ```python
+  def remove_duplicates(items):
+      seen = set()
+      result = []
+      for item in items:
+          if item not in seen:
+              seen.add(item)
+              result.append(item)
+      return result
+  ```
+
+  Python 3.7+ alternative: `list(dict.fromkeys(items))` — dicts preserve insertion order and ignore duplicate keys.
+
+  Why this matters in interviews:
+  - `x in list` is O(n) — list scan
+  - `x in set` is O(1) average — hash lookup
+  - The overall complexity drops from O(n²) to O(n)
+
+  Space tradeoff: we now use O(n) extra space for the set, but that's acceptable when the alternative is O(n²) time.
+
+  When to use the dict trick: it's the most Pythonic one-liner, but requires all items to be hashable and doesn't generalize. The set approach is more explicit and easier to adapt.
+references:
+- 'Every time you see ''if x in list'', ask: can this list be a set? Usually yes.'
+- dict.fromkeys(items) is the idiomatic Python one-liner for order-preserving deduplication.

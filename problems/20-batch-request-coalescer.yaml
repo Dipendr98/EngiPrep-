@@ -4,7 +4,12 @@ category: scheduling
 difficulty: Hard
 summary: Buffer individual requests and batch them for efficient processing.
 description: Implement a coalescer that collects individual get(key) requests and batches them. When either batch_size items are collected or max_wait_ms has elapsed, fire batch_fetch(keys) and resolve each individual request. Each get() returns a future/callback that resolves with its value.
-scenario: ''
+scenario: |-
+  The Data Fetching team at a social platform noticed that their GraphQL resolvers were issuing one SQL query per user node in a response, causing N+1 query explosions on feeds that render hundreds of user cards. The fix is a DataLoader-style coalescer that collects individual `get(user_id)` calls that arrive within the same event-loop tick—or within a configurable max-wait window—into a single batch SELECT, then fans the results back out to each original caller. The coalescer must flush eagerly when either the batch size cap or the timer fires, whichever comes first.
+alt_scenarios:
+  - "**Vector database client:** An embedding retrieval client batches individual similarity-search requests from concurrent API handlers into a single GPU-accelerated batch query to maximize throughput."
+  - "**IoT command fan-out service:** A device management service coalesces individual actuator commands targeting the same device fleet into batched MQTT publishes to stay within broker connection limits."
+  - "**Inventory reservation system:** An e-commerce checkout service batches concurrent stock-check requests for the same SKU into a single warehouse API call to avoid thundering-herd reads during flash sales."
 constraints: []
 examples: []
 starter_code: |-

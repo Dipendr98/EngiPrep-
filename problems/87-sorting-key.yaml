@@ -7,9 +7,12 @@ description: >-
   Implement `sort_words(words: list[str]) -> list[str]` that sorts a list of strings
   first by length (ascending), then alphabetically for words of equal length. Return
   the sorted list.
-scenario: >-
-  An autocomplete engine ranks suggestions by token length first so shorter
-  completions appear at the top, with alphabetical ordering breaking ties.
+scenario: |-
+  A developer tools team at a SaaS company is building the suggestion ranking layer for their in-IDE autocomplete feature. The product team has decided that shorter completions should appear at the top of the dropdown because they require fewer keystrokes to accept, with alphabetical ordering used as a tiebreaker to give results a stable, predictable order. The engineer implementing this needs a clean, one-line sort that is easy to audit during code review.
+alt_scenarios:
+  - "**Search result ranker:** A search engine sorts query suggestions by token length ascending, then lexicographically, to surface the most concise matches first."
+  - "**CLI help formatter:** A command-line tool sorts its subcommand list by name length and then alphabetically so the most terse commands appear at the top of the help menu."
+  - "**Database query planner:** A query optimizer sorts candidate index names by length and then alphabetically when generating deterministic explain-plan output for logging."
 constraints:
   - Words consist of lowercase ASCII letters only
   - The original list is not modified

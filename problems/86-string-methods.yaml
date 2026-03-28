@@ -7,9 +7,12 @@ description: >-
   Implement `normalize_sentence(s: str) -> str` that takes a string with inconsistent
   casing and extra spaces between words, and returns a version where words are
   title-cased and separated by exactly one space. Strip leading and trailing whitespace.
-scenario: >-
-  A form validation layer cleans up user-submitted name fields that may have been
-  pasted from various sources with inconsistent spacing and casing.
+scenario: |-
+  A customer data platform at a retail company ingests user profile records from three different upstream CRMs, each of which uses different whitespace and casing conventions for the display name field. Before the records are merged into the unified customer graph, a normalization step must title-case every name and collapse irregular spacing so that "  john   DOE  " and "John Doe" resolve to the same canonical key. The engineer writing this step needs a clean, one-function solution that handles all whitespace edge cases.
+alt_scenarios:
+  - "**E-commerce search:** A product catalog normalizer title-cases and collapses whitespace in seller-submitted product names before indexing them for search."
+  - "**HR system import:** A people-ops tool normalizes employee name fields imported from a legacy HRIS that uses inconsistent spacing and all-caps formatting."
+  - "**Document parser:** A contract analysis service normalizes party names extracted by OCR, which often contain extra spaces and inconsistent capitalization."
 constraints:
   - Input may have leading, trailing, or multiple consecutive spaces
   - Words consist of ASCII letters only

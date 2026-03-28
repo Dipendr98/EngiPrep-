@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Find the longest streak of 1 values.
 description: Implement max_consecutive_ones(nums) that returns the maximum number of consecutive 1s in the input array.
-scenario: A quick counting warm-up helps you settle into writing one-pass logic.
+scenario: |-
+  The reliability team at a cloud provider is auditing the uptime history of a fleet of servers, represented as a binary time-series array where 1 means the server was healthy and 0 means it was down during that interval. To identify which server had the longest uninterrupted healthy run, the system needs to scan each server's history and return the length of the longest consecutive streak of 1s. The check runs over thousands of server histories, so it must complete in a single pass with O(1) extra space.
+alt_scenarios:
+  - "**Network packet analysis:** A network monitor scans a binary sequence of received/dropped packets to find the longest clean transmission window for SLA reporting."
+  - "**Genome sequencing:** A bioinformatics pipeline scans a binary-encoded quality mask over a sequencing read to find the longest high-confidence region suitable for variant calling."
 constraints:
 - The array contains only 0 and 1.
 examples:

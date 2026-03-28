@@ -4,7 +4,12 @@ category: search
 difficulty: Hard
 summary: Build an inverted index supporting multi-word search with ranking.
 description: Implement a simple search engine. index(doc_id, text) tokenizes and indexes a document. search(query) returns document IDs ranked by relevance. Support multi-word queries where all words must appear. Rank by term frequency.
-scenario: We're prototyping an internal doc search tool for engineering runbooks. Engineers paste their runbook text into the system and later need to search across all documents by keyword. Queries can be multiple words, and every word must appear in the document for it to be a match. Results should be ranked so the most relevant document comes first—for now we're using raw term frequency, and we'll layer in TF-IDF later.
+scenario: |-
+  Your team is building an internal runbook search tool for a 2,000-person engineering org where incident responders need to find the right playbook within seconds of a page firing. Dozens of runbooks are ingested as plaintext at startup, and on-call engineers query them with multi-keyword searches like "kafka consumer lag." Every queried word must appear in the document, and results need to be ranked so the most-mentioned-term document surfaces first—giving the on-call engineer a fighting chance of landing on the right page without scrolling. You're implementing the inverted index that backs the search, with TF-IDF scoring planned for the next sprint.
+alt_scenarios:
+  - "**Legal tech platform:** Indexing thousands of contract clauses so lawyers can search for documents containing specific terms like 'indemnification' and 'limitation of liability' with results ranked by term density."
+  - "**E-commerce catalog team:** Powering a product search prototype over a few hundred thousand SKU descriptions, where all query keywords must match and results rank by total term frequency before ML reranking is added."
+  - "**Security operations center:** Indexing firewall and SIEM alert text so analysts can search across millions of log lines using multi-term queries and immediately see the most frequently matching events."
 constraints:
 - Tokenize by splitting on whitespace and converting to lowercase
 - Multi-word queries require ALL words to be present in a document

@@ -1,0 +1,146 @@
+id: 106
+title: Lowest Common Ancestor of a Binary Tree
+category: trees
+difficulty: Medium
+summary: Find the deepest node that is an ancestor of both given nodes.
+description: Given a binary tree and two node values p and q, find their lowest common ancestor (LCA) — the deepest node that has both p and q as descendants (a node can be a descendant of itself). Return the value of the LCA node.
+scenario: |-
+  You're a senior engineer on Okta's authorization team, where every resource in an enterprise — files, Slack channels, Jira projects — is a node in a company-wide permission hierarchy tree. When two resources need a shared access policy applied, the policy engine must find their lowest common ancestor (the deepest scope that governs both) to avoid granting broader permissions than necessary. The tree can have hundreds of thousands of nodes across large enterprise customers, so the solution must run in a single O(n) pass.
+alt_scenarios:
+  - "**Git merge-base finder:** A version control system locates the lowest common ancestor commit of two branches to compute the correct three-way merge base."
+  - "**Taxonomy classifier:** A product catalog system finds the most specific shared category between two SKUs to auto-apply the narrowest applicable tax rule."
+  - "**Network routing:** A data-center fabric controller finds the lowest common switch in a spine-leaf topology between two servers to route traffic along the shortest path."
+constraints:
+- All node values are unique
+- Both p and q are guaranteed to exist in the tree
+- A node can be its own ancestor
+examples:
+- input: 'lca([3,5,1,6,2,0,8,null,null,7,4], p=5, q=1)'
+  output: '3'
+- input: 'lca([3,5,1,6,2,0,8,null,null,7,4], p=5, q=4)'
+  output: '5  # 5 is an ancestor of 4'
+starter_code: |-
+  from typing import Optional
+
+  class TreeNode:
+      def __init__(self, val=0, left=None, right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+
+  def lca(root: Optional[TreeNode], p: int, q: int) -> int:
+      pass
+follow_ups:
+- LCA in a BST (can you do it faster than O(n))?
+- LCA with parent pointers stored in each node.
+- LCA for multiple query pairs efficiently (offline LCA with Euler tour).
+key_skills:
+- binary tree
+- DFS
+- post-order traversal
+test_type: function
+test_cases:
+- label: LCA is root
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals, p, q):
+        return lca(_make(vals), p, q)
+  function_name: _test
+  args:
+  - - 3
+    - 5
+    - 1
+    - 6
+    - 2
+    - 0
+    - 8
+    - null
+    - null
+    - 7
+    - 4
+  - 5
+  - 1
+  expected: 3
+- label: one node is ancestor of the other
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals, p, q):
+        return lca(_make(vals), p, q)
+  function_name: _test
+  args:
+  - - 3
+    - 5
+    - 1
+    - 6
+    - 2
+    - 0
+    - 8
+    - null
+    - null
+    - 7
+    - 4
+  - 5
+  - 4
+  expected: 5
+- label: simple three-node tree
+  setup_code: |-
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals, p, q):
+        return lca(_make(vals), p, q)
+  function_name: _test
+  args:
+  - - 1
+    - 2
+    - 3
+  - 2
+  - 3
+  expected: 1
+function_name: lca
+explanation: |-
+  Post-order DFS: recurse into left and right subtrees first, then decide at the current node.
+
+  Base case: if root is None, return None. If root.val equals p or q, return root (this node is one of the targets).
+
+  After recursing: if both left and right returned non-None, this node is the LCA — both targets are in different subtrees. Otherwise return whichever side was non-None.
+
+  The function returns the LCA node; to get its value, return node.val where the node is first found.
+
+  Why it works: a node returns itself only if it equals p or q. The first node that sees returns from both sides must be the deepest such node — the LCA.
+
+  Time O(n), space O(h).
+references:
+- Post-order is the right traversal order here because you need information from both subtrees before deciding at the current node.
+- The BST variant is faster: compare values to navigate left or right without visiting the full tree.

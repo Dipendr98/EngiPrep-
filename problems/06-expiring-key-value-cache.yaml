@@ -4,7 +4,12 @@ category: stateful
 difficulty: Medium
 summary: Cache where entries automatically expire after a per-key TTL.
 description: Implement a cache where each put(key, value, ttl_seconds) stores a value that expires after ttl_seconds. get(key) returns the value if it exists and hasn't expired, otherwise returns None. The cache should not leak memory from expired entries.
-scenario: ''
+scenario: |-
+  The Identity team at a SaaS company caches OAuth access tokens in a per-process store to avoid hitting the authorization server on every API call. Each token has its own expiry time stamped by the issuer, ranging from 30 seconds to 24 hours. The cache must return the token if it is still valid, return nothing if it has expired, and not accumulate stale entries indefinitely—memory from expired tokens should be reclaimed without a full scan on every read.
+alt_scenarios:
+  - "**CDN edge node:** An edge caching layer stores HTTP responses with per-object TTLs derived from Cache-Control headers, evicting entries lazily when they are next requested past their expiry."
+  - "**Session store:** A web application caches user session objects with a 30-minute idle TTL so inactive sessions are automatically invalidated without a background sweep."
+  - "**DNS negative cache:** A resolver stores NXDOMAIN responses with the TTL from the SOA record so repeated lookups for non-existent hosts don't flood upstream nameservers."
 constraints: []
 examples: []
 starter_code: |-

@@ -4,7 +4,12 @@ category: warmup
 difficulty: Easy
 summary: Decide whether one string can be built from another.
 description: Implement can_construct(ransom_note, magazine) that returns whether every character needed by ransom_note is available in magazine.
-scenario: A tiny inventory-counting problem is a good confidence builder before more open-ended questions.
+scenario: |-
+  A content moderation pipeline at a social media company needs to decide whether a flagged comment can be assembled entirely from words in an approved vocabulary list. Before running a heavier NLP classifier, the system checks if the raw character budget of the allowed corpus is sufficient to form the comment — if not, the comment is immediately escalated. The engineer writing this pre-filter needs an O(n + m) implementation that runs on every incoming post.
+alt_scenarios:
+  - "**Template engine:** A code generator checks whether a target output string can be built character-by-character from the available token pool before rendering."
+  - "**Inventory fulfillment:** A warehouse system verifies that available parts in stock are sufficient to satisfy all characters in a serialized assembly manifest."
+  - "**Ad copy validator:** A marketing tool confirms that a new ad headline can be constructed from the approved character set before sending it to the display network."
 constraints:
 - Assume lowercase ASCII letters.
 examples:

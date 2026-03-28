@@ -4,7 +4,11 @@ category: warmup
 difficulty: Easy
 summary: Return a string with characters reversed.
 description: Implement reverse_string(s) that returns the input string reversed.
-scenario: You are warming up before a longer interview and want a tiny string-manipulation problem to get comfortable with the editor.
+scenario: |-
+  A firmware team at an embedded-systems company is writing a lightweight display driver for a low-power e-ink badge. Character strings received over BLE must be mirrored before being written to the display buffer because the screen's physical ribbon cable is mounted in reverse orientation. The reversal runs on a microcontroller with no standard-library string support, so the engineer needs a clean, allocation-free implementation that reverses the byte sequence in place before the next display refresh cycle.
+alt_scenarios:
+  - "**URL slug generator:** A CMS normalizes article slugs by reversing them as part of a URL obfuscation scheme that prevents crawlers from guessing sequential content IDs."
+  - "**Checksum validation:** A network protocol library reverses byte strings before computing a checksum to match a legacy big-endian wire format used by older hardware devices."
 constraints:
 - The input may be empty.
 - Return a new string.

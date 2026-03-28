@@ -4,7 +4,12 @@ category: concurrency
 difficulty: Hard
 summary: Fixed-size pool of workers that process submitted tasks concurrently.
 description: Implement a worker pool with N worker threads/coroutines. submit(task) queues a task and returns a future. Tasks are executed by available workers in FIFO order. Support shutdown(wait=True) which waits for pending tasks to complete and shutdown(wait=False) which cancels pending tasks.
-scenario: 'You''re building the background-job engine for an internal platform. API handlers need to kick off CPU-bound work — image resizing, PDF generation, report compilation — without blocking the request. You want a fixed pool of worker threads that drains a shared task queue. Each submission hands back a future so the caller can check on the result later. When the service receives SIGTERM, you need a clean shutdown path: either finish in-flight work or drop what''s pending and exit fast.'
+scenario: |-
+  You're on the Platform Engineering team building the asynchronous job engine that backs a document processing service—think PDF generation, spreadsheet export, and report compilation. API handlers need to offload these CPU-bound tasks immediately and return a job ID to the client, while a fixed pool of workers drains the queue in the background. Each submission must hand back a future so the API handler can later poll for the result or surface an error. During a rolling deploy or SIGTERM, you need a two-mode shutdown: a graceful drain that finishes all queued jobs before exiting, and a fast kill that drops pending jobs but lets any already-running task complete without getting cut off mid-write.
+alt_scenarios:
+  - "**Thumbnail generation service:** Processing image resize requests from an upload API using a bounded thread pool so the web server threads are never blocked on CPU-intensive Pillow operations, with futures enabling async result polling."
+  - "**CI/CD pipeline runner:** Executing test suite shards in a fixed pool of worker threads so the scheduler can submit hundreds of test tasks, track their completion via futures, and aggregate results without spawning an unbounded number of threads."
+  - "**Machine learning inference server:** Batching incoming prediction requests through a pool of model-inference workers, using futures to decouple HTTP response latency from model forward-pass time and enabling graceful draining before a model hot-swap."
 constraints:
 - num_workers is set at construction and stays fixed.
 - submit(task) accepts a zero-argument callable and returns a Future object.

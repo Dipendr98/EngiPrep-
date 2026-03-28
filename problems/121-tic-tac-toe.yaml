@@ -1,0 +1,169 @@
+id: 121
+title: Tic Tac Toe
+category: stateful
+difficulty: Medium
+summary: Implement a stateful Tic Tac Toe game with win, draw, and invalid-move detection.
+description: Design a TicTacToe class that manages a 3x3 game board for two players (X and O). Players alternate turns starting with X. Implement make_move(row, col) which places the current player's mark and returns the result ('X wins', 'O wins', 'draw', or 'continue'). Reject moves on occupied cells or after the game ends.
+scenario: |-
+  You're on the Platform Games team at a consumer app company shipping a real-time multiplayer mini-game suite. The Tic Tac Toe service runs as a stateful WebSocket handler — each connected session maps to one game instance. When a client sends a move, the handler must validate turn order, reject invalid inputs without corrupting state, detect wins and draws, and push the result back to both players in under 10ms.
+alt_scenarios:
+  - "**Distributed config system:** A two-phase commit coordinator tracks which nodes have acknowledged a proposal, detecting when a quorum is reached and locking further updates once consensus is final."
+  - "**Code review workflow:** A pull request service enforces reviewer turn-taking and detects when all required approvals have been collected, blocking merges until every mandatory check is resolved."
+  - "**IoT firmware OTA:** An over-the-air update orchestrator tracks per-device acknowledgment state across a fixed set of target devices and declares the rollout complete only when every device confirms success."
+constraints:
+- Row and col are 0-indexed (0–2)
+- Players alternate strictly; X always goes first
+- make_move on an occupied cell raises ValueError
+- make_move after game over raises ValueError
+- Win is three in a row, column, or diagonal
+- Draw is when the board is full with no winner
+examples:
+- input: |-
+    g = TicTacToe()
+    g.make_move(0,0)  # X
+    g.make_move(1,1)  # O
+    g.make_move(0,1)  # X
+    g.make_move(2,2)  # O
+    g.make_move(0,2)  # X -> top row complete
+  output: '''X wins'''
+- input: |-
+    g.make_move(1,1)  # after game over
+  output: raises ValueError
+starter_code: |-
+  class TicTacToe:
+      def __init__(self):
+          self.board = [[None]*3 for _ in range(3)]
+          self.current = 'X'
+          self.over = False
+
+      def make_move(self, row: int, col: int) -> str:
+          """Place current player's mark. Returns 'X wins', 'O wins', 'draw', or 'continue'."""
+          pass
+
+      def get_board(self) -> list[list]:
+          """Return a copy of the current board state."""
+          pass
+
+      def get_current_player(self) -> str:
+          """Return 'X' or 'O' — whoever moves next."""
+          pass
+follow_ups:
+- Extend to an n x n board (generalize win detection).
+- Add support for resetting the game without creating a new object.
+- Implement an AI opponent using minimax.
+key_skills:
+- game state management
+- turn tracking
+- win detection
+- input validation
+test_type: class
+class_name: TicTacToe
+test_cases:
+- label: X wins on top row
+  init_args: []
+  ops:
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  op_args:
+  - [0, 0]
+  - [1, 0]
+  - [0, 1]
+  - [1, 1]
+  - [0, 2]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - X wins
+- label: O wins on diagonal
+  init_args: []
+  ops:
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  op_args:
+  - [0, 1]
+  - [0, 0]
+  - [1, 2]
+  - [1, 1]
+  - [2, 0]
+  - [2, 2]
+  - [0, 2]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - O wins
+  - null
+- label: draw
+  init_args: []
+  ops:
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  - make_move
+  op_args:
+  - [0, 0]
+  - [0, 1]
+  - [0, 2]
+  - [1, 1]
+  - [1, 0]
+  - [1, 2]
+  - [2, 1]
+  - [2, 0]
+  - [2, 2]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - draw
+- label: occupied cell raises error
+  init_args: []
+  ops:
+  - make_move
+  - make_move
+  op_args:
+  - [0, 0]
+  - [0, 0]
+  expected:
+  - continue
+  - null
+  expected_errors:
+  - null
+  - valueerror
+explanation: |-
+  Core state: a 3x3 board (None/'X'/'O'), current player, and a game-over flag.
+
+  make_move logic:
+  1. Raise ValueError if game is over or cell is occupied.
+  2. Place the mark, then check for a win: scan all rows, columns, and both diagonals for three identical non-None values.
+  3. If win: set over=True, return '{player} wins'.
+  4. If board full with no winner: return 'draw'.
+  5. Else: switch player, return 'continue'.
+
+  Win check can be written as a helper that checks all 8 lines. For an n×n generalization, use the same pattern but iterate over length-n slices.
+
+  Avoid bugs: check win before checking draw (a filled board with a win is a win, not a draw).
+references:
+- Check win condition before checking draw — a board-full move can simultaneously be a winning move.
+- A clean helper like _check_winner(player) that scans all 8 lines keeps make_move readable.

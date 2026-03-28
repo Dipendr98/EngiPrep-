@@ -4,7 +4,12 @@ category: parsing
 difficulty: Medium
 summary: Resolve dependencies and return a valid execution order.
 description: 'Given a dictionary mapping tasks to their dependencies, return a valid execution order (topological sort). Detect and report circular dependencies. For example, given {''a'': [''b'', ''c''], ''b'': [''c''], ''c'': []}, return [''c'', ''b'', ''a''] or any valid ordering.'
-scenario: ''
+scenario: |-
+  The Build Systems team at a large tech company maintains a monorepo where thousands of packages declare explicit dependencies on one another. Before any package can be compiled, all of its transitive dependencies must already be built. When a developer adds a new dependency edge that introduces a cycle, the build hangs waiting on itself and every engineer's CI is blocked. You need a resolver that computes a valid topological build order and surfaces the exact cycle when one is detected so the offending edge can be removed immediately.
+alt_scenarios:
+  - "**Data pipeline orchestrator:** An Airflow-like scheduler must determine a valid DAG execution order for tasks with upstream dependencies and reject any pipeline definition that contains a cycle."
+  - "**Package manager:** An npm-equivalent installer topologically sorts packages by dependency depth to install them in an order that guarantees each package's dependencies are present before it is installed."
+  - "**Infrastructure provisioner:** A Terraform-like tool resolves resource dependency declarations into an ordered apply sequence and aborts with a diagnostic if two resources have circular references."
 constraints: []
 examples: []
 starter_code: |-

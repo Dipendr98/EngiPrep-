@@ -4,7 +4,12 @@ category: search
 difficulty: Hard
 summary: Find the cheapest route between nodes with transfer limits or layovers.
 description: Given a weighted directed graph representing flights (source, dest, cost), find the cheapest path from start to end with at most K stops. Return the cost and the path, or -1 if no valid path exists.
-scenario: We're building the routing engine for a flight booking service. Customers search for the cheapest way to get from city A to city B, but they have a hard limit on how many layovers they'll tolerate. We have a big directed graph of direct flights with costs. You need to find the cheapest route that respects the stop constraint and return both the total fare and the full itinerary—or tell the customer no valid route exists.
+scenario: |-
+  You're on the Routing Engine team at an online travel agency processing several million fare searches per day. Customers increasingly filter for "no more than 1 stop," and the naive approach of running Dijkstra without a stop constraint returns routes that violate that requirement. You need to extend the routing engine to track both accumulated cost and stop count as first-class dimensions of graph state, so a customer searching SFO to JFK with at most one layover gets the true cheapest valid itinerary—or a clear "no route" response—rather than an incorrect answer.
+alt_scenarios:
+  - "**Logistics network optimization (FedEx/UPS-style):** Finding the cheapest delivery path through a hub-and-spoke network where shipments can pass through at most K sorting facilities before reaching the destination."
+  - "**Network packet routing (SDN team):** Computing minimum-cost paths through a software-defined network where policy limits how many hops a packet may traverse between ingress and egress points."
+  - "**Supply chain platform:** Identifying the lowest-cost sourcing route from a raw-material supplier to a factory, with a constraint on how many intermediate distributors the order may flow through."
 constraints:
 - All flight costs are positive integers
 - max_stops is the number of intermediate cities (0 means direct flights only)
