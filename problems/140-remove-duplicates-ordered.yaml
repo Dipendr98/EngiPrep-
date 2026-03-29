@@ -1,0 +1,54 @@
+id: 140
+title: Remove Duplicates Ordered
+category: warmup
+difficulty: Easy
+summary: Deduplicate a list while preserving insertion order.
+description: Implement remove_duplicates(nums) that returns a new list with duplicates removed, keeping the first occurrence of each element in the original order.
+scenario: |-
+  A recommendations engine is post-processing a ranked list of suggested items that may contain duplicates when multiple rules fire for the same item. The output must keep the highest-priority (first) occurrence of each item and remove later repeats, preserving the original ranking order for all unique items.
+alt_scenarios:
+  - "**Event deduplication:** A stream processor filters a list of webhook delivery IDs, keeping only the first delivery attempt per event ID for idempotency tracking."
+  - "**Tag normalizer:** A blogging platform removes duplicate tags from a post while preserving the order the author entered them."
+constraints:
+  - Preserve the order of first occurrences.
+examples:
+  - input: remove_duplicates([1, 2, 1, 3, 2, 4])
+    output: '[1, 2, 3, 4]'
+starter_code: |-
+  def remove_duplicates(nums: list) -> list:
+      pass
+follow_ups:
+  - Do it in-place for a list of integers.
+  - Keep the last occurrence instead of the first.
+key_skills:
+  - arrays
+  - sets
+test_type: function
+function_name: remove_duplicates
+test_cases:
+  - label: typical
+    input:
+      nums: [1, 2, 1, 3, 2, 4]
+    expected: [1, 2, 3, 4]
+  - label: no duplicates
+    input:
+      nums: [5, 3, 1]
+    expected: [5, 3, 1]
+  - label: all same
+    input:
+      nums: [7, 7, 7]
+    expected: [7]
+  - label: empty
+    input:
+      nums: []
+    expected: []
+explanation: |-
+  This warm-up is meant to build confidence around **sets** with a very small surface area.
+
+  Use a seen set to track visited elements and append to the result list only on first encounter. dict.fromkeys() also works because dicts preserve insertion order in Python 3.7+.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - A seen set gives O(n) time; sorting first would lose order.
+  - 'list(dict.fromkeys(nums)) is a clean Python idiom that preserves order.'
+  - 'Treat Remove Duplicates Ordered as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,59 @@
+id: 154
+title: Product of Array
+category: warmup
+difficulty: Easy
+summary: Return the product of all integers in a list.
+description: Implement array_product(nums) that returns the product of all integers in nums. Return 1 for an empty list.
+scenario: |-
+  A scientific computing library is computing the volume of a multi-dimensional grid by multiplying the size of each dimension together. The dimension sizes are passed as a list and may vary in length depending on the dataset. The function is called once per dataset at load time.
+alt_scenarios:
+  - "**Combinatorics calculator:** A probability engine multiplies the sizes of independent sample spaces to compute the total number of outcomes."
+  - "**Batch checksum:** A data integrity tool multiplies raw byte values in a small fixed-size block to produce a simple non-cryptographic checksum."
+constraints:
+  - nums may be empty (return 1). Elements are integers and may be negative or zero.
+examples:
+  - input: array_product([1, 2, 3, 4])
+    output: '24'
+  - input: array_product([])
+    output: '1'
+starter_code: |-
+  def array_product(nums: list[int]) -> int:
+      pass
+follow_ups:
+  - Handle overflow by working modulo a prime.
+  - Compute the product of all elements except self at each index.
+key_skills:
+  - arrays
+  - math
+test_type: function
+function_name: array_product
+test_cases:
+  - label: basic
+    input:
+      nums: [1, 2, 3, 4]
+    expected: 24
+  - label: empty
+    input:
+      nums: []
+    expected: 1
+  - label: contains zero
+    input:
+      nums: [5, 0, 3]
+    expected: 0
+  - label: negatives
+    input:
+      nums: [-1, -2, -3]
+    expected: -6
+  - label: single element
+    input:
+      nums: [7]
+    expected: 7
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  Use math.prod(nums) or a simple reduce with operator.mul. A for-loop accumulator starting at 1 is equally clear.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'math.prod(nums) is available in Python 3.8+. For earlier versions: functools.reduce(operator.mul, nums, 1).'
+  - 'Treat Product of Array as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

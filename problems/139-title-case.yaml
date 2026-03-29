@@ -1,0 +1,54 @@
+id: 139
+title: Title Case
+category: warmup
+difficulty: Easy
+summary: Capitalize the first letter of every word in a string.
+description: Implement title_case(s) that returns the string with the first letter of each word capitalized and the rest of the letters in that word lowercased.
+scenario: |-
+  A CMS platform is normalizing article headlines submitted by contributors before storing them in the database. The editorial style guide requires title case for all headlines. The function runs on every save event, so it needs to handle mixed-case input and punctuation gracefully.
+alt_scenarios:
+  - "**Product catalog:** An e-commerce backend normalizes product names entered via the merchant portal to match display standards."
+  - "**Name formatter:** A user profile service ensures that display names stored in the database follow a consistent capitalization style."
+constraints:
+  - Words are separated by single spaces. Input may be mixed case.
+examples:
+  - input: title_case("hello world")
+    output: '"Hello World"'
+  - input: title_case("the QUICK brown FOX")
+    output: '"The Quick Brown Fox"'
+starter_code: |-
+  def title_case(s: str) -> str:
+      pass
+follow_ups:
+  - Skip small words like "a", "an", "the", "of" unless they are the first word.
+  - Handle multiple consecutive spaces.
+key_skills:
+  - strings
+test_type: function
+function_name: title_case
+test_cases:
+  - label: lowercase
+    input:
+      s: "hello world"
+    expected: "Hello World"
+  - label: mixed case
+    input:
+      s: "the QUICK brown FOX"
+    expected: "The Quick Brown Fox"
+  - label: single word
+    input:
+      s: "python"
+    expected: "Python"
+  - label: already title
+    input:
+      s: "Already Done"
+    expected: "Already Done"
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  Python's str.title() does exactly this, but implementing it manually (split, capitalize each word, join) is a useful exercise in string manipulation.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - str.capitalize() lowercases the tail; str.title() handles the whole string but has edge cases with apostrophes.
+  - 'Treat Title Case as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

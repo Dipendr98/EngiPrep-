@@ -1,0 +1,57 @@
+id: 141
+title: Chunk List
+category: warmup
+difficulty: Easy
+summary: Split a list into chunks of size k.
+description: Implement chunk(lst, k) that splits lst into consecutive sublists of size k. The last chunk may be smaller if len(lst) is not divisible by k.
+scenario: |-
+  A batch processing service breaks a large list of user IDs into fixed-size pages before sending them to a rate-limited downstream API. Each page is dispatched as a separate request. The chunking function is called once per job at the start of the pipeline before the requests are fanned out to worker threads.
+alt_scenarios:
+  - "**Database bulk insert:** An ORM helper splits a list of records into chunks of 1000 to stay within the database's max batch size per INSERT statement."
+  - "**Pagination helper:** A REST API utility wraps cursor-based pagination by partitioning a pre-fetched result set into page-sized slices."
+constraints:
+  - k is a positive integer. lst may be empty.
+examples:
+  - input: chunk([1,2,3,4,5], 2)
+    output: '[[1,2],[3,4],[5]]'
+starter_code: |-
+  def chunk(lst: list, k: int) -> list[list]:
+      pass
+follow_ups:
+  - Return a generator instead of a list.
+  - Chunk with overlap (sliding window of size k, step s).
+key_skills:
+  - arrays
+  - slicing
+test_type: function
+function_name: chunk
+test_cases:
+  - label: remainder
+    input:
+      lst: [1, 2, 3, 4, 5]
+      k: 2
+    expected: [[1, 2], [3, 4], [5]]
+  - label: exact fit
+    input:
+      lst: [1, 2, 3, 4]
+      k: 2
+    expected: [[1, 2], [3, 4]]
+  - label: k larger than list
+    input:
+      lst: [1, 2]
+      k: 5
+    expected: [[1, 2]]
+  - label: empty
+    input:
+      lst: []
+      k: 3
+    expected: []
+explanation: |-
+  This warm-up is meant to build confidence around **slicing** with a very small surface area.
+
+  Iterate with step k using range(0, len(lst), k) and slice lst[i:i+k] at each step.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'range(0, len(lst), k) paired with lst[i:i+k] is the idiomatic slicing pattern for chunking.'
+  - 'Treat Chunk List as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

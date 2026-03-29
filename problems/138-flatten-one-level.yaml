@@ -1,0 +1,53 @@
+id: 138
+title: Flatten One Level
+category: warmup
+difficulty: Easy
+summary: Flatten a list of lists one level deep.
+description: Implement flatten(nested) that takes a list of lists and returns a single flat list containing all elements in order.
+scenario: |-
+  A data pipeline engineer is merging per-shard result batches returned by a distributed query. Each shard returns a list of rows, and the coordinator needs to concatenate them into one flat list before passing the data to the formatter. The function is called once per query on result sets that can be thousands of rows across dozens of shards.
+alt_scenarios:
+  - "**Test result collector:** A CI runner collects per-suite test results — each suite returns a list of outcomes — and flattens them into one report list."
+  - "**Notification batcher:** An alerts service flattens per-user notification queues into a single delivery batch for the push notification provider."
+constraints:
+  - Input is a list of lists; elements are not themselves lists.
+examples:
+  - input: flatten([[1, 2], [3, 4], [5]])
+    output: '[1, 2, 3, 4, 5]'
+starter_code: |-
+  def flatten(nested: list[list]) -> list:
+      pass
+follow_ups:
+  - Flatten arbitrarily deep nesting recursively.
+  - Return an iterator instead of a list.
+key_skills:
+  - arrays
+  - iteration
+test_type: function
+function_name: flatten
+test_cases:
+  - label: basic
+    input:
+      nested: [[1, 2], [3, 4], [5]]
+    expected: [1, 2, 3, 4, 5]
+  - label: empty sublists
+    input:
+      nested: [[], [1], [], [2, 3]]
+    expected: [1, 2, 3]
+  - label: single sublist
+    input:
+      nested: [[7, 8, 9]]
+    expected: [7, 8, 9]
+  - label: all empty
+    input:
+      nested: [[], []]
+    expected: []
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  The idiomatic Python one-liner uses a list comprehension: [x for sub in nested for x in sub]. itertools.chain.from_iterable is equally correct and avoids building intermediate lists.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - '[x for sub in nested for x in sub] is the canonical one-liner for one-level flattening.'
+  - 'Treat Flatten One Level as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,53 @@
+id: 137
+title: Second Largest
+category: warmup
+difficulty: Easy
+summary: Find the second largest distinct element in a list.
+description: Implement second_largest(nums) that returns the second largest distinct value in the list. You may assume there are at least two distinct values.
+scenario: |-
+  A gaming company is awarding prizes to the top two scorers on a weekly leaderboard. Rather than sorting the full million-row score table, the backend engineer wants a single-pass function that picks out the second-highest unique score for the silver-prize query.
+alt_scenarios:
+  - "**Sales report:** A BI tool highlights the second-highest revenue region in a weekly summary without running a full sort on the dataset."
+  - "**Sensor peak detection:** A monitoring agent identifies the second-highest CPU spike in a rolling window to distinguish the true peak from noise."
+constraints:
+  - At least two distinct values exist in nums.
+examples:
+  - input: second_largest([3, 1, 4, 1, 5, 9, 2, 6])
+    output: '6'
+starter_code: |-
+  def second_largest(nums: list[int]) -> int:
+      pass
+follow_ups:
+  - Solve it in a single pass without sorting.
+  - Return the top-k values generalized.
+key_skills:
+  - arrays
+  - sorting
+test_type: function
+function_name: second_largest
+test_cases:
+  - label: typical
+    input:
+      nums: [3, 1, 4, 1, 5, 9, 2, 6]
+    expected: 6
+  - label: two elements
+    input:
+      nums: [10, 3]
+    expected: 3
+  - label: duplicates at top
+    input:
+      nums: [5, 5, 5, 3]
+    expected: 3
+  - label: negatives
+    input:
+      nums: [-1, -2, -3]
+    expected: -2
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  The simplest correct approach: deduplicate, sort descending, return index 1. A single-pass solution tracks the top two values explicitly.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - Deduplication with a set before sorting is the clearest solution; a single-pass tracker is faster.
+  - 'Treat Second Largest as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,71 @@
+id: 155
+title: Stack with Max
+category: warmup
+difficulty: Easy
+summary: Implement a stack that supports O(1) max retrieval.
+description: Implement MaxStack with push(val), pop(), and get_max() methods. get_max() returns the maximum value currently in the stack in O(1) time.
+scenario: |-
+  A real-time trading system tracks a sliding window of price ticks on a stack. The monitoring dashboard needs to display the current maximum price at any point without scanning the entire history. The MaxStack is embedded in the tick processor and get_max() is called on every UI refresh cycle.
+alt_scenarios:
+  - "**Undo history:** A text editor tracks document states on a stack and surfaces the largest document size ever reached for a memory-usage warning system."
+  - "**Game score tracker:** A game engine pushes round scores onto a stack as the player progresses and displays the highest score reached so far on the HUD."
+constraints:
+  - get_max() is only called when the stack is non-empty. pop() is only called when the stack is non-empty.
+examples:
+  - input: |-
+      s = MaxStack()
+      s.push(3)
+      s.push(5)
+      s.get_max()
+    output: '5'
+starter_code: |-
+  class MaxStack:
+      def __init__(self):
+          pass
+
+      def push(self, val: int) -> None:
+          pass
+
+      def pop(self) -> int:
+          pass
+
+      def get_max(self) -> int:
+          pass
+follow_ups:
+  - Support get_min() in O(1) as well.
+  - What if you are not allowed to use extra space?
+key_skills:
+  - stateful
+  - stacks
+test_type: class
+class_name: MaxStack
+test_cases:
+  - label: basic max
+    init_args: []
+    ops:
+      - push
+      - push
+      - get_max
+      - pop
+      - get_max
+    op_args:
+      - [3]
+      - [5]
+      - []
+      - []
+      - []
+    expected:
+      - null
+      - null
+      - 5
+      - 5
+      - 3
+explanation: |-
+  This warm-up is meant to build confidence around **stacks** with a very small surface area.
+
+  Maintain a parallel auxiliary stack of running maximums. On push, push max(val, current_max) onto the aux stack. On pop, pop both stacks. get_max() peeks at the aux stack top.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - The auxiliary max-stack pattern is also used in the classic Min Stack problem (LeetCode 155).
+  - 'Treat Stack with Max as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

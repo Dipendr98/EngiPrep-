@@ -1,0 +1,55 @@
+id: 152
+title: Reverse Words
+category: warmup
+difficulty: Easy
+summary: Reverse the order of words in a sentence.
+description: Implement reverse_words(s) that returns a string with the words in reverse order. Multiple spaces between words should be collapsed to a single space, and leading/trailing spaces should be removed.
+scenario: |-
+  A natural language preprocessing pipeline is building a simple text-reversal feature for a palindrome detection module. As a first step it reverses the word order in a sentence so that downstream analysis can compare the original and reversed forms. The function is called on every sentence token in the ingestion stream.
+alt_scenarios:
+  - "**RTL layout tester:** A localization QA tool reverses word order in English strings to simulate RTL layout issues before the translation team delivers the actual copy."
+  - "**Trivia generator:** A quiz platform generates trick questions by reversing word order in a clue sentence, relying on the function to produce clean output regardless of the input's whitespace."
+constraints:
+  - Strip leading/trailing whitespace. Collapse internal whitespace to single spaces.
+examples:
+  - input: reverse_words("  hello world  ")
+    output: '"world hello"'
+  - input: reverse_words("the sky is blue")
+    output: '"blue is sky the"'
+starter_code: |-
+  def reverse_words(s: str) -> str:
+      pass
+follow_ups:
+  - Reverse in-place on a character array without using split (common in Java/C++ interviews).
+  - Reverse only words longer than k characters.
+key_skills:
+  - strings
+test_type: function
+function_name: reverse_words
+test_cases:
+  - label: trailing spaces
+    input:
+      s: "  hello world  "
+    expected: "world hello"
+  - label: basic sentence
+    input:
+      s: "the sky is blue"
+    expected: "blue is sky the"
+  - label: single word
+    input:
+      s: "python"
+    expected: "python"
+  - label: multiple spaces between words
+    input:
+      s: "a   b   c"
+    expected: "c b a"
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  Split on whitespace (split() with no argument handles multiple spaces and strips ends automatically), reverse the resulting list, and join with a single space.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'str.split() with no argument splits on any whitespace and ignores leading/trailing — exactly what is needed here.'
+  - '" ".join(reversed(s.split())) is the one-liner.'
+  - 'Treat Reverse Words as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

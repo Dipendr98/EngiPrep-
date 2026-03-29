@@ -1,0 +1,56 @@
+id: 149
+title: Is Leap Year
+category: warmup
+difficulty: Easy
+summary: Determine whether a given year is a leap year.
+description: Implement is_leap_year(year) that returns True if year is a leap year according to the Gregorian calendar rules.
+scenario: |-
+  A scheduling platform is computing due dates for quarterly reports and needs to know whether a given year contains 366 days to correctly calculate deadlines that fall in February. The check is called once per year-change event in the date picker.
+alt_scenarios:
+  - "**Calendar generator:** A calendar library determines whether to render 28 or 29 days in February when building a month view."
+  - "**Financial day-count:** A bond pricing engine computes the exact number of days in a year for day-count conventions that distinguish leap years."
+constraints:
+  - year is a positive integer.
+examples:
+  - input: is_leap_year(2000)
+    output: 'True'
+  - input: is_leap_year(1900)
+    output: 'False'
+  - input: is_leap_year(2024)
+    output: 'True'
+starter_code: |-
+  def is_leap_year(year: int) -> bool:
+      pass
+follow_ups:
+  - Count how many leap years exist in a range [a, b].
+  - Return the next leap year after a given year.
+key_skills:
+  - math
+test_type: function
+function_name: is_leap_year
+test_cases:
+  - label: divisible by 400
+    input:
+      year: 2000
+    expected: true
+  - label: divisible by 100 not 400
+    input:
+      year: 1900
+    expected: false
+  - label: divisible by 4 not 100
+    input:
+      year: 2024
+    expected: true
+  - label: not divisible by 4
+    input:
+      year: 2023
+    expected: false
+explanation: |-
+  This warm-up is meant to build confidence around **math** with a very small surface area.
+
+  Gregorian leap year rules: divisible by 4, EXCEPT divisible by 100, UNLESS also divisible by 400. The three conditions must be checked in the right order.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - '(year % 4 == 0 and year % 100 != 0) or year % 400 == 0 is the canonical one-liner.'
+  - 'Treat Is Leap Year as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

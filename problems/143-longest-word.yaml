@@ -1,0 +1,52 @@
+id: 143
+title: Longest Word
+category: warmup
+difficulty: Easy
+summary: Find the longest word in a sentence.
+description: Implement longest_word(sentence) that returns the longest word in the sentence. If there is a tie, return the first one that appears.
+scenario: |-
+  A readability analyzer at an edtech company highlights the most complex word in each sentence to help ESL learners focus their attention. The first step is simply finding the longest word by character count. The function runs client-side on every sentence the user finishes typing.
+alt_scenarios:
+  - "**SEO keyword scorer:** A content tool finds the longest word in a headline to flag potential keyword stuffing or complexity issues."
+  - "**Password complexity hint:** A registration form highlights the longest token in a passphrase to give the user a sense of its strength."
+constraints:
+  - Words are separated by single spaces. The sentence is non-empty.
+examples:
+  - input: longest_word("the quick brown fox")
+    output: '"quick"'
+starter_code: |-
+  def longest_word(sentence: str) -> str:
+      pass
+follow_ups:
+  - Return all words tied for longest.
+  - Ignore punctuation attached to words.
+key_skills:
+  - strings
+test_type: function
+function_name: longest_word
+test_cases:
+  - label: basic
+    input:
+      sentence: "the quick brown fox"
+    expected: "quick"
+  - label: tie returns first
+    input:
+      sentence: "cat dog bat"
+    expected: "cat"
+  - label: single word
+    input:
+      sentence: "hello"
+    expected: "hello"
+  - label: long word
+    input:
+      sentence: "I love programming"
+    expected: "programming"
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  Split on spaces and use max() with key=len. When lengths tie, max() returns the first element encountered, matching the expected behavior.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - max(sentence.split(), key=len) is the one-liner. Be aware max() returns the last tie-winner for equal keys by default; a manual loop gives you the first.
+  - 'Treat Longest Word as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,53 @@
+id: 136
+title: Count Even Numbers
+category: warmup
+difficulty: Easy
+summary: Count how many even numbers are in a list.
+description: Implement count_evens(nums) that returns the count of even integers in the list.
+scenario: |-
+  A data quality team at a fintech company audits numerical batches that arrive from an upstream sensor. The sensor is supposed to emit only even-valued readings for a particular instrument channel; the audit function counts how many readings comply before flagging the batch for further inspection.
+alt_scenarios:
+  - "**Game score filter:** A leaderboard service counts how many scores qualify for an even-score bonus tier before computing payouts."
+  - "**Batch validator:** An ETL pipeline counts even-valued row IDs in a chunk to verify that a modulo-2 partitioning scheme is balanced."
+constraints:
+  - nums may be empty.
+examples:
+  - input: count_evens([1, 2, 3, 4, 5])
+    output: '2'
+starter_code: |-
+  def count_evens(nums: list[int]) -> int:
+      pass
+follow_ups:
+  - Generalize to count_divisible_by(nums, k).
+  - Return the even numbers themselves instead of the count.
+key_skills:
+  - arrays
+  - counting
+test_type: function
+function_name: count_evens
+test_cases:
+  - label: mixed
+    input:
+      nums: [1, 2, 3, 4, 5]
+    expected: 2
+  - label: all even
+    input:
+      nums: [2, 4, 6, 8]
+    expected: 4
+  - label: none even
+    input:
+      nums: [1, 3, 5]
+    expected: 0
+  - label: empty
+    input:
+      nums: []
+    expected: 0
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A one-liner with sum() and a generator expression is idiomatic Python; a for-loop counter is equally correct.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'sum(1 for x in nums if x % 2 == 0) is idiomatic and avoids creating an intermediate list.'
+  - 'Treat Count Even Numbers as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

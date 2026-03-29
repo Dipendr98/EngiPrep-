@@ -1,0 +1,55 @@
+id: 133
+title: Sum of Digits
+category: warmup
+difficulty: Easy
+summary: Sum all digits of a positive integer.
+description: Implement digit_sum(n) that returns the sum of all digits in the positive integer n.
+scenario: |-
+  A fintech startup is validating credit card numbers as part of a pre-check step before running a full Luhn algorithm. The first sanity check is a simple digit sum: if it equals zero the input is clearly invalid. The function will be called in a hot validation loop on every form submission, so it needs to be clean and fast.
+alt_scenarios:
+  - "**Checksum validator:** A barcode scanner sums the digits of a product code to verify it against a known check digit before accepting a scan."
+  - "**Tax ID formatter:** A government portal sums digits of a submitted tax ID as one step in its format-validation pipeline."
+constraints:
+  - n is a positive integer.
+examples:
+  - input: digit_sum(123)
+    output: '6'
+  - input: digit_sum(9)
+    output: '9'
+starter_code: |-
+  def digit_sum(n: int) -> int:
+      pass
+follow_ups:
+  - Support negative integers.
+  - Repeat until single digit (digital root).
+key_skills:
+  - math
+  - strings
+test_type: function
+function_name: digit_sum
+test_cases:
+  - label: three digits
+    input:
+      n: 123
+    expected: 6
+  - label: single digit
+    input:
+      n: 9
+    expected: 9
+  - label: large number
+    input:
+      n: 9999
+    expected: 36
+  - label: powers of ten
+    input:
+      n: 1000
+    expected: 1
+explanation: |-
+  This warm-up is meant to build confidence around **math** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - You can iterate through digits by repeatedly taking n % 10 and n // 10, or by converting to a string.
+  - 'Treat Sum of Digits as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'
