@@ -7,7 +7,12 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(__file__)
 
-SESSIONS_DIR = os.path.join(BASE_DIR, 'user_data', 'sessions')
+if os.environ.get('VERCEL') == '1':
+    import tempfile
+    SESSIONS_DIR = os.path.join(tempfile.gettempdir(), 'codeprep_sessions')
+else:
+    SESSIONS_DIR = os.path.join(BASE_DIR, 'user_data', 'sessions')
+
 PROBLEMS_DIR = os.path.join(BASE_DIR, 'problems')
 PROMPTS_DIR = os.path.join(BASE_DIR, 'prompts')
 
