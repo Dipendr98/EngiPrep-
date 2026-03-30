@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 
 from flask import Blueprint, request, jsonify, Response, stream_with_context
@@ -11,8 +12,11 @@ bp = Blueprint('sessions', __name__)
 
 @bp.route('/api/check-key')
 def check_key():
-    # Pollinations API does not require an API key, so always return True
-    return jsonify({'has_key': True})
+    # Check if user has configured an API key (via header or server .env)
+    header_key = request.headers.get('X-AI-API-Key', '').strip()
+    env_key = os.environ.get('OPENAI_API_KEY', '').strip()
+    has_key = bool(header_key) or bool(env_key)
+    return jsonify({'has_key': has_key})
 
 
 @bp.route('/api/sessions', methods=['GET'])

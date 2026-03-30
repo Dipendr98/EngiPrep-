@@ -7,7 +7,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Powered by Claude](https://img.shields.io/badge/powered%20by-Claude%20AI-blueviolet?logo=anthropic&logoColor=white)](https://pollinations.ai/)
 [![Runs locally](https://img.shields.io/badge/runs-locally-brightgreen?logo=homeassistant&logoColor=white)]()
-[![160+ Problems](https://img.shields.io/badge/problems-160%2B-orange)]()
+[![170+ Problems](https://img.shields.io/badge/problems-170%2B-orange)]()
 
 **Practice real coding interviews with an AI interviewer that follows up, pushes back, and gives detailed feedback — just like a real one.**
 
@@ -23,10 +23,12 @@ EngiPrep is a **locally-running** coding interview preparation platform that sim
 
 - **Conversational interviews** — The AI interviewer asks clarifying questions, pushes back on your reasoning, and adds constraints mid-session
 - **Detailed feedback** — Get structured scores on code quality, communication, problem-solving approach, and tradeoffs
-- **165+ built-in problems** — Each with real-world engineering scenarios, not just "given an array..."
+- **170+ built-in problems** — Each with real-world engineering scenarios, not just "given an array..."
 - **🔒 Cybersecurity domain** — SQL injection detection, JWT validation, password security, and more
 - **🌐 Full Stack domain** — URL routing, middleware pipelines, JSON schema validation, REST API design
-- **AI Problem Generator** — Automatically generate fresh problems using Claude AI to keep your practice fresh
+- **AI Problem Generator** — Generate fresh problems on-the-fly using Claude AI (ephemeral — frontend only, no DB bloat)
+- **Multi-Language Editor** — Code in Python, JavaScript, Java, C++, Go, Rust, TypeScript, and more with auto-translated starter code
+- **Multi-Provider AI** — Use Pollinations, OpenRouter, OpenAI, Groq, or any OpenAI-compatible provider
 - **Study Mode** — Research problems with an AI tutor before committing to an interview
 - **Voice Mode** — Practice talking through solutions using WebRTC voice interviews
 - **100% Local** — All data stays on your machine. Nothing is stored externally.
@@ -120,7 +122,8 @@ Generate fresh practice problems on demand:
 - Choose from 12 categories and 130+ specific topics (including Cybersecurity & Full Stack)
 - Select difficulty (Easy/Medium/Hard)
 - Problems include scenarios, test cases, starter code, and explanations
-- Generated problems are saved permanently to your problem bank
+- Generated problems are **ephemeral** — they exist only in your browser session
+- Problems auto-disappear after solving or on page refresh (no DB bloat)
 
 ### 🎤 Voice Interviews
 Practice speaking your solution out loud:
@@ -129,8 +132,10 @@ Practice speaking your solution out loud:
 - Submit code while in voice mode
 - Full transcript saved to history
 
-### 💻 Code Editor
-Built-in Python editor with:
+### 💻 Multi-Language Code Editor
+Built-in code editor supporting 12+ languages:
+- **Python, JavaScript, Java, C++, Go, Rust, TypeScript, C#, Ruby, Swift, Kotlin, PHP**
+- **Auto-translate starter code** — Switching languages translates the problem skeleton via AI
 - Syntax highlighting and auto-closing brackets
 - Run code with stdout/stderr output
 - Auto-generated test cases
@@ -138,8 +143,16 @@ Built-in Python editor with:
 
 ### 📊 Progress Tracking
 - Track completion across all categories
+- **Live counter updates** — Progress chip updates immediately after code submission
 - Status dots show your best performance per problem
 - Resume any past session from History
+
+### 🔌 Multi-Provider AI Support
+Configure any OpenAI-compatible AI provider from Settings:
+- **Pollinations AI** (default) — Powered by Claude
+- **OpenRouter** — Access 100+ models
+- **OpenAI**, **Anthropic**, **NVIDIA NIM**, **Groq**, **Together AI**
+- **Custom provider** — Any OpenAI-compatible endpoint
 
 ---
 
@@ -220,7 +233,7 @@ EngiPrep/
 │   ├── research.py           # Study/tutor chat endpoints
 │   └── sessions.py           # Interview session endpoints
 │
-├── problems/                 # 160+ YAML problem files
+├── problems/                 # 170+ YAML problem files
 │   ├── 01-lru-cache.yaml
 │   ├── 52-two-sum.yaml
 │   └── ...

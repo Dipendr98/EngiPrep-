@@ -15,7 +15,7 @@ os.makedirs(SESSIONS_DIR, exist_ok=True)
 
 # Pollinations AI (OpenAI-compatible)
 OPENAI_BASE_URL = os.environ.get('OPENAI_BASE_URL', 'https://gen.pollinations.ai/v1')
-CHAT_MODEL = os.environ.get('CHAT_MODEL', 'claude-large')
+CHAT_MODEL = os.environ.get('OPENAI_MODEL', os.environ.get('CHAT_MODEL', 'claude-large'))
 
 # OpenAI models (used only for realtime/voice features)
 REALTIME_MODEL = 'gpt-4o-realtime-preview'

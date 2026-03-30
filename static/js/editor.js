@@ -1,18 +1,171 @@
-function initEditor() {
-  editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+const LANGUAGE_CONFIG = {
+  python: {
     mode: 'python',
+    label: 'Python',
+    extension: '.py',
+    placeholder: '# Write your solution here...\n\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: { 'Tab': (cm) => cm.replaceSelection('    ', 'end') },
+  },
+  javascript: {
+    mode: 'javascript',
+    label: 'JavaScript',
+    extension: '.js',
+    placeholder: '// Write your solution here\n\n',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  java: {
+    mode: 'text/x-java',
+    label: 'Java',
+    extension: '.java',
+    placeholder: 'public class Solution {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  c: {
+    mode: 'text/x-csrc',
+    label: 'C',
+    extension: '.c',
+    placeholder: '#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  cpp: {
+    mode: 'text/x-c++src',
+    label: 'C++',
+    extension: '.cpp',
+    placeholder: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  go: {
+    mode: 'text/x-go',
+    label: 'Go',
+    extension: '.go',
+    placeholder: 'package main\n\nimport "fmt"\n\nfunc main() {\n\t// Write your solution here\n\tfmt.Println("Hello")\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: true,
+    extraKeys: {},
+  },
+  rust: {
+    mode: 'text/x-rustsrc',
+    label: 'Rust',
+    extension: '.rs',
+    placeholder: 'fn main() {\n    // Write your solution here\n    println!("Hello");\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  sql: {
+    mode: 'text/x-sql',
+    label: 'SQL',
+    extension: '.sql',
+    placeholder: '-- Write your SQL query here\nSELECT * FROM table_name;\n',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  typescript: {
+    mode: 'text/typescript',
+    label: 'TypeScript',
+    extension: '.ts',
+    placeholder: '// Write your solution here\n\n',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  csharp: {
+    mode: 'text/x-csharp',
+    label: 'C#',
+    extension: '.cs',
+    placeholder: 'using System;\n\nclass Solution {\n    static void Main() {\n        // Write your solution here\n    }\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  ruby: {
+    mode: 'text/x-ruby',
+    label: 'Ruby',
+    extension: '.rb',
+    placeholder: '# Write your solution here\n\n',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  php: {
+    mode: 'text/x-php',
+    label: 'PHP',
+    extension: '.php',
+    placeholder: '<?php\n// Write your solution here\n\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  swift: {
+    mode: 'text/x-swift',
+    label: 'Swift',
+    extension: '.swift',
+    placeholder: '// Write your solution here\nimport Foundation\n\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  kotlin: {
+    mode: 'text/x-kotlin',
+    label: 'Kotlin',
+    extension: '.kt',
+    placeholder: 'fun main() {\n    // Write your solution here\n    println("Hello")\n}\n',
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+  bash: {
+    mode: 'text/x-sh',
+    label: 'Bash',
+    extension: '.sh',
+    placeholder: '#!/bin/bash\n# Write your solution here\n\n',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {},
+  },
+};
+
+function initEditor() {
+  const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python;
+
+  editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+    mode: langConfig.mode,
     theme: 'default',
     lineNumbers: true,
     autoCloseBrackets: true,
     matchBrackets: true,
-    indentUnit: 4,
-    tabSize: 4,
-    indentWithTabs: false,
+    indentUnit: langConfig.indentUnit,
+    tabSize: langConfig.tabSize,
+    indentWithTabs: langConfig.indentWithTabs,
     lineWrapping: true,
-    placeholder: '# Write your solution here...',
-    extraKeys: {
-      'Tab': (cm) => cm.replaceSelection('    ', 'end'),
-    }
+    placeholder: langConfig.placeholder,
+    extraKeys: langConfig.extraKeys || {},
   });
 
   editor.on('change', () => {
@@ -26,11 +179,93 @@ function initEditor() {
       });
     }, 2000);
   });
+
+  // Initialize language selector
+  const langSelect = document.getElementById('lang-select');
+  if (langSelect) {
+    langSelect.value = currentLanguage;
+  }
+}
+
+function switchLanguage(lang) {
+  if (!LANGUAGE_CONFIG[lang]) return;
+  const oldCode = editor ? editor.getValue() : '';
+  const oldLang = currentLanguage;
+  currentLanguage = lang;
+  const langConfig = LANGUAGE_CONFIG[lang];
+
+  // Update CodeMirror mode and settings
+  editor.setOption('mode', langConfig.mode);
+  editor.setOption('indentUnit', langConfig.indentUnit);
+  editor.setOption('tabSize', langConfig.tabSize);
+  editor.setOption('indentWithTabs', langConfig.indentWithTabs);
+
+  // Update the language label display
+  const langLabel = document.getElementById('editor-lang-label');
+  if (langLabel) langLabel.textContent = langConfig.label;
+
+  // Check if the editor has starter code or is empty/placeholder
+  const oldPlaceholder = LANGUAGE_CONFIG[oldLang]?.placeholder || '';
+  const isStarterOrEmpty = !oldCode.trim()
+    || oldCode.trim() === oldPlaceholder.trim()
+    || oldCode.trim() === '# Write your solution here'
+    || oldCode.trim() === originalStarterCode.trim()
+    || (translatedCodeCache[oldLang] && oldCode.trim() === translatedCodeCache[oldLang].trim());
+
+  if (isStarterOrEmpty && originalStarterCode && originalStarterCode.trim()) {
+    // Try to translate the starter code to the new language
+    if (translatedCodeCache[lang]) {
+      // Use cached translation
+      editor.setValue(translatedCodeCache[lang]);
+      editor.refresh();
+    } else {
+      // Show loading indicator and call translate API
+      editor.setValue(`// Translating to ${langConfig.label}...`);
+      editor.refresh();
+
+      const problemTitle = document.getElementById('top-bar-title')?.textContent || '';
+
+      fetch('/api/translate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: originalStarterCode,
+          from_language: 'python',
+          to_language: lang,
+          problem_title: problemTitle,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.translated_code) {
+            translatedCodeCache[lang] = data.translated_code;
+            // Only update if user hasn't typed something else
+            const current = editor.getValue();
+            if (current.startsWith('// Translating to')) {
+              editor.setValue(data.translated_code);
+            }
+          } else {
+            editor.setValue(langConfig.placeholder);
+          }
+          editor.refresh();
+        })
+        .catch(() => {
+          editor.setValue(langConfig.placeholder);
+          editor.refresh();
+        });
+    }
+  } else if (!oldCode.trim() || oldCode.trim() === oldPlaceholder.trim()) {
+    editor.setValue(langConfig.placeholder);
+    editor.refresh();
+  } else {
+    editor.refresh();
+  }
 }
 
 function clearEditor() {
+  const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python;
   if (confirm('Clear the editor?')) {
-    editor.setValue('# Write your solution here\n\n');
+    editor.setValue(langConfig.placeholder);
   }
 }
 
@@ -98,7 +333,8 @@ function selectOutputTab(tab) {
 
 async function runCode() {
   const code = editor.getValue().trim();
-  if (!code || code === '# Write your solution here') {
+  const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python;
+  if (!code || code === langConfig.placeholder.trim()) {
     alert('Write some code first.');
     return;
   }
@@ -114,7 +350,7 @@ async function runCode() {
     const res = await fetch('/api/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, language: currentLanguage }),
     });
     const data = await res.json();
 
@@ -142,7 +378,8 @@ async function runTests() {
   }
 
   const code = editor.getValue().trim();
-  if (!code || code === '# Write your solution here') {
+  const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python;
+  if (!code || code === langConfig.placeholder.trim()) {
     alert('Write some code first.');
     return;
   }
@@ -160,7 +397,7 @@ async function runTests() {
     const res = await fetch(`/api/sessions/${currentSessionId}/run-tests`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, language: currentLanguage }),
     });
     const data = await res.json();
 

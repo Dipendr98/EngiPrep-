@@ -216,6 +216,20 @@
               </svg>
               Generate New Problems
             </button>
+            <button class="sidebar-btn" onclick="openSettingsModal()" title="AI Provider Settings">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              AI Provider Settings
+            </button>
+            <div id="provider-badge" class="provider-badge" onclick="openSettingsModal()"
+              title="Click to change AI provider">Pollinations AI</div>
+            <div id="settings-status"
+              style="display:none;padding:6px 10px;font-size:12px;color:#22c55e;background:rgba(34,197,94,0.1);border-radius:6px;margin-top:4px">
+            </div>
             <p style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4">
               Auto-generate fresh LeetCode-style problems using AI to build your concepts.
             </p>
@@ -397,12 +411,19 @@
   <!-- API KEY MODAL -->
   <div id="key-modal" class="modal" style="display:none">
     <div class="modal-content">
-      <h2>OpenAI API Key Required</h2>
-      <p>This app uses GPT-4o to simulate a real interviewer. Set your API key to get started.</p>
-      <p class="modal-instruction">Create a <code>.env</code> file in the project root:</p>
-      <code class="key-command">OPENAI_API_KEY=sk-your-key-here</code>
-      <p class="modal-note">Then restart the server. Your key stays local — never stored or sent anywhere except OpenAI.
-      </p>
+      <h2>API Key Required</h2>
+      <p>This app uses the Pollinations AI API (Claude) to simulate a real interviewer. Configure your API key to get
+        started.</p>
+      <p class="modal-instruction">Option 1: Click below to open settings and enter your API key:</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin:16px 0">
+        <button class="btn btn-primary"
+          onclick="document.getElementById('key-modal').style.display='none'; openSettingsModal();">⚙ Open AI
+          Settings</button>
+      </div>
+      <p class="modal-instruction">Option 2: Set it in the <code>.env</code> file:</p>
+      <code class="key-command">OPENAI_API_KEY=your-api-key-here</code>
+      <p class="modal-note">Then restart the server. Your key stays local and is only sent to the configured AI
+        provider.</p>
       <button class="btn btn-secondary"
         onclick="document.getElementById('key-modal').style.display='none'">Close</button>
     </div>
@@ -489,7 +510,23 @@
       <!-- RIGHT: Code Editor -->
       <div class="editor-panel">
         <div class="editor-header">
-          <span class="editor-lang">Python</span>
+          <select id="lang-select" class="lang-select" onchange="switchLanguage(this.value)">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="java">Java</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+            <option value="csharp">C#</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+            <option value="ruby">Ruby</option>
+            <option value="php">PHP</option>
+            <option value="swift">Swift</option>
+            <option value="kotlin">Kotlin</option>
+            <option value="bash">Bash</option>
+            <option value="sql">SQL</option>
+          </select>
           <div class="editor-actions-bar">
             <button class="btn btn-ghost btn-sm" onclick="clearEditor()">Clear</button>
             <button class="btn btn-secondary btn-sm" id="run-btn" onclick="runCode()">
@@ -566,12 +603,68 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/rust/rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/php/php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/swift/swift.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal" style="display:none">
+    <div class="modal-content" style="max-width:640px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="margin:0">⚙️ AI Provider Settings</h2>
+        <button class="btn btn-ghost btn-sm" onclick="closeSettingsModal()">✕</button>
+      </div>
+      <p style="color:var(--text-muted);margin-bottom:16px;font-size:13px">Choose your AI provider and enter your API
+        key. Supports Pollinations, OpenRouter, OpenAI, NVIDIA, Groq, and more.</p>
+
+      <div id="provider-cards"
+        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:16px"></div>
+
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Base URL</label>
+          <input type="text" id="settings-base-url" placeholder="https://gen.pollinations.ai/v1"
+            style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;box-sizing:border-box">
+        </div>
+
+        <div id="settings-key-row" style="margin-bottom:12px;display:none">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">API Key</label>
+          <input type="password" id="settings-api-key" placeholder="sk-... or your provider key"
+            style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;box-sizing:border-box">
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px">🔒 Your key is stored only in your browser's
+            localStorage. Never sent to our servers.</p>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Model</label>
+          <select id="settings-model" onchange="onModelSelectChange()"
+            style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px"></select>
+          <div id="settings-custom-model" style="display:none;margin-top:8px">
+            <input type="text" id="settings-custom-model-input" placeholder="Enter model name..."
+              style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;box-sizing:border-box">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-secondary btn-sm" onclick="closeSettingsModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+    </div>
+  </div>
+
   <script src="{{ url_for('static', filename='js/state.js') }}"></script>
   <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
   <script src="{{ url_for('static', filename='js/problems.js') }}"></script>
   <script src="{{ url_for('static', filename='js/sessions.js') }}"></script>
   <script src="{{ url_for('static', filename='js/editor.js') }}"></script>

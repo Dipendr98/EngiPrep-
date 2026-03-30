@@ -70,6 +70,8 @@ async function startInterview(focus, problemId) {
     const problem = problemId ? allProblems.find(p => p.id === problemId) : null;
     const title = problem ? problem.title : 'Technical Interview';
     const starterCode = problem?.starter_code || '# Write your solution here\n\n';
+    originalStarterCode = starterCode;
+    translatedCodeCache = { python: starterCode };
     document.getElementById('top-bar-title').textContent = title;
     document.getElementById('chat-messages').innerHTML =
       problem ? renderInterviewProblemHeader(problem) : '';
@@ -82,9 +84,14 @@ async function startInterview(focus, problemId) {
     const refPanel = document.getElementById('ref-panel');
     refPanel.style.display = 'none';
     if (problemId) {
-      fetch(`/api/problems/${problemId}`).then(r => r.json()).then(fullProblem => {
-        document.getElementById('ref-panel-body').innerHTML = buildReferenceContent(fullProblem);
-      }).catch(() => {});
+      // For ephemeral problems, use data already in memory
+      if (problem && problem._ephemeral) {
+        document.getElementById('ref-panel-body').innerHTML = buildReferenceContent(problem);
+      } else {
+        fetch(`/api/problems/${problemId}`).then(r => r.json()).then(fullProblem => {
+          document.getElementById('ref-panel-body').innerHTML = buildReferenceContent(fullProblem);
+        }).catch(() => { });
+      }
     }
 
     if (interviewMode === 'voice') {
@@ -147,6 +154,13 @@ async function resumeSession(id) {
 function exitInterview() {
   stopTimer();
   cleanupVoice();
+  // Remove ephemeral problem after exiting interview
+  if (currentInterviewProblemId) {
+    const prob = allProblems.find(p => p.id === currentInterviewProblemId);
+    if (prob && prob._ephemeral) {
+      removeEphemeralProblem(currentInterviewProblemId);
+    }
+  }
   currentSessionId = null;
   showView('landing');
   loadSessions();
@@ -240,7 +254,8 @@ async function submitCode() {
   input.value = '';
   input.style.height = 'auto';
 
-  const displayText = text + '\n\n```python\n' + code + '\n```';
+  const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python;
+  const displayText = text + '\n\n```' + currentLanguage + '\n' + code + '\n```';
   appendMessage('user', displayText);
 
   isStreaming = true;
@@ -259,6 +274,15 @@ async function submitCode() {
       onError: (err) => updateStreamingMessage(msgEl, `Error: ${err}`),
     });
     finalizeStreamingMessage(msgEl, fullContent);
+
+    // Mark problem as attempted after successful submission
+    if (currentInterviewProblemId) {
+      if (!attemptedProblems[currentInterviewProblemId]) {
+        attemptedProblems[currentInterviewProblemId] = { rating: null };
+      }
+      updateProgressChip();
+      renderProblems();
+    }
   } catch (e) {
     updateStreamingMessage(msgEl, `Connection error: ${e.message}`);
   }

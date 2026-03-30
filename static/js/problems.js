@@ -346,11 +346,16 @@ async function generateProblems() {
 
     if (generated.length > 0) {
       status.style.color = '#22c55e';
-      status.innerHTML = `✅ Generated ${generated.length} new problem${generated.length > 1 ? 's' : ''}!<br>` +
+      status.innerHTML = `✅ Generated ${generated.length} new problem${generated.length > 1 ? 's' : ''}! (temporary — disappears on refresh)<br>` +
         generated.map(p => `• <strong>${p.title}</strong> (${p.difficulty})`).join('<br>');
 
-      // Reload problems list
-      await loadProblems();
+      // Add to frontend memory only (not saved to DB)
+      for (const p of generated) {
+        p._ephemeral = true;
+        allProblems.push(p);
+      }
+      renderProblems();
+      updateProgressChip();
     }
 
     if (errors.length > 0) {
@@ -363,4 +368,10 @@ async function generateProblems() {
     btn.disabled = false;
     btn.textContent = '✨ Generate';
   }
+}
+
+function removeEphemeralProblem(problemId) {
+  allProblems = allProblems.filter(p => p.id !== problemId);
+  renderProblems();
+  updateProgressChip();
 }

@@ -246,6 +246,57 @@ def generate_problem(category=None, difficulty=None, topic=None):
     return problem_data
 
 
+def generate_problem_ephemeral(category=None, difficulty=None, topic=None):
+    """Generate a new problem using AI but do NOT save it to disk.
+
+    The problem is returned with a temporary negative ID so it won't
+    collide with real problems. It exists only in the frontend's memory.
+    """
+    import random
+
+    if not category:
+        category = random.choice(list(TOPIC_POOLS.keys()))
+    if not difficulty:
+        difficulty = random.choice(DIFFICULTIES)
+    if not topic:
+        pool = TOPIC_POOLS.get(category, ['general algorithms'])
+        topic = random.choice(pool)
+
+    client = ai.get_client()
+    prompt = GENERATE_PROMPT.format(
+        topic=topic,
+        difficulty=difficulty,
+        category=category,
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=config.CHAT_MODEL,
+            messages=[
+                {'role': 'system', 'content': 'You are an expert coding problem designer. Always respond with valid JSON only.'},
+                {'role': 'user', 'content': prompt},
+            ],
+            temperature=0.8,
+            max_tokens=3000,
+        )
+        raw = response.choices[0].message.content
+        problem_data = _parse_ai_response(raw)
+    except Exception as e:
+        return {'error': f'AI generation failed: {str(e)}'}
+
+    # Assign a temporary negative ID (won't be saved)
+    import time
+    problem_data['id'] = -int(time.time() * 1000) % 1000000
+    problem_data['test_type'] = 'function'
+    problem_data['_ephemeral'] = True
+
+    problem_data.setdefault('category', category)
+    problem_data.setdefault('difficulty', difficulty)
+    problem_data.setdefault('key_skills', [topic])
+
+    return problem_data
+
+
 def generate_batch(count=5, category=None, difficulty=None):
     """Generate multiple problems at once.
 

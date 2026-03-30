@@ -39,3 +39,6 @@ let currentAssistantTranscript = '';
 
 let outputPanelCollapsed = true;
 let outputPanelHeight = 200;
+let currentLanguage = 'python';
+let originalStarterCode = '';
+let translatedCodeCache = {};
