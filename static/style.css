@@ -2853,7 +2853,283 @@ body {
 /* Very small screens */
 @media (max-width: 480px) {
   .top-bar-right {
+    gap: 4px;
+  }
+
+  .top-bar-landing,
+  .top-bar-interview,
+  .top-bar-study {
+    padding: 0 8px;
+  }
+
+  .top-bar-title {
+    font-size: 12px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .top-bar-center {
+    gap: 4px;
+  }
+
+  .top-bar-focus {
+    display: none;
+  }
+
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .icon-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .progress-chip {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .cmd-palette {
+    width: calc(100vw - 16px);
+    top: 10%;
+  }
+
+  .cmd-palette-input {
+    font-size: 14px;
+  }
+
+  .cmd-palette-item {
+    padding: 8px 10px;
     gap: 6px;
+  }
+
+  .cmd-palette-item-meta {
+    display: none;
+  }
+
+  .cmd-palette-item-actions {
+    opacity: 1;
+  }
+
+  .cmd-palette-footer {
+    display: none;
+  }
+
+  .modal-content {
+    padding: 20px 16px;
+    margin: 12px;
+    max-width: calc(100vw - 24px);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-content h2 {
+    font-size: 16px;
+  }
+
+  .problem-row {
+    padding: 8px 8px;
+    gap: 6px;
+  }
+
+  .problem-title {
+    font-size: 12px;
+  }
+
+  .problem-summary {
+    font-size: 11px;
+    -webkit-line-clamp: 1;
+  }
+
+  .problem-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .problem-action-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .problem-id {
+    font-size: 9px;
+  }
+
+  /* Interview view mobile */
+  .interview-layout {
+    flex-direction: column;
+    height: calc(100vh - 44px);
+    height: calc(100dvh - 44px);
+  }
+
+  .chat-panel {
+    width: 100% !important;
+    max-width: 100%;
+    height: 45%;
+    min-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .editor-panel {
+    height: 55%;
+    min-height: 200px;
+  }
+
+  .interview-resizer {
+    display: none;
+  }
+
+  .message-bubble {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .chat-input {
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  .text-input-area {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .text-input-area button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  /* Study view mobile */
+  .study-layout {
+    flex-direction: column;
+    height: calc(100vh - 44px);
+    height: calc(100dvh - 44px);
+  }
+
+  .study-details {
+    width: 100% !important;
+    max-width: 100%;
+    height: 50%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .study-resizer {
+    display: none;
+  }
+
+  .study-section {
+    padding: 12px;
+  }
+
+  .study-section-title {
+    font-size: 12px;
+  }
+
+  /* Reference panel mobile */
+  #ref-panel {
+    position: fixed;
+    inset: 44px 0 0 0;
+    z-index: 100;
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  /* Output panel mobile */
+  .output-panel {
+    max-height: 150px;
+  }
+
+  /* Editor toolbar mobile */
+  .editor-toolbar {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 6px;
+  }
+
+  .editor-toolbar select {
+    font-size: 11px;
+    padding: 2px 4px;
+  }
+
+  /* Generate modal mobile */
+  .gen-modal-content {
+    padding: 16px;
+    margin: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  /* Filter sidebar mobile adjustments */
+  .filter-sidebar {
+    width: 220px;
+  }
+
+  /* History drawer mobile */
+  .history-drawer {
+    width: 85vw;
+    max-width: 320px;
+  }
+
+  /* Settings modal mobile */
+  .settings-modal-content {
+    max-width: calc(100vw - 24px);
+    max-height: 85vh;
+    margin: 12px;
+    padding: 16px;
+  }
+
+  /* Tutor sidebar mobile */
+  .tutor-sidebar {
+    position: fixed;
+    inset: 44px 0 0 0;
+    width: 100% !important;
+    max-width: 100%;
+    z-index: 90;
+  }
+}
+
+/* Touch-friendly tap targets */
+@media (hover: none) and (pointer: coarse) {
+  .problem-row {
+    min-height: 56px;
+  }
+
+  .problem-action-btn {
+    min-height: 32px;
+    min-width: 56px;
+  }
+
+  .icon-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .cat-tab {
+    min-height: 32px;
+    padding: 4px 10px;
+  }
+
+  .diff-pill {
+    min-height: 28px;
+    padding: 4px 10px;
+  }
+
+  .skill-tag {
+    min-height: 24px;
+  }
+}
+
+/* Use dvh for mobile browsers with dynamic viewport */
+@supports (height: 100dvh) {
+
+  .interview-layout,
+  .study-layout {
+    height: calc(100dvh - 44px);
   }
 }
 
