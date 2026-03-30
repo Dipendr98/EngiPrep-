@@ -3,6 +3,7 @@ FROM python:3.11-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV OPENAI_API_KEY=pollinations
 
 # Set working directory
 WORKDIR /app
@@ -14,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -22,8 +23,9 @@ COPY . .
 # Create sessions directory
 RUN mkdir -p /app/user_data/sessions
 
-# Expose port (Railway sets PORT env var)
-EXPOSE ${PORT:-5000}
+# Railway sets PORT env var; default to 5000
+ENV PORT=5000
+EXPOSE 5000
 
 # Run with gunicorn for production
-CMD gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 2 --threads 4 --timeout 120 app:app
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile - app:app"]

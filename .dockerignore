@@ -1,8 +1,4 @@
-# Git
 .git
-.gitignore
-
-# Python
 __pycache__
 *.pyc
 *.pyo
@@ -12,27 +8,15 @@ build
 venv
 .venv
 env
-
-# IDE
+.env
 .vscode
 .idea
 *.swp
 *.swo
-
-# Environment
-.env
-
-# User data (sessions are ephemeral on Railway)
 user_data/
-
-# Docs
 docs/
-*.md
-!README.md
-LICENSE
+vercel.json
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 SECURITY.md
-
-# Vercel (not needed for Railway)
-vercel.json
+LICENSE
