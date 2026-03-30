@@ -1,0 +1,121 @@
+title: File Integrity Hash Collision Detector
+category: cybersecurity
+difficulty: Easy
+summary: Detect hash collisions in a file integrity monitoring system by identifying
+  distinct files that produce the same hash value.
+description: 'You are building a file integrity monitoring (FIM) system that tracks
+  files by computing hash digests. Each file is represented as a tuple of (filename,
+  file_content), and your system uses a simple hash function to index them.
+
+
+  Given a list of file records where each record is a tuple (filename, content), and
+  a hash function that maps content to an integer bucket, detect all hash collisions.
+  A collision occurs when two or more files with **different content** map to the
+  same hash value.
+
+
+  Return a dictionary where each key is a hash value that has a collision, and the
+  value is a list of filenames (sorted alphabetically) whose content maps to that
+  hash. Only include hash values where a collision actually occurs (i.e., two or more
+  distinct contents map to the same hash). Files with identical content mapping to
+  the same hash are NOT considered collisions.
+
+
+  The hash function to use is: `hash_value = sum(ord(c) for c in content) % num_buckets`'
+scenario: In a Security Operations Center (SOC), file integrity monitoring systems
+  use hashes to quickly detect unauthorized file changes. However, if the hash function
+  produces collisions — different file contents yielding the same hash — an attacker
+  could swap a legitimate file with a malicious one without triggering an alert. Detecting
+  these collisions is critical for assessing the strength of the hashing scheme and
+  preventing bypass attacks.
+constraints:
+- 1 <= len(files) <= 10000
+- 1 <= num_buckets <= 1000
+- Each filename is a non-empty string of alphanumeric characters and dots
+- Each content is a non-empty string
+- Filenames are unique within the input list
+examples:
+- input: detect_hash_collisions([('config.txt', 'abc'), ('malware.exe', 'cba'), ('readme.md',
+    'xyz')], 10)
+  output: '{6: [''config.txt'', ''malware.exe'']}'
+- input: detect_hash_collisions([('a.txt', 'hello'), ('b.txt', 'hello'), ('c.txt',
+    'world')], 10)
+  output: '{2: [''a.txt'', ''c.txt'']}'
+starter_code: "def detect_hash_collisions(files, num_buckets):\n    pass"
+function_name: detect_hash_collisions
+key_skills:
+- hash functions
+- collision detection
+- dictionary manipulation
+- cybersecurity fundamentals
+follow_ups:
+- How would you modify this solution to also report the severity of each collision
+  (e.g., based on the number of distinct contents mapping to the same bucket)? How
+  might a SOC team prioritize which collisions to investigate first?
+- If you needed to recommend a minimum number of buckets to guarantee zero collisions
+  for a given file set, how would you approach that problem? What are the trade-offs
+  between bucket count and performance?
+test_cases:
+- label: basic collision
+  input:
+    files:
+    - - config.txt
+      - abc
+    - - malware.exe
+      - cba
+    - - readme.md
+      - xyz
+    num_buckets: 10
+  expected:
+    '6':
+    - config.txt
+    - malware.exe
+- label: identical content not a collision
+  input:
+    files:
+    - - a.txt
+      - hello
+    - - b.txt
+      - hello
+    num_buckets: 10
+  expected: {}
+- label: mixed identical and different content same hash
+  input:
+    files:
+    - - a.txt
+      - hello
+    - - b.txt
+      - hello
+    - - c.txt
+      - world
+    num_buckets: 10
+  expected:
+    '2':
+    - a.txt
+    - c.txt
+- label: no collisions at all
+  input:
+    files:
+    - - x.txt
+      - a
+    - - y.txt
+      - bb
+    - - z.txt
+      - ccc
+    num_buckets: 1000
+  expected: {}
+explanation: For each file, compute the hash of its content using the given formula.
+  Group files by their hash bucket. For each bucket, check if there are multiple **distinct**
+  content values. If so, it's a collision — collect all filenames in that bucket (including
+  those with duplicate content, since any file in a colliding bucket is affected).
+  Files with identical content in the same bucket do not constitute a collision on
+  their own. The key insight is distinguishing between duplicate files (same content,
+  same hash — expected) and true collisions (different content, same hash — dangerous).
+  Use dictionaries to group by hash and track unique contents per bucket.
+references:
+- Hash functions and collision resistance
+- File integrity monitoring (FIM)
+- Birthday paradox and hash collision probability
+- Dictionary/hashmap data structures in Python
+id: 169
+test_type: function
