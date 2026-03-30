@@ -20,7 +20,7 @@ Examples of unacceptable behavior:
 
 ## Enforcement
 
-Project maintainers have the right to remove, edit, or reject contributions that violate this Code of Conduct. Instances of abusive behavior may be reported via LinkedIn: https://www.linkedin.com/in/amruthagujjar
+Project maintainers have the right to remove, edit, or reject contributions that violate this Code of Conduct. Instances of abusive behavior may be reported via LinkedIn: https://www.linkedin.com/in/dipendra-gupta-3936441b7/
 
 ## Attribution
 
