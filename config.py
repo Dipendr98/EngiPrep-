@@ -10,6 +10,8 @@ BASE_DIR = os.path.dirname(__file__)
 if os.environ.get('VERCEL') == '1':
     import tempfile
     SESSIONS_DIR = os.path.join(tempfile.gettempdir(), 'codeprep_sessions')
+elif os.environ.get('RAILWAY_ENVIRONMENT'):
+    SESSIONS_DIR = os.path.join('/tmp', 'codeprep_sessions')
 else:
     SESSIONS_DIR = os.path.join(BASE_DIR, 'user_data', 'sessions')
 
@@ -46,8 +48,8 @@ VAD_PREFIX_PADDING_MS = 300
 VAD_SILENCE_DURATION_MS = 500
 
 # Flask
-FLASK_PORT = 5000
-FLASK_DEBUG = True
+FLASK_PORT = int(os.environ.get('PORT', 5000))
+FLASK_DEBUG = not os.environ.get('RAILWAY_ENVIRONMENT')
 
 # SSE headers reused by all streaming endpoints
 SSE_HEADERS = {
