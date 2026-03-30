@@ -23,8 +23,10 @@ EngiPrep is a **locally-running** coding interview preparation platform that sim
 
 - **Conversational interviews** — The AI interviewer asks clarifying questions, pushes back on your reasoning, and adds constraints mid-session
 - **Detailed feedback** — Get structured scores on code quality, communication, problem-solving approach, and tradeoffs
-- **160+ built-in problems** — Each with real-world engineering scenarios, not just "given an array..."
-- **AI Problem Generator** — Automatically generate fresh LeetCode-style problems using Claude AI to keep your practice fresh
+- **165+ built-in problems** — Each with real-world engineering scenarios, not just "given an array..."
+- **🔒 Cybersecurity domain** — SQL injection detection, JWT validation, password security, and more
+- **🌐 Full Stack domain** — URL routing, middleware pipelines, JSON schema validation, REST API design
+- **AI Problem Generator** — Automatically generate fresh problems using Claude AI to keep your practice fresh
 - **Study Mode** — Research problems with an AI tutor before committing to an interview
 - **Voice Mode** — Practice talking through solutions using WebRTC voice interviews
 - **100% Local** — All data stays on your machine. Nothing is stored externally.
@@ -115,7 +117,7 @@ Read problems in full and chat with an AI tutor:
 
 ### 🤖 AI Problem Generator
 Generate fresh practice problems on demand:
-- Choose from 10 categories and 80+ specific topics
+- Choose from 12 categories and 130+ specific topics (including Cybersecurity & Full Stack)
 - Select difficulty (Easy/Medium/Hard)
 - Problems include scenarios, test cases, starter code, and explanations
 - Generated problems are saved permanently to your problem bank
@@ -170,6 +172,8 @@ One of EngiPrep's standout features is the ability to **auto-generate new proble
 | **Backtracking** | Permutations, combinations, N-Queens, sudoku solver, word search |
 | **Stateful** | LRU cache, min stack, trie, circular buffer, frequency stack |
 | **Streaming** | Moving average, top-K frequent, stream median, rate limiter |
+| **🔒 Cybersecurity** | SQL injection detection, XSS filtering, JWT validation, password strength, RBAC permissions, encryption, CIDR subnets, firewall rules, audit logging, vulnerability scanning |
+| **🌐 Full Stack** | URL routing, middleware pipeline, JSON schema validation, REST API design, query builders, cookie parsing, CORS policy, session management, pagination, WebSocket handlers |
 
 ### API Endpoint
 

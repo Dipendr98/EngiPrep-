@@ -1,0 +1,83 @@
+id: 166
+title: JSON Schema Validator
+category: fullstack
+difficulty: Hard
+summary: Validate JSON data against a schema definition with type checking and constraints
+description: |
+  Implement a function that validates a JSON-like Python data structure against a schema definition.
+  
+  The schema is a dict that describes the expected structure:
+  - "type": required — one of "string", "number", "boolean", "array", "object", "null"
+  - "required": for objects — list of required field names
+  - "properties": for objects — dict mapping field names to their schemas
+  - "items": for arrays — schema that each array element must match
+  - "minLength" / "maxLength": for strings
+  - "minimum" / "maximum": for numbers
+  - "minItems" / "maxItems": for arrays
+  - "enum": list of allowed values
+  
+  Return a dict with:
+  - "valid": boolean
+  - "errors": list of error strings with paths (e.g., "$.name: expected string, got int")
+scenario: |
+  You're building a REST API that accepts JSON payloads. Before processing requests,
+  you need to validate the incoming data against predefined schemas to ensure data
+  integrity and provide clear error messages to API consumers.
+constraints:
+  - Use "$" as the root path in error messages
+  - Nested paths use dot notation: "$.user.name"
+  - Array indices use bracket notation: "$.items[0]"
+  - Validate all fields, don't stop at first error
+  - Unknown fields in objects are allowed (no strict mode)
+examples:
+  - input: |
+      validate({"name": "Alice", "age": 30}, {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "age": {"type": "number"}}})
+    output: "{\"valid\": true, \"errors\": []}"
+  - input: |
+      validate({"name": 123}, {"type": "object", "properties": {"name": {"type": "string"}}})
+    output: "{\"valid\": false, \"errors\": [\"$.name: expected string, got int\"]}"
+starter_code: |
+  def validate(data, schema, path="$"):
+      pass
+key_skills:
+  - JSON schema
+  - data validation
+  - recursion
+  - API design
+follow_ups:
+  - How would you add support for $ref (schema references)?
+  - How would you handle oneOf, anyOf, allOf combinators?
+test_type: function
+function_name: validate
+test_cases:
+  - label: valid object
+    input:
+      data: {"name": "Alice", "age": 30}
+      schema: {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "age": {"type": "number"}}}
+    expected:
+      valid: true
+      errors: []
+  - label: type mismatch
+    input:
+      data: {"name": 123}
+      schema: {"type": "object", "properties": {"name": {"type": "string"}}}
+    expected:
+      valid: false
+  - label: missing required field
+    input:
+      data: {"age": 30}
+      schema: {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}}}
+    expected:
+      valid: false
+  - label: array validation
+    input:
+      data: [1, 2, "three"]
+      schema: {"type": "array", "items": {"type": "number"}}
+    expected:
+      valid: false
+  - label: string constraints
+    input:
+      data: "hi"
+      schema: {"type": "string", "minLength": 5}
+    expected:
+      valid: false

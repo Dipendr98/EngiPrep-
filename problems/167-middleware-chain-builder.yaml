@@ -1,0 +1,73 @@
+id: 167
+title: Middleware Chain Builder
+category: fullstack
+difficulty: Easy
+summary: Build a middleware pipeline that processes requests through a chain of functions
+description: |
+  Implement a middleware pipeline system similar to Express.js or Django middleware.
+  
+  Each middleware is a function that receives (request, next_fn):
+  - request: a dict representing the HTTP request
+  - next_fn: a callable that passes control to the next middleware
+  
+  Implement a Pipeline class with:
+  - use(middleware_fn): Add a middleware function to the pipeline
+  - execute(request): Run the request through all middleware in order, return the final response
+  
+  Middleware can:
+  - Modify the request before calling next_fn
+  - Call next_fn(request) to pass to the next middleware
+  - Modify the response returned by next_fn
+  - Short-circuit by returning a response without calling next_fn
+  
+  The last middleware in the chain should return the request as the response if no handler is set.
+scenario: |
+  You're building a web framework and need a middleware system that lets developers
+  add cross-cutting concerns like authentication, logging, CORS headers, and rate
+  limiting as composable, reusable pipeline stages.
+constraints:
+  - Middleware functions are called in the order they are added
+  - Each middleware must explicitly call next_fn to continue the chain
+  - If a middleware doesn't call next_fn, the chain stops (short-circuit)
+  - The request and response are both dicts
+examples:
+  - input: |
+      pipeline = Pipeline()
+      pipeline.use(lambda req, next_fn: next_fn({**req, "logged": True}))
+      pipeline.use(lambda req, next_fn: {"status": 200, "body": req})
+      pipeline.execute({"path": "/test"})
+    output: "{\"status\": 200, \"body\": {\"path\": \"/test\", \"logged\": true}}"
+starter_code: |
+  class Pipeline:
+      def __init__(self):
+          pass
+      
+      def use(self, middleware_fn):
+          pass
+      
+      def execute(self, request):
+          pass
+key_skills:
+  - middleware pattern
+  - function composition
+  - request pipeline
+  - web frameworks
+follow_ups:
+  - How would you add error-handling middleware?
+  - How would you make the pipeline async-compatible?
+test_type: class
+function_name: Pipeline
+test_cases:
+  - label: single middleware
+    input:
+      operations:
+        - [use, "add_header"]
+        - [execute, {"path": "/test"}]
+    expected:
+      path: "/test"
+  - label: empty pipeline
+    input:
+      operations:
+        - [execute, {"path": "/hello"}]
+    expected:
+      path: "/hello"

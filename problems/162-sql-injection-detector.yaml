@@ -1,0 +1,79 @@
+id: 162
+title: SQL Injection Detector
+category: cybersecurity
+difficulty: Medium
+summary: Detect potential SQL injection patterns in user input strings
+description: |
+  Implement a function that analyzes user input strings and detects potential SQL injection attempts.
+  The function should check for common SQL injection patterns including:
+  - SQL keywords used in injection (UNION, SELECT, DROP, DELETE, INSERT, UPDATE, --, ;, etc.)
+  - String escape attempts (single quotes, double quotes)
+  - Boolean-based injection patterns (OR 1=1, AND 1=1)
+  - Comment sequences (--, /*, */)
+  
+  Return a dict with:
+  - "is_safe": boolean indicating if the input appears safe
+  - "threats": list of detected threat descriptions
+  - "risk_level": "none", "low", "medium", or "high" based on number and severity of threats
+scenario: |
+  You're building a Web Application Firewall (WAF) for your company's API gateway.
+  Before requests reach the backend, your filter must scan query parameters and form
+  data for SQL injection attempts, flagging suspicious inputs for review.
+constraints:
+  - Input is always a string
+  - Detection should be case-insensitive
+  - Empty strings are considered safe
+  - Must detect at least the patterns listed above
+examples:
+  - input: "detect_sqli(\"hello world\")"
+    output: "{\"is_safe\": true, \"threats\": [], \"risk_level\": \"none\"}"
+  - input: "detect_sqli(\"1 OR 1=1\")"
+    output: "{\"is_safe\": false, \"threats\": [\"Boolean-based injection pattern\"], \"risk_level\": \"high\"}"
+  - input: "detect_sqli(\"admin'--\")"
+    output: "{\"is_safe\": false, \"threats\": [\"String escape attempt\", \"SQL comment sequence\"], \"risk_level\": \"high\"}"
+starter_code: |
+  def detect_sqli(user_input):
+      pass
+key_skills:
+  - input validation
+  - SQL injection
+  - security
+  - pattern matching
+follow_ups:
+  - How would you handle encoded payloads (URL encoding, base64)?
+  - How would you minimize false positives for legitimate inputs containing SQL keywords?
+test_type: function
+function_name: detect_sqli
+test_cases:
+  - label: safe input
+    input:
+      user_input: "hello world"
+    expected:
+      is_safe: true
+      threats: []
+      risk_level: "none"
+  - label: boolean injection
+    input:
+      user_input: "1 OR 1=1"
+    expected:
+      is_safe: false
+      risk_level: "high"
+  - label: union select attack
+    input:
+      user_input: "1 UNION SELECT * FROM users"
+    expected:
+      is_safe: false
+      risk_level: "high"
+  - label: comment injection
+    input:
+      user_input: "admin'--"
+    expected:
+      is_safe: false
+      risk_level: "high"
+  - label: empty string
+    input:
+      user_input: ""
+    expected:
+      is_safe: true
+      threats: []
+      risk_level: "none"

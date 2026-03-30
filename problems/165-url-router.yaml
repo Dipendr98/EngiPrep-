@@ -1,0 +1,85 @@
+id: 165
+title: URL Router Implementation
+category: fullstack
+difficulty: Medium
+summary: Build a URL router that matches paths with dynamic parameters
+description: |
+  Implement a simple URL router that can register route patterns and match incoming URL paths.
+  
+  The router should support:
+  - Static routes: "/users", "/about"
+  - Dynamic parameters: "/users/:id", "/posts/:post_id/comments/:comment_id"
+  - Wildcard catch-all: "/static/*" matches any path starting with /static/
+  
+  Implement a Router class with:
+  - add_route(method, pattern, handler_name): Register a route
+  - match(method, path): Find matching route, return {"handler": name, "params": {}} or None
+  
+  Rules:
+  - Dynamic params start with ":"  and match a single path segment
+  - Wildcard "*" matches everything after it
+  - Static routes take priority over dynamic ones
+  - Method must match exactly (GET, POST, PUT, DELETE)
+scenario: |
+  You're building a lightweight Python web framework. The first component you need
+  is a URL router that can efficiently match incoming HTTP requests to the correct
+  handler function, extracting path parameters along the way.
+constraints:
+  - Paths always start with /
+  - Trailing slashes should be ignored (/users/ == /users)
+  - Method matching is case-insensitive
+  - Return None if no route matches
+examples:
+  - input: |
+      router = Router()
+      router.add_route("GET", "/users/:id", "get_user")
+      router.match("GET", "/users/42")
+    output: "{\"handler\": \"get_user\", \"params\": {\"id\": \"42\"}}"
+  - input: |
+      router.match("POST", "/users/42")
+    output: "None"
+starter_code: |
+  class Router:
+      def __init__(self):
+          pass
+      
+      def add_route(self, method, pattern, handler_name):
+          pass
+      
+      def match(self, method, path):
+          pass
+key_skills:
+  - URL routing
+  - pattern matching
+  - HTTP methods
+  - web frameworks
+follow_ups:
+  - How would you add middleware support to specific routes?
+  - How would you handle route groups/prefixes?
+test_type: class
+function_name: Router
+test_cases:
+  - label: static route match
+    input:
+      operations:
+        - [add_route, ["GET", "/users", "list_users"]]
+        - [match, ["GET", "/users"]]
+    expected: {"handler": "list_users", "params": {}}
+  - label: dynamic parameter
+    input:
+      operations:
+        - [add_route, ["GET", "/users/:id", "get_user"]]
+        - [match, ["GET", "/users/42"]]
+    expected: {"handler": "get_user", "params": {"id": "42"}}
+  - label: method mismatch
+    input:
+      operations:
+        - [add_route, ["GET", "/users", "list_users"]]
+        - [match, ["POST", "/users"]]
+    expected: null
+  - label: multiple params
+    input:
+      operations:
+        - [add_route, ["GET", "/posts/:pid/comments/:cid", "get_comment"]]
+        - [match, ["GET", "/posts/5/comments/12"]]
+    expected: {"handler": "get_comment", "params": {"pid": "5", "cid": "12"}}

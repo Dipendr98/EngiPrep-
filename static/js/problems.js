@@ -16,6 +16,8 @@ const CATEGORY_LABELS = {
   graphs: 'Graphs',
   'dynamic programming': 'Dynamic Programming',
   backtracking: 'Backtracking',
+  cybersecurity: 'Cybersecurity',
+  fullstack: 'Full Stack',
   debugging: 'Debugging',
 };
 
