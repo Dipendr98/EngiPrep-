@@ -1,310 +1,407 @@
-![CodePrep banner](docs/banner.svg)
-
 <div align="center">
 
+# 🚀 EngiPrep
+
+### AI-Powered Coding Interview Preparation Platform
+
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
-[![Powered by GPT-4o](https://img.shields.io/badge/powered%20by-GPT--4o-412991?logo=openai&logoColor=white)](https://platform.openai.com/)
+[![Powered by Claude](https://img.shields.io/badge/powered%20by-Claude%20AI-blueviolet?logo=anthropic&logoColor=white)](https://pollinations.ai/)
 [![Runs locally](https://img.shields.io/badge/runs-locally-brightgreen?logo=homeassistant&logoColor=white)]()
-[![Voice support](https://img.shields.io/badge/voice-WebRTC-blueviolet?logo=googlemeet&logoColor=white)]()
+[![160+ Problems](https://img.shields.io/badge/problems-160%2B-orange)]()
+
+**Practice real coding interviews with an AI interviewer that follows up, pushes back, and gives detailed feedback — just like a real one.**
+
+[Getting Started](#-getting-started) • [Features](#-features) • [AI Problem Generator](#-ai-problem-generator) • [How It Works](#-how-it-works) • [API Reference](#-api-reference)
 
 </div>
 
 ---
 
-## Why CodePrep
+## 📋 What is EngiPrep?
 
-Most interview platforms are puzzle grinders. CodePrep puts you in a real interview.
+EngiPrep is a **locally-running** coding interview preparation platform that simulates realistic technical interviews using AI. Unlike typical LeetCode-style grinders, EngiPrep provides:
 
-- **A back-and-forth, not a quiz** - the interviewer follows up, pushes back on your reasoning, and adds constraints mid-session just like a real one would
-- **Feedback that actually tells you something** - you get written scores and specific critique on your approach, code quality, communication, and tradeoffs - not just pass/fail
-- **Everything stays on your machine** - sessions, history, and code are stored locally; nothing goes anywhere except your messages to OpenAI
-- **Practice out loud** - voice mode lets you talk through your solution the way you would in an actual interview
-- **132+ problems grounded in real engineering** - each one has a real-world scenario, not just "given an array..."
+- **Conversational interviews** — The AI interviewer asks clarifying questions, pushes back on your reasoning, and adds constraints mid-session
+- **Detailed feedback** — Get structured scores on code quality, communication, problem-solving approach, and tradeoffs
+- **160+ built-in problems** — Each with real-world engineering scenarios, not just "given an array..."
+- **AI Problem Generator** — Automatically generate fresh LeetCode-style problems using Claude AI to keep your practice fresh
+- **Study Mode** — Research problems with an AI tutor before committing to an interview
+- **Voice Mode** — Practice talking through solutions using WebRTC voice interviews
+- **100% Local** — All data stays on your machine. Nothing is stored externally.
 
 ---
 
-## Quick Start
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Python 3.8+** ([Download](https://www.python.org/downloads/))
+- **Git** ([Download](https://git-scm.com/downloads))
+- A modern browser (Chrome, Firefox, Safari, Edge)
+- **Pollinations API key** (free tier available at [pollinations.ai](https://pollinations.ai/))
+
+### Installation
+
+#### 1. Clone the repository
 
 ```bash
-git clone <repo-url>
-cd codingprep
-python3 -m venv venv && source venv/bin/activate
+git clone https://github.com/Dipendr98/EngiPrep-.git
+cd EngiPrep-
+```
+
+#### 2. Create a virtual environment (recommended)
+
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Create a `.env` file:
+#### 4. Set up environment variables
 
+Create a `.env` file in the project root:
+
+```env
+# Pollinations AI API Key (required)
+OPENAI_API_KEY=your-pollinations-api-key-here
+
+# Optional: Override defaults
+# OPENAI_BASE_URL=https://gen.pollinations.ai/v1
+# CHAT_MODEL=claude-large
 ```
-OPENAI_API_KEY=sk-your-key-here
-```
+
+> **How to get an API key:** Visit [pollinations.ai](https://pollinations.ai/) to get your API key.
+
+#### 5. Run the application
 
 ```bash
 python app.py
 ```
 
-Open **http://localhost:5000** - that's it.
+#### 6. Open in browser
 
-> **Prerequisites:** Python 3.8+, a paid OpenAI API key, and a modern browser (Chrome/Firefox/Safari).
-
----
-
-## Table of Contents
-
-- [Picking a Problem](#picking-a-problem)
-- [Study Mode](#study-mode)
-- [Running an Interview](#running-an-interview)
-- [Voice Interviews](#voice-interviews)
-- [Code Editor & Execution](#code-editor--execution)
-- [How the Interviewer Works](#how-the-interviewer-works)
-- [Your History & Progress](#your-history--progress)
-- [Problem Library](#problem-library)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [FAQ](#faq)
-- [Contributing](CONTRIBUTING.md)
+Navigate to **http://localhost:5000** — that's it! 🎉
 
 ---
 
-## Picking a Problem
+## ✨ Features
 
-![Landing page showing the problem list with filters](docs/screenshots/LandingPage-ProblemList.png)
+### 🎯 Mock Interviews
+Start a mock interview on any problem. The AI interviewer:
+- Presents the problem naturally (not verbatim)
+- Asks clarifying questions
+- Evaluates your approach before you code
+- Reviews your submitted code with test results
+- Gives a structured debrief with hire/no-hire rating
 
-Browse and filter 132+ problems to find what you want to practice. Filters on the left let you narrow by category, difficulty, or whether you've attempted a problem before. Status dots on each card show how you've done - green for a hire signal, yellow for mixed, red for no hire.
+### 📚 Study Mode
+Read problems in full and chat with an AI tutor:
+- Get hints without spoilers
+- Discuss data structures and algorithms
+- Explore time/space complexity tradeoffs
+- Understand edge cases
 
-Not sure what to pick? Hit **Surprise Me** to start a random interview from whatever's currently visible.
+### 🤖 AI Problem Generator
+Generate fresh practice problems on demand:
+- Choose from 10 categories and 80+ specific topics
+- Select difficulty (Easy/Medium/Hard)
+- Problems include scenarios, test cases, starter code, and explanations
+- Generated problems are saved permanently to your problem bank
 
-### Filters
+### 🎤 Voice Interviews
+Practice speaking your solution out loud:
+- Real-time speech-to-text transcription
+- AI responds through your speakers
+- Submit code while in voice mode
+- Full transcript saved to history
 
-**Search** - Filters by title, summary, or skills. `Cmd+K` / `Ctrl+K` opens a full command palette.
+### 💻 Code Editor
+Built-in Python editor with:
+- Syntax highlighting and auto-closing brackets
+- Run code with stdout/stderr output
+- Auto-generated test cases
+- Auto-save every 2 seconds
 
-**Category tabs** - Filter by topic: stateful, parsing, scheduling, search, streaming, infra, concurrency, api_design, syntax, arrays, strings, linked lists, trees, graphs, dynamic programming, backtracking, debugging.
-
-**Difficulty pills** - Multi-select: Easy, Medium, Hard.
-
-**Warm Up toggle** - Shows only shorter, lower-stakes problems.
-
-**Sort tabs** - Default, Easiest first, Hardest first, Not attempted, A-Z.
-
-### From each problem you can
-
-- Click **Study** to read it in full and chat with an AI tutor before committing to an interview
-- Click **Practice** to jump straight into a mock interview
-- Click a skill tag to filter the list to related problems
-
-### Command Palette (`Cmd+K` / `Ctrl+K`)
-
-![Command palette for searching problems](docs/screenshots/EasilySearchProblems.png)
-
-Fuzzy search across all problem titles, summaries, skills, and categories. `Enter` to start Practice, `Cmd+Enter` / `Ctrl+Enter` to open Study Mode, `Escape` to close.
-
----
-
-## Study Mode
-
-Read a problem fully and chat with an AI tutor before you practice - useful when a topic is unfamiliar or you want to think through approaches first.
-
-![Study mode with problem details and research chat](docs/screenshots/StudyMode.png)
-
-Two resizable panels side by side. The left panel has the full problem - scenario, constraints, examples, key skills, and follow-up challenges. The right panel is a tutor chat where you can ask anything about the problem without being handed the solution.
-
-Good things to ask the tutor:
-
-- "What data structure would work for O(1) lookup and O(1) deletion?"
-- "What's the difference between BFS and DFS here?"
-- "What edge cases should I consider?"
-
-When you're ready, go back and hit **Practice** to start the interview.
+### 📊 Progress Tracking
+- Track completion across all categories
+- Status dots show your best performance per problem
+- Resume any past session from History
 
 ---
 
-## Running an Interview
+## 🤖 AI Problem Generator
 
-![Interview mode with chat, code editor, test results, and tutor sidebar](docs/screenshots/PracticeAndEvaluateResult.png)
+One of EngiPrep's standout features is the ability to **auto-generate new problems** using Claude AI.
 
-Three panels: the interviewer chat on the left, your code editor in the center, and an optional tutor sidebar on the right. All dividers are draggable.
+### How to Use
 
-The interview runs like a real one - you'll clarify the problem, talk through your approach, then implement. The interviewer watches what you submit and responds to it. You can submit code multiple times; each submission gets reviewed.
+1. Click **"Generate New Problems"** in the left sidebar
+2. Configure your preferences:
+   - **Category**: Arrays, Strings, Trees, Graphs, DP, etc. (or Random)
+   - **Difficulty**: Easy, Medium, Hard (or Random)
+   - **Topic hint**: e.g., "sliding window", "BFS", "trie"
+   - **Count**: 1-5 problems at once
+3. Click **"✨ Generate"**
+4. Problems appear in your problem list immediately
 
-### Submitting code
+### Available Categories & Topics
 
-1. Write your solution in the editor
-2. Click **Submit Code**
-3. Your code runs against test cases automatically
-4. Results appear in the chat (X/Y passed, with per-test details)
-5. The interviewer reads the results and continues from there
+| Category | Example Topics |
+|----------|---------------|
+| **Arrays** | Two pointers, sliding window, prefix sum, merge intervals, matrix traversal |
+| **Strings** | Palindrome, anagram, substring search, string compression, regex matching |
+| **Linked Lists** | Reverse, detect cycle, merge sorted, partition list, flatten multilevel |
+| **Trees** | BST operations, tree depth, LCA, serialize/deserialize, path sum |
+| **Graphs** | BFS, DFS, topological sort, shortest path, union find, bipartite check |
+| **Dynamic Programming** | Knapsack, coin change, edit distance, LIS, word break, house robber |
+| **Search** | Binary search variants, rotated array, peak element, kth smallest |
+| **Backtracking** | Permutations, combinations, N-Queens, sudoku solver, word search |
+| **Stateful** | LRU cache, min stack, trie, circular buffer, frequency stack |
+| **Streaming** | Moving average, top-K frequent, stream median, rate limiter |
 
-### Stuck mid-interview?
+### API Endpoint
 
-Click **Tutor** in the top bar to open a hint sidebar. It runs separately from the interview conversation so you can ask for conceptual help without disrupting the flow. It won't give you the answer directly.
+```bash
+# Generate 3 random problems
+curl -X POST http://localhost:5000/api/problems/generate \
+  -H "Content-Type: application/json" \
+  -d '{"count": 3}'
 
-### At the end
+# Generate specific problems
+curl -X POST http://localhost:5000/api/problems/generate \
+  -H "Content-Type: application/json" \
+  -d '{"category": "trees", "difficulty": "Medium", "topic": "BST operations", "count": 2}'
 
-The interviewer gives a structured debrief with a hire/no-hire rating, scores across dimensions like code quality, communication, and problem framing, and specific written feedback on what was strong, what was missing, and what a better answer would have looked like.
-
----
-
-## Voice Interviews
-
-Practice talking through your solution the way you actually would in an interview.
-
-![Voice interview mode with live transcript banner](docs/screenshots/VoiceModeToEmulateRealInterviews.png)
-
-Switch to **Voice** mode in the toggle before starting. Once the interview begins, allow microphone access and wait for the connection. Your speech is transcribed live, the interviewer responds through your speakers, and everything is saved to your history just like a text session.
-
-You can still write and submit code while in voice mode - just click **Submit Code** as normal.
-
-### Troubleshooting
-
-**Mic access denied** - Go to browser site settings for `localhost`, allow microphone, then reload.
-
-**No audio from interviewer** - Check system audio output. Audio routes through the browser.
-
-**Connection drops** - End the session and start a new one. Your previous session is preserved in History.
-
----
-
-## Code Editor & Execution
-
-Python editor with syntax highlighting, auto-closing brackets, line numbers, and smart indentation. Your code is auto-saved every 2 seconds - you won't lose it if you navigate away.
-
-| Button | What it does |
-|--------|--------|
-| Run | Executes your code and shows stdout/stderr |
-| Run Tests | Runs test cases against your solution and shows pass/fail per case |
-| Clear | Clears the editor (asks for confirmation) |
-
-> **Note:** Run Tests only works during an active interview - it uses the problem context to generate cases. Run Code works anytime.
+# List available categories
+curl http://localhost:5000/api/problems/categories
+```
 
 ---
 
-## How the Interviewer Works
+## 🏗️ How It Works
 
-The interviewer runs a structured session, not a quiz. It asks you to clarify the problem, discuss your approach before you code, and then works through the implementation with you - adding constraints, asking follow-up questions, and adjusting based on what you say.
+### Architecture
 
-### What the session looks like
+```
+EngiPrep/
+├── app.py                    # Flask application entry point
+├── config.py                 # Configuration & environment variables
+├── requirements.txt          # Python dependencies
+├── .env                      # Your API key (create this)
+├── .env.example              # Example environment file
+│
+├── services/                 # Backend services
+│   ├── ai.py                 # OpenAI-compatible client (Pollinations/Claude)
+│   ├── code_runner.py        # Sandboxed Python code execution
+│   ├── problems.py           # Problem loading & serialization
+│   ├── problem_generator.py  # AI-powered problem generation
+│   └── sessions.py           # Interview session management
+│
+├── routes/                   # API endpoints
+│   ├── code.py               # Code execution endpoints
+│   ├── problems.py           # Problem CRUD + generation endpoints
+│   ├── realtime.py           # WebRTC voice session endpoints
+│   ├── research.py           # Study/tutor chat endpoints
+│   └── sessions.py           # Interview session endpoints
+│
+├── problems/                 # 160+ YAML problem files
+│   ├── 01-lru-cache.yaml
+│   ├── 52-two-sum.yaml
+│   └── ...
+│
+├── prompts/                  # AI system prompts
+│   ├── interviewer.txt       # Main interviewer personality
+│   ├── tutor.txt             # Study mode tutor
+│   └── ...
+│
+├── templates/                # HTML templates
+│   └── index.html            # Single-page application
+│
+└── static/                   # Frontend assets
+    ├── style.css             # Styles
+    └── js/                   # JavaScript modules
+        ├── init.js           # App initialization
+        ├── interview.js      # Interview logic
+        ├── problems.js       # Problem list + generator UI
+        ├── editor.js         # Code editor
+        ├── study.js          # Study mode
+        ├── voice.js          # Voice interview
+        └── ...
+```
 
-| Phase | What happens |
-|-------|-------------|
-| Opening | Problem is presented; you ask clarifying questions |
-| Approach | You walk through your plan before writing any code |
-| Implementation | You code; the interviewer interjects and follows up |
-| Follow-ups | Harder constraints or variations if things are going well |
-| Testing | You discuss edge cases and test coverage |
-| Debrief | Structured feedback and a hire signal |
+### Tech Stack
 
-### Ratings
-
-| Rating | What it means |
-|--------|---------|
-| Strong Hire | Exceptional performance |
-| Hire | Solid; meets the bar |
-| Lean Hire | Good with some gaps |
-| Mixed | Some strengths, some concerns |
-| Lean No Hire | Concerns outweigh strengths |
-| No Hire | Did not meet the bar |
-
-Written feedback covers: what was strongest, what would be a concern, what a better answer would have looked like, and 3 concrete areas to work on next.
-
----
-
-## Your History & Progress
-
-### Picking up where you left off
-
-Click **History** in the top bar to see all past sessions. Click any entry to reload it - your messages and last submitted code are fully restored. You can continue the conversation from exactly where you stopped.
-
-### Tracking what you've covered
-
-Click the **X / Y done** chip to see your progress by category.
-
-![Progress drawer showing completion by category](docs/screenshots/TrackProgress.png)
-
-Each category shows a progress bar and lists the problems you've attempted with their ratings. Status dots on problem cards update as you practice:
-
-- Empty - not attempted
-- Green - Hire or Strong Hire
-- Yellow - Lean Hire or Mixed
-- Red - Lean No Hire or No Hire
-
----
-
-## Problem Library
-
-132+ problems across 18+ categories:
-
-| Category | Focus |
-|----------|-------|
-| **Stateful** | LRU caches, time-based KV stores, undo/redo buffers, versioned state |
-| **Parsing** | Config parsers, expression evaluators, template engines, dependency graphs |
-| **Scheduling** | Task schedulers, rate limiters, job queues, interval merging |
-| **Search** | File crawlers, in-memory search indexes, shortest path, autocomplete |
-| **Streaming** | Moving averages, top-K frequent items, deduplication, windowed aggregation |
-| **Infra** | Connection pools, retry with backoff, batch coalescing, circuit breakers |
-| **Concurrency** | Thread-safe queues, worker pools, consistent hashing, rate-limited fetchers |
-| **API Design** | Cursor pagination, query builders, plugin registries, diff/patch engines |
-| **Python Syntax** | Loops, list comprehensions, slicing, built-in idioms |
-| **Arrays** | Two sum, prefix sums, sliding window, binary search |
-| **Strings** | Reversal, anagram detection, longest common prefix, pattern matching |
-| **Linked Lists** | Reverse, merge sorted lists, cycle detection, nth from end |
-| **Trees** | Level-order traversal, validate BST, lowest common ancestor, max path sum |
-| **Graphs** | Number of islands, shortest path, topological sort, cycle detection |
-| **Dynamic Programming** | Coin change, edit distance, longest increasing subsequence, knapsack |
-| **Backtracking** | Subsets, permutations, N-Queens, word search |
-| **Debugging** | Find and fix bugs in broken implementations |
-
-### Each problem includes
-
-- A real-world engineering scenario explaining why this problem comes up
-- Alternative contexts that use the same pattern
-- Formal problem statement and constraints
-- 2-3 worked examples with input/output
-- Key skills and follow-up challenges
-- Starter code, pre-written test cases, and a full solution explanation with complexity analysis
+| Component | Technology |
+|-----------|-----------|
+| **Backend** | Python, Flask |
+| **AI Model** | Claude (via Pollinations API, OpenAI-compatible) |
+| **Frontend** | Vanilla JS, CodeMirror editor, Marked.js for markdown |
+| **Code Execution** | Sandboxed Python subprocess |
+| **Voice** | WebRTC, OpenAI Realtime API |
+| **Data Storage** | Local YAML files + JSON session files |
 
 ---
 
-## Keyboard Shortcuts
+## 📡 API Reference
+
+### Sessions
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/sessions` | Create a new interview session |
+| `GET` | `/api/sessions` | List all sessions |
+| `GET` | `/api/sessions/:id` | Get session details |
+| `POST` | `/api/sessions/:id/start` | Start interview (SSE stream) |
+| `POST` | `/api/sessions/:id/chat` | Send message (SSE stream) |
+| `POST` | `/api/sessions/:id/end` | End interview & get feedback |
+
+### Problems
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/problems` | List all problems |
+| `GET` | `/api/problems/:id` | Get problem details |
+| `POST` | `/api/problems/generate` | Generate new AI problems |
+| `GET` | `/api/problems/categories` | List categories & topics |
+
+### Code Execution
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/code/run` | Execute Python code |
+| `POST` | `/api/code/test` | Run test cases against code |
+
+### Research/Study
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/research/chat` | Chat with AI tutor (SSE stream) |
+
+---
+
+## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Cmd+K` / `Ctrl+K` | Open command palette |
+| `Ctrl+K` / `Cmd+K` | Open command palette |
 | `Escape` | Close palette, drawers, or modals |
 | `↑` / `↓` (palette) | Navigate results |
-| `Enter` (palette) | Start Practice on selected problem |
-| `Cmd+Enter` / `Ctrl+Enter` (palette) | Open Study Mode |
-| `Enter` (interview chat) | Send message |
+| `Enter` (palette) | Start Practice |
+| `Ctrl+Enter` / `Cmd+Enter` (palette) | Open Study Mode |
+| `Enter` (chat) | Send message |
 | `Shift+Enter` | Insert newline |
 | `Tab` (editor) | Insert 4 spaces |
 
 ---
 
-## FAQ
+## 🔧 Configuration
 
-**Do I need a paid OpenAI account?**
-Yes. The interviewer uses GPT-4o, which requires a paid API key. Voice mode additionally uses the Realtime API.
+All configuration is in `config.py` and can be overridden via environment variables:
 
-**How much does each interview cost?**
-Roughly $0.10-$0.50 per text session depending on length. Voice sessions cost more due to Realtime API audio pricing.
-
-**Can I use other programming languages?**
-Not currently. The code runner and test framework are Python-only.
-
-**What happens if I close the browser mid-interview?**
-The session is auto-saved every time you send a message or submit code. Open History to resume from where you left off.
-
-**Can I retake the same problem?**
-Yes. Multiple sessions on the same problem are tracked separately. The status dot reflects your best performance.
-
-**Why is the feedback so detailed and critical?**
-That's what makes it useful. Vague feedback doesn't help you improve. The debrief is written the way a hiring committee would actually talk about your performance.
-
-**Where is my data stored?**
-Entirely on your local machine in `user_data/sessions/`. Nothing is sent to external servers except your messages and code to OpenAI's API.
-
-**Can I add my own problems?**
-Yes - see [CONTRIBUTING.md](CONTRIBUTING.md) for the full problem YAML format.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OPENAI_API_KEY` | — | Your Pollinations API key (required) |
+| `OPENAI_BASE_URL` | `https://gen.pollinations.ai/v1` | API base URL |
+| `CHAT_MODEL` | `claude-large` | AI model name |
+| `FLASK_PORT` | `5000` | Server port |
 
 ---
 
-## Contact
+## 🐛 Troubleshooting
 
-Questions or feedback? Reach out on [LinkedIn](https://linkedin.com/in/amruthagujjar).
+### Common Issues
+
+**"Authentication required" error**
+- Make sure your `.env` file exists with a valid `OPENAI_API_KEY`
+- Restart the server after creating/modifying `.env`
+
+**Server won't start**
+```bash
+# Check Python version
+python --version  # Should be 3.8+
+
+# Reinstall dependencies
+pip install -r requirements.txt
+```
+
+**Problems not loading**
+- Ensure the `problems/` directory exists with YAML files
+- Check server logs for YAML parsing errors
+
+**Voice mode not working**
+- Voice mode requires a separate OpenAI API key (not Pollinations)
+- Allow microphone access in browser settings
+- Check system audio output
+
+**Generated problems not appearing**
+- Click the problem list to refresh, or reload the page
+- Check server logs for generation errors
+
+---
+
+## 📝 Adding Custom Problems
+
+Create a YAML file in the `problems/` directory:
+
+```yaml
+id: 200
+title: My Custom Problem
+category: arrays
+difficulty: Medium
+summary: One-line description
+description: Full problem description
+scenario: Real-world engineering context
+constraints:
+  - Constraint 1
+  - Constraint 2
+examples:
+  - input: "my_function([1, 2, 3])"
+    output: "[3, 2, 1]"
+starter_code: |
+  def my_function(nums):
+      pass
+key_skills:
+  - arrays
+  - sorting
+follow_ups:
+  - What if the input is too large for memory?
+test_type: function
+function_name: my_function
+test_cases:
+  - label: basic case
+    input:
+      nums: [1, 2, 3]
+    expected: [3, 2, 1]
+```
+
+Or use the **AI Problem Generator** to create problems automatically!
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## 📄 License
+
+This project is licensed under the terms in [LICENSE](LICENSE).
+
+---
+
+## 📬 Contact
+
+Questions or feedback? Open an issue or reach out on [GitHub](https://github.com/Dipendr98/EngiPrep-).

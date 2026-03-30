@@ -9,8 +9,6 @@ bp = Blueprint('research', __name__)
 @bp.route('/api/research/chat', methods=['POST'])
 def research_chat():
     client = ai.get_client()
-    if not client:
-        return jsonify({'error': 'OPENAI_API_KEY not set'}), 400
 
     data = request.json or {}
     problem_id = data.get('problem_id')

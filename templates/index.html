@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 </head>
+
 <body>
 
   <!-- GLOBAL TOP BAR -->
@@ -20,56 +24,91 @@
       <img src="{{ url_for('static', filename='favicon.svg') }}" alt="CodePrep" class="top-bar-logo-img">
       <div class="top-bar-right">
         <div class="mode-toggle" id="mode-toggle">
-        <button class="mode-btn selected" data-mode="text" onclick="selectMode(this)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Text
-        </button>
-        <button class="mode-btn" data-mode="voice" onclick="selectMode(this)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          Voice
-        </button>
+          <button class="mode-btn selected" data-mode="text" onclick="selectMode(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Text
+          </button>
+          <button class="mode-btn" data-mode="voice" onclick="selectMode(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+            Voice
+          </button>
         </div>
         <button class="progress-chip" id="progress-chip" onclick="toggleProgressDrawer()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
           <span id="progress-chip-text">0 / 0 done</span>
         </button>
         <button class="btn btn-ghost btn-sm" onclick="toggleHistoryDrawer()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
           History
         </button>
       </div>
     </div>
     <div class="top-bar-study" id="top-bar-study" style="display:none">
       <button class="btn btn-ghost btn-sm" onclick="exitStudyView()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
         Back
       </button>
       <div class="top-bar-center">
         <span class="top-bar-title" id="study-bar-title">Problem</span>
       </div>
       <div class="top-bar-right">
-        <button class="btn btn-ghost btn-sm" onclick="startDirectInterview(currentStudyProblem && currentStudyProblem.id)">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <button class="btn btn-ghost btn-sm"
+          onclick="startDirectInterview(currentStudyProblem && currentStudyProblem.id)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
           Practice
         </button>
       </div>
     </div>
     <div class="top-bar-interview" id="top-bar-interview" style="display:none">
       <button class="btn btn-ghost btn-sm" onclick="exitInterview()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
         Back
       </button>
       <div class="top-bar-center">
         <span class="top-bar-title" id="top-bar-title">Technical Interview</span>
       </div>
       <div class="top-bar-right">
-        <button class="btn btn-ghost btn-sm" id="interview-study-btn" onclick="switchInterviewToStudy()" style="display:none">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <button class="btn btn-ghost btn-sm" id="interview-study-btn" onclick="switchInterviewToStudy()"
+          style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
           Study
         </button>
 
         <button class="btn btn-ghost btn-sm" id="tutor-btn" onclick="toggleInterviewTutor()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           Tutor
         </button>
         <span id="timer-display" class="timer">00:00</span>
@@ -86,7 +125,11 @@
         <aside class="filter-sidebar" id="filter-sidebar">
           <div class="sidebar-search">
             <div class="search-wrapper">
-              <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
               <input type="text" class="search-input" id="search-input" placeholder="Search..." autocomplete="off">
               <kbd class="search-kbd">⌘K</kbd>
             </div>
@@ -95,7 +138,11 @@
             </button>
           </div>
           <button class="clear-filters-btn" id="clear-filters-btn" onclick="clearAllFilters()" style="display:none">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
             Clear filters
           </button>
 
@@ -136,7 +183,10 @@
             <label class="warmup-toggle" id="warmup-label">
               <input type="checkbox" id="warmup-checkbox">
               <span class="warmup-toggle-box">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="2 6 5 9 10 3" />
+                </svg>
               </span>
               <span class="warmup-toggle-text">Warm Up only</span>
             </label>
@@ -152,12 +202,33 @@
               <button class="sort-tab" data-sort="alpha">A → Z</button>
             </div>
           </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-label">AI Problem Generator</div>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:4px" onclick="openGenerateModal()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="16" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+              Generate New Problems
+            </button>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4">
+              Auto-generate fresh LeetCode-style problems using AI to build your concepts.
+            </p>
+          </div>
         </aside>
 
         <div class="problems-main">
           <div class="problems-header">
             <button class="filters-toggle-btn btn btn-ghost btn-sm" onclick="toggleFilterSidebar()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+                <line x1="11" y1="18" x2="13" y2="18" />
+              </svg>
               Filters
             </button>
             <span class="problems-count" id="problems-count"></span>
@@ -177,11 +248,17 @@
       <div class="study-resizer" id="study-resizer"></div>
       <div class="study-chat">
         <div class="study-chat-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           <span>Research Chat</span>
         </div>
         <div class="study-chat-messages" id="study-chat-messages">
-          <div class="study-chat-placeholder">Ask questions about this problem &mdash; concepts, approaches, complexity, data structures. The tutor will guide you without giving away the full solution.</div>
+          <div class="study-chat-placeholder">Ask questions about this problem &mdash; concepts, approaches, complexity,
+            data structures. The tutor will guide you without giving away the full solution.</div>
         </div>
         <div class="study-chat-input-area">
           <textarea id="study-chat-input" placeholder="Ask about the problem..." rows="2"></textarea>
@@ -201,7 +278,11 @@
     <div class="drawer-header">
       <h3>Progress</h3>
       <button class="btn btn-ghost btn-sm" onclick="toggleProgressDrawer()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
     <div class="drawer-body" id="progress-drawer-body"></div>
@@ -213,7 +294,11 @@
     <div class="drawer-header">
       <h3>Past Interviews</h3>
       <button class="btn btn-ghost btn-sm" onclick="toggleHistoryDrawer()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
     <div class="drawer-body" id="sessions-list"></div>
@@ -223,7 +308,11 @@
   <div class="cmd-palette-overlay" id="cmd-palette-overlay" onclick="closeCmdPalette()"></div>
   <div class="cmd-palette" id="cmd-palette">
     <div class="cmd-palette-input-row">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
       <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search problems...">
       <kbd class="cmd-esc-kbd">esc</kbd>
     </div>
@@ -235,6 +324,72 @@
     </div>
   </div>
 
+  <!-- GENERATE PROBLEMS MODAL -->
+  <div id="generate-modal" class="modal" style="display:none">
+    <div class="modal-content" style="max-width:480px">
+      <h2>🤖 Generate New Problems</h2>
+      <p style="color:var(--text-muted);margin-bottom:16px">Use AI to create fresh LeetCode-style practice problems
+        tailored to your needs.</p>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Category</label>
+        <select id="gen-category"
+          style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px">
+          <option value="">Random (any category)</option>
+          <option value="arrays">Arrays</option>
+          <option value="strings">Strings</option>
+          <option value="linked lists">Linked Lists</option>
+          <option value="trees">Trees</option>
+          <option value="graphs">Graphs</option>
+          <option value="dynamic programming">Dynamic Programming</option>
+          <option value="search">Search</option>
+          <option value="backtracking">Backtracking</option>
+          <option value="stateful">Stateful</option>
+          <option value="streaming">Streaming</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Difficulty</label>
+        <select id="gen-difficulty"
+          style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px">
+          <option value="">Random</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Topic hint (optional)</label>
+        <input type="text" id="gen-topic" placeholder="e.g. sliding window, BFS, trie..."
+          style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">How many?</label>
+        <select id="gen-count"
+          style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:13px">
+          <option value="1">1 problem</option>
+          <option value="2">2 problems</option>
+          <option value="3" selected>3 problems</option>
+          <option value="5">5 problems</option>
+        </select>
+      </div>
+
+      <div id="gen-status"
+        style="display:none;margin-bottom:12px;padding:10px;border-radius:8px;background:var(--bg-secondary);font-size:12px;color:var(--text-muted)">
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="closeGenerateModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="gen-submit-btn" onclick="generateProblems()">
+          ✨ Generate
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- API KEY MODAL -->
   <div id="key-modal" class="modal" style="display:none">
     <div class="modal-content">
@@ -242,8 +397,10 @@
       <p>This app uses GPT-4o to simulate a real interviewer. Set your API key to get started.</p>
       <p class="modal-instruction">Create a <code>.env</code> file in the project root:</p>
       <code class="key-command">OPENAI_API_KEY=sk-your-key-here</code>
-      <p class="modal-note">Then restart the server. Your key stays local — never stored or sent anywhere except OpenAI.</p>
-      <button class="btn btn-secondary" onclick="document.getElementById('key-modal').style.display='none'">Close</button>
+      <p class="modal-note">Then restart the server. Your key stays local — never stored or sent anywhere except OpenAI.
+      </p>
+      <button class="btn btn-secondary"
+        onclick="document.getElementById('key-modal').style.display='none'">Close</button>
     </div>
   </div>
 
@@ -256,7 +413,11 @@
           <div class="ref-panel-header">
             <span class="ref-panel-title">Problem Reference</span>
             <button class="btn btn-ghost btn-sm" onclick="toggleReferencePanel()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
           <div class="ref-panel-body" id="ref-panel-body"></div>
@@ -281,19 +442,39 @@
           <div class="voice-status" id="voice-status">Connecting...</div>
           <div class="voice-buttons">
             <button class="voice-action-btn" id="voice-submit-code-btn" onclick="submitCodeVoice()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
               Submit Code
             </button>
             <div class="mic-wrap">
               <button class="mic-btn active" id="mic-btn" onclick="toggleMic()">
-                <svg class="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                <svg class="mic-off-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <svg class="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+                <svg class="mic-off-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
                 <div class="mic-pulse"></div>
               </button>
               <span class="mic-label" id="mic-label">Tap to mute</span>
             </div>
             <button class="voice-action-btn voice-end-btn" onclick="endVoiceSession()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+              </svg>
               End Session
             </button>
           </div>
@@ -308,11 +489,16 @@
           <div class="editor-actions-bar">
             <button class="btn btn-ghost btn-sm" onclick="clearEditor()">Clear</button>
             <button class="btn btn-secondary btn-sm" id="run-btn" onclick="runCode()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
               Run
             </button>
             <button class="btn btn-secondary btn-sm" id="run-tests-btn" onclick="runTests()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
               Run Tests
             </button>
           </div>
@@ -328,16 +514,21 @@
             <div class="output-tab-actions">
               <button class="btn btn-ghost btn-sm" onclick="clearOutput()">Clear</button>
               <button class="btn btn-ghost btn-sm" onclick="toggleOutputPanel()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
               </button>
             </div>
           </div>
           <div class="output-body" id="output-body" style="display:none">
             <div class="output-content active" id="output-content">
-              <pre class="output-pre" id="output-pre"><span class="output-placeholder">Run your code to see output here.</span></pre>
+              <pre class="output-pre"
+                id="output-pre"><span class="output-placeholder">Run your code to see output here.</span></pre>
             </div>
             <div class="output-content" id="tests-content">
-              <div class="output-placeholder" id="tests-placeholder">Click "Run Tests" to auto-generate and run test cases.</div>
+              <div class="output-placeholder" id="tests-placeholder">Click "Run Tests" to auto-generate and run test
+                cases.</div>
               <div id="tests-results-container"></div>
             </div>
           </div>
@@ -346,16 +537,23 @@
       <div class="tutor-sidebar-resizer" id="tutor-sidebar-resizer"></div>
       <div class="tutor-sidebar" id="tutor-sidebar">
         <div class="tutor-sidebar-header">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           <span>Tutor</span>
         </div>
         <div class="interview-tutor-messages" id="interview-tutor-messages">
-          <div class="study-chat-placeholder">Ask for hints, concept explanations, or complexity guidance. The tutor won't give away the solution.</div>
+          <div class="study-chat-placeholder">Ask for hints, concept explanations, or complexity guidance. The tutor
+            won't give away the solution.</div>
         </div>
         <div class="interview-tutor-input-area">
           <textarea id="interview-tutor-input" placeholder="Ask for a hint..." rows="2"></textarea>
           <div class="chat-actions">
-            <button class="btn btn-primary btn-sm" id="interview-tutor-send-btn" onclick="sendInterviewTutorMessage()">Send</button>
+            <button class="btn btn-primary btn-sm" id="interview-tutor-send-btn"
+              onclick="sendInterviewTutorMessage()">Send</button>
           </div>
         </div>
       </div>
@@ -378,4 +576,5 @@
   <script src="{{ url_for('static', filename='js/study.js') }}"></script>
   <script src="{{ url_for('static', filename='js/init.js') }}"></script>
 </body>
+
 </html>

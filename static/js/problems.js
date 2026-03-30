@@ -231,12 +231,12 @@ function cmdPaletteSearch(query) {
   const q = query.trim().toLowerCase();
   cmdPaletteItems = q
     ? allProblems.filter(p => {
-        const skills = (p.key_skills || []).join(' ').toLowerCase();
-        return p.title.toLowerCase().includes(q)
-          || p.summary.toLowerCase().includes(q)
-          || skills.includes(q)
-          || (CATEGORY_LABELS[p.category] || p.category).toLowerCase().includes(q);
-      })
+      const skills = (p.key_skills || []).join(' ').toLowerCase();
+      return p.title.toLowerCase().includes(q)
+        || p.summary.toLowerCase().includes(q)
+        || skills.includes(q)
+        || (CATEGORY_LABELS[p.category] || p.category).toLowerCase().includes(q);
+    })
     : allProblems;
   cmdPaletteIndex = 0;
   renderCmdPaletteResults();
@@ -291,4 +291,74 @@ function cmdPaletteConfirm(study = false) {
   if (!p) return;
   closeCmdPalette();
   study ? showStudyView(p.id) : startDirectInterview(p.id);
+}
+
+// ── PROBLEM GENERATOR ──
+
+function openGenerateModal() {
+  document.getElementById('generate-modal').style.display = 'flex';
+  document.getElementById('gen-status').style.display = 'none';
+  document.getElementById('gen-submit-btn').disabled = false;
+}
+
+function closeGenerateModal() {
+  document.getElementById('generate-modal').style.display = 'none';
+}
+
+async function generateProblems() {
+  const category = document.getElementById('gen-category').value || undefined;
+  const difficulty = document.getElementById('gen-difficulty').value || undefined;
+  const topic = document.getElementById('gen-topic').value.trim() || undefined;
+  const count = parseInt(document.getElementById('gen-count').value) || 3;
+
+  const btn = document.getElementById('gen-submit-btn');
+  const status = document.getElementById('gen-status');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+  status.style.display = 'block';
+  status.textContent = `Generating ${count} problem${count > 1 ? 's' : ''}... This may take 30-60 seconds.`;
+  status.style.color = 'var(--text-muted)';
+
+  try {
+    const body = { count };
+    if (category) body.category = category;
+    if (difficulty) body.difficulty = difficulty;
+    if (topic) body.topic = topic;
+
+    const res = await fetch('/api/problems/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      status.textContent = '❌ ' + data.error;
+      status.style.color = '#ef4444';
+      return;
+    }
+
+    const generated = data.generated || [];
+    const errors = data.errors || [];
+
+    if (generated.length > 0) {
+      status.style.color = '#22c55e';
+      status.innerHTML = `✅ Generated ${generated.length} new problem${generated.length > 1 ? 's' : ''}!<br>` +
+        generated.map(p => `• <strong>${p.title}</strong> (${p.difficulty})`).join('<br>');
+
+      // Reload problems list
+      await loadProblems();
+    }
+
+    if (errors.length > 0) {
+      status.innerHTML += `<br><span style="color:#ef4444">${errors.length} failed</span>`;
+    }
+  } catch (e) {
+    status.textContent = '❌ Connection error: ' + e.message;
+    status.style.color = '#ef4444';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate';
+  }
 }

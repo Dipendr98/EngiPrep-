@@ -11,8 +11,8 @@ bp = Blueprint('sessions', __name__)
 
 @bp.route('/api/check-key')
 def check_key():
-    client = ai.get_client()
-    return jsonify({'has_key': client is not None})
+    # Pollinations API does not require an API key, so always return True
+    return jsonify({'has_key': True})
 
 
 @bp.route('/api/sessions', methods=['GET'])
@@ -23,8 +23,6 @@ def list_all():
 @bp.route('/api/sessions', methods=['POST'])
 def create():
     client = ai.get_client()
-    if not client:
-        return jsonify({'error': 'OPENAI_API_KEY not set. Run: export OPENAI_API_KEY=your_key'}), 400
 
     data = request.json or {}
     focus = data.get('focus', 'general')
@@ -72,8 +70,6 @@ def get(session_id):
 @bp.route('/api/sessions/<session_id>/chat', methods=['POST'])
 def chat(session_id):
     client = ai.get_client()
-    if not client:
-        return jsonify({'error': 'OPENAI_API_KEY not set'}), 400
 
     session = sessions.load(session_id)
     if not session:
@@ -151,8 +147,6 @@ def chat(session_id):
 @bp.route('/api/sessions/<session_id>/start', methods=['POST'])
 def start_interview(session_id):
     client = ai.get_client()
-    if not client:
-        return jsonify({'error': 'OPENAI_API_KEY not set'}), 400
 
     session = sessions.load(session_id)
     if not session:
@@ -200,8 +194,6 @@ def run_tests(session_id):
     client = ai.get_client()
     test_results = _run_tests_for_session(session, user_code, client)
     if not test_results:
-        if not client:
-            return jsonify({'error': 'OPENAI_API_KEY not set'}), 400
         return jsonify({'error': 'Could not auto-generate test cases. Make sure the interviewer has presented a problem first.'}), 400
 
     return jsonify(test_results)

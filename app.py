@@ -17,4 +17,11 @@ for bp in all_blueprints:
 
 
 if __name__ == '__main__':
-    app.run(debug=config.FLASK_DEBUG, port=config.FLASK_PORT)
+    # Use 'stat' reloader to avoid watchdog triggering spurious restarts
+    # when the OpenAI SDK accesses its internal files on Windows.
+    app.run(
+        debug=config.FLASK_DEBUG,
+        port=config.FLASK_PORT,
+        use_reloader=True,
+        reloader_type='stat',
+    )
