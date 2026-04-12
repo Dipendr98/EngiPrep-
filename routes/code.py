@@ -24,6 +24,46 @@ def _resolve_tool_path(*candidates):
             return resolved
         if os.path.isabs(candidate) and os.path.exists(candidate):
             return candidate
+
+    if os.name == 'nt':
+        home = os.path.expanduser('~')
+        scoop_candidates = {
+            'node': [
+                os.path.join(home, 'scoop', 'apps', 'nodejs', 'current', 'node.exe'),
+                os.path.join(home, 'scoop', 'shims', 'node.exe'),
+                os.path.join(home, 'scoop', 'shims', 'node.cmd'),
+            ],
+            'node.exe': [
+                os.path.join(home, 'scoop', 'apps', 'nodejs', 'current', 'node.exe'),
+                os.path.join(home, 'scoop', 'shims', 'node.exe'),
+            ],
+            'gcc': [
+                os.path.join(home, 'scoop', 'apps', 'gcc', 'current', 'bin', 'gcc.exe'),
+                os.path.join(home, 'scoop', 'shims', 'gcc.exe'),
+                os.path.join(home, 'scoop', 'shims', 'gcc.cmd'),
+            ],
+            'g++': [
+                os.path.join(home, 'scoop', 'apps', 'gcc', 'current', 'bin', 'g++.exe'),
+                os.path.join(home, 'scoop', 'shims', 'g++.exe'),
+                os.path.join(home, 'scoop', 'shims', 'g++.cmd'),
+            ],
+            'javac': [
+                os.path.join(home, 'scoop', 'apps', 'openjdk', 'current', 'bin', 'javac.exe'),
+                os.path.join(home, 'scoop', 'apps', 'temurin-jdk', 'current', 'bin', 'javac.exe'),
+                os.path.join(home, 'scoop', 'shims', 'javac.exe'),
+                os.path.join(home, 'scoop', 'shims', 'javac.cmd'),
+            ],
+            'java': [
+                os.path.join(home, 'scoop', 'apps', 'openjdk', 'current', 'bin', 'java.exe'),
+                os.path.join(home, 'scoop', 'apps', 'temurin-jdk', 'current', 'bin', 'java.exe'),
+                os.path.join(home, 'scoop', 'shims', 'java.exe'),
+                os.path.join(home, 'scoop', 'shims', 'java.cmd'),
+            ],
+        }
+        for candidate in candidates:
+            for path in scoop_candidates.get(candidate, []):
+                if os.path.exists(path):
+                    return path
     return None
 
 
@@ -31,6 +71,13 @@ def _resolve_node_runner():
     if os.name == 'nt':
         return _resolve_tool_path('node.exe', 'node', r'C:\Program Files\nodejs\node.exe')
     return _resolve_tool_path('node')
+
+
+def _require_tool(name):
+    resolved = _resolve_tool_path(name)
+    if resolved:
+        return resolved
+    raise FileNotFoundError(f'{name} is not installed or not available on PATH.')
 
 
 def _native_binary_path(dir_path, stem='solution'):
@@ -145,7 +192,7 @@ LANG_CONFIG = {
     'javascript': {
         'extension': '.js',
         'compile': None,
-        'run': lambda path: ['node', path],
+        'run': lambda path: [_require_tool('node'), path],
     },
     'typescript': {
         'extension': '.ts',
@@ -154,53 +201,53 @@ LANG_CONFIG = {
     },
     'java': {
         'extension': '.java',
-        'compile': lambda path, dir: ['javac', path],
-        'run': lambda path, dir: ['java', '-cp', dir, _java_class_name(path)],
+        'compile': lambda path, dir: [_require_tool('javac'), path],
+        'run': lambda path, dir: [_require_tool('java'), '-cp', dir, _java_class_name(path)],
     },
     'c': {
         'extension': '.c',
-        'compile': lambda path, dir: ['gcc', '-o', _native_binary_path(dir), path, '-lm'],
+        'compile': lambda path, dir: [_require_tool('gcc'), '-o', _native_binary_path(dir), path, '-lm'],
         'run': lambda path, dir: [_native_binary_path(dir)],
     },
     'cpp': {
         'extension': '.cpp',
-        'compile': lambda path, dir: ['g++', '-o', _native_binary_path(dir), path, '-lm', '-lstdc++'],
+        'compile': lambda path, dir: [_require_tool('g++'), '-o', _native_binary_path(dir), path, '-lm', '-lstdc++'],
         'run': lambda path, dir: [_native_binary_path(dir)],
     },
     'go': {
         'extension': '.go',
         'compile': None,
-        'run': lambda path: ['go', 'run', path],
+        'run': lambda path: [_require_tool('go'), 'run', path],
     },
     'rust': {
         'extension': '.rs',
-        'compile': lambda path, dir: ['rustc', '-o', _native_binary_path(dir), path],
+        'compile': lambda path, dir: [_require_tool('rustc'), '-o', _native_binary_path(dir), path],
         'run': lambda path, dir: [_native_binary_path(dir)],
     },
     'ruby': {
         'extension': '.rb',
         'compile': None,
-        'run': lambda path: ['ruby', path],
+        'run': lambda path: [_require_tool('ruby'), path],
     },
     'php': {
         'extension': '.php',
         'compile': None,
-        'run': lambda path: ['php', path],
+        'run': lambda path: [_require_tool('php'), path],
     },
     'swift': {
         'extension': '.swift',
         'compile': None,
-        'run': lambda path: ['swift', path],
+        'run': lambda path: [_require_tool('swift'), path],
     },
     'kotlin': {
         'extension': '.kt',
-        'compile': lambda path, dir: ['kotlinc', path, '-include-runtime', '-d', os.path.join(dir, 'out.jar')],
-        'run': lambda path, dir: ['java', '-jar', os.path.join(dir, 'out.jar')],
+        'compile': lambda path, dir: [_require_tool('kotlinc'), path, '-include-runtime', '-d', os.path.join(dir, 'out.jar')],
+        'run': lambda path, dir: [_require_tool('java'), '-jar', os.path.join(dir, 'out.jar')],
     },
     'csharp': {
         'extension': '.cs',
         'compile': None,
-        'run': lambda path: ['dotnet-script', path],
+        'run': lambda path: [_require_tool('dotnet-script'), path],
     },
     'bash': {
         'extension': '.sh',
@@ -255,11 +302,21 @@ def _language_runtime_status(language):
                 return True, 'Using Node fallback for JS-compatible TypeScript code.'
             return False, 'TypeScript requires ts-node or Node.js to be installed.'
     if language == 'java':
-        return (_check_tool_available('javac') and _check_tool_available('java'), 'Java requires both javac and java.')
+        javac = _resolve_tool_path('javac')
+        java = _resolve_tool_path('java')
+        if javac and java:
+            return True, f'Using {javac} and {java}'
+        return False, 'Java requires both javac and java.'
     if language == 'c':
-        return (_check_tool_available('gcc'), 'C requires gcc.')
+        gcc = _resolve_tool_path('gcc')
+        if gcc:
+            return True, f'Using {gcc}'
+        return False, 'C requires gcc.'
     if language == 'cpp':
-        return (_check_tool_available('g++'), 'C++ requires g++.')
+        gpp = _resolve_tool_path('g++')
+        if gpp:
+            return True, f'Using {gpp}'
+        return False, 'C++ requires g++.'
     if language == 'go':
         return (_check_tool_available('go'), 'Go requires the go toolchain.')
     if language == 'rust':
@@ -271,7 +328,11 @@ def _language_runtime_status(language):
     if language == 'swift':
         return (_check_tool_available('swift'), 'Swift requires swift.')
     if language == 'kotlin':
-        return (_check_tool_available('kotlinc') and _check_tool_available('java'), 'Kotlin requires kotlinc and java.')
+        kotlinc = _resolve_tool_path('kotlinc')
+        java = _resolve_tool_path('java')
+        if kotlinc and java:
+            return True, f'Using {kotlinc} and {java}'
+        return False, 'Kotlin requires kotlinc and java.'
     if language == 'csharp':
         return (_check_tool_available('dotnet-script'), 'C# scripting requires dotnet-script.')
     if language == 'bash':
