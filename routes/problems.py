@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-
 from services import problems
 from services import problem_generator
 
@@ -47,9 +46,11 @@ def generate_problem():
 
     generated = []
     errors = []
+    batch_titles = []  # Track titles within this batch to avoid duplicates
     for _ in range(count):
         result = problem_generator.generate_problem_ephemeral(
-            category=category, difficulty=difficulty, topic=topic
+            category=category, difficulty=difficulty, topic=topic,
+            extra_titles=batch_titles,
         )
         if result and result.get('error'):
             errors.append(result['error'])
@@ -57,6 +58,9 @@ def generate_problem():
             serialized = problems.serialize_full(result)
             serialized['_ephemeral'] = True
             generated.append(serialized)
+            # Add this title to the batch so the next call avoids it
+            if result.get('title'):
+                batch_titles.append(result['title'])
 
     return jsonify({
         'generated': generated,

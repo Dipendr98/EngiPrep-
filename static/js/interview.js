@@ -1,12 +1,31 @@
-// ── VIEWS ──
+// -- VIEWS --
 
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(`${name}-view`).classList.add('active');
 
+  // Hide all top bars, then show the right one
   document.getElementById('top-bar-landing').style.display = name === 'landing' ? '' : 'none';
   document.getElementById('top-bar-study').style.display = name === 'study' ? '' : 'none';
   document.getElementById('top-bar-interview').style.display = name === 'interview' ? '' : 'none';
+
+  // Hide the top-bar entirely on the home page
+  const topBar = document.querySelector('.top-bar');
+  if (topBar) topBar.style.display = name === 'home' ? 'none' : '';
+}
+
+function enterApp() {
+  showView('landing');
+}
+
+function enterAppWithCategory(category) {
+  showView('landing');
+  // Select the category tab
+  selectedCategory = category;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('selected'));
+  const tab = document.querySelector(`.cat-tab[data-cat="${category}"]`);
+  if (tab) tab.classList.add('selected');
+  renderProblems();
 }
 
 // ── MODE SELECTION ──
