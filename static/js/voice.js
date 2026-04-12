@@ -45,9 +45,9 @@ async function startVoiceSession(focus) {
     });
 
     if (!sdpResp.ok) {
-      const err = await sdpResp.text();
+      const err = await readVoiceErrorResponse(sdpResp);
       setVoiceStatus('Connection failed');
-      appendMessage('assistant', `Failed to connect to OpenAI Realtime API: ${err}`);
+      appendMessage('assistant', err);
       cleanupVoice();
       return;
     }
@@ -63,6 +63,25 @@ async function startVoiceSession(focus) {
 
   micMuted = false;
   updateMicButton();
+}
+
+async function readVoiceErrorResponse(response) {
+  try {
+    const payload = await response.json();
+    if (payload?.error && payload?.details?.error?.message) {
+      return `Voice mode failed: ${payload.details.error.message}`;
+    }
+    if (payload?.error) {
+      return `Voice mode failed: ${payload.error}`;
+    }
+  } catch (e) {}
+
+  try {
+    const raw = await response.text();
+    return `Voice mode failed: ${raw}`;
+  } catch (e) {
+    return `Voice mode failed with server error ${response.status}.`;
+  }
 }
 
 function onDataChannelOpen() {
