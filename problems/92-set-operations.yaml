@@ -1,0 +1,65 @@
+id: 92
+title: "Set Operations"
+category: syntax
+difficulty: Easy
+summary: Use set operations to compute intersection, and symmetric differences between two lists.
+description: >-
+  Implement `set_summary(a: list, b: list) -> dict` that takes two lists and returns a
+  dict with keys: "both" (elements in both, sorted), "only_a" (in a but not b, sorted),
+  "only_b" (in b but not a, sorted). Use set operations.
+scenario: |-
+  A platform reliability team at a cloud company runs a nightly drift detector that compares the set of microservices deployed in staging versus production. Services present in both environments are healthy; services only in staging haven't been promoted yet; and services only in production may be orphaned or incorrectly rolled back. The engineer writing the detector needs a clean, O(n) implementation using set operations to generate all three categories in a single pass.
+alt_scenarios:
+  - "**Feature flag audit:** A release engineering tool compares feature flags enabled in two regional deployments to find flags that are only live in one region."
+  - "**Database schema diff:** A migration tool computes the intersection and differences of column sets between two table versions to generate an ALTER TABLE plan."
+  - "**Access control review:** A security audit script compares IAM permission sets between two user roles to identify over-permissioned capabilities unique to each role."
+constraints:
+  - Elements within each list are unique (no duplicates within a single list)
+  - Elements are comparable and sortable
+  - Lists may be empty
+examples:
+  - input: set_summary([1,2,3], [2,3,4])
+    output: '{"both": [2, 3], "only_a": [1], "only_b": [4]}'
+starter_code: |-
+  def set_summary(a: list, b: list) -> dict:
+      pass
+follow_ups:
+  - How would you compute the union (all elements in either list)?
+  - What is the time complexity of set intersection vs a nested loop approach?
+key_skills:
+  - set
+  - intersection
+  - difference
+  - set operations
+  - sorting
+test_type: function
+function_name: set_summary
+test_cases:
+  - label: partial overlap
+    input:
+      a: [1, 2, 3]
+      b: [2, 3, 4]
+    expected: {"both": [2, 3], "only_a": [1], "only_b": [4]}
+  - label: no overlap
+    input:
+      a: [1, 2]
+      b: [3, 4]
+    expected: {"both": [], "only_a": [1, 2], "only_b": [3, 4]}
+  - label: identical lists
+    input:
+      a: [1, 2, 3]
+      b: [1, 2, 3]
+    expected: {"both": [1, 2, 3], "only_a": [], "only_b": []}
+  - label: one empty list
+    input:
+      a: []
+      b: [1]
+    expected: {"both": [], "only_a": [], "only_b": [1]}
+explanation: |-
+  Python sets support `&` (intersection), `|` (union), `-` (difference), and `^`
+  (symmetric difference). `set(a) & set(b)` finds common elements. `set(a) - set(b)`
+  finds elements only in a. Converting to sorted lists normalizes output order. Set
+  operations are O(n) and much faster than nested loops.
+references:
+  - "Python docs: set types — https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset"
+  - "Set operations overview — https://docs.python.org/3/library/stdtypes.html#frozenset.intersection"

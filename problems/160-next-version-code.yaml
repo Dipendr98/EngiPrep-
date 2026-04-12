@@ -1,0 +1,100 @@
+title: Next Version Code
+category: arrays
+difficulty: Easy
+summary: Given a software version represented as an array of digits, find the next
+  lexicographically greater version or wrap around to the smallest.
+description: 'A software team represents internal build version codes as arrays of
+  single digits. For example, version [1, 3, 2] means build ''1.3.2''. To generate
+  the next unique build version, they need the next lexicographically greater permutation
+  of the digits. If the current version is already the largest permutation (e.g.,
+  [3, 2, 1]), the system should wrap around to the smallest permutation (e.g., [1,
+  2, 3]).
+
+
+  Given an array of single-digit integers representing a version code, return a NEW
+  array that is the next permutation of those digits. Do not modify the input array.
+
+
+  The next permutation is the next lexicographically greater arrangement of the digits.
+  If no greater arrangement exists, return the digits sorted in ascending order (the
+  smallest permutation).'
+scenario: In a continuous deployment pipeline, each build is assigned a unique version
+  code composed of digit segments. When a new build is triggered, the system must
+  automatically compute the next version code that is lexicographically greater than
+  the current one, cycling back to the smallest arrangement when the maximum is reached.
+constraints:
+- 1 <= len(version) <= 100
+- 'Each element is a single digit: 0 <= version[i] <= 9'
+- The input array should not be modified
+- Return a new array representing the next permutation
+examples:
+- input: next_version([1, 2, 3])
+  output: '[1, 3, 2]'
+- input: next_version([3, 2, 1])
+  output: '[1, 2, 3]'
+- input: next_version([1, 5, 1])
+  output: '[5, 1, 1]'
+- input: next_version([1, 1, 5])
+  output: '[1, 5, 1]'
+starter_code: "def next_version(version):\n    pass"
+function_name: next_version
+key_skills:
+- next permutation algorithm
+- array manipulation
+- in-place reversal
+follow_ups:
+- How would you modify your solution to find the Kth next permutation efficiently
+  without calling the function K times?
+- If the version code could contain multi-digit segments (e.g., [1, 12, 3]), how would
+  you adapt your approach to find the next lexicographic arrangement of segments?
+test_cases:
+- label: basic ascending
+  input:
+    version:
+    - 1
+    - 2
+    - 3
+  expected:
+  - 1
+  - 3
+  - 2
+- label: wrap around (descending)
+  input:
+    version:
+    - 3
+    - 2
+    - 1
+  expected:
+  - 1
+  - 2
+  - 3
+- label: duplicates present
+  input:
+    version:
+    - 1
+    - 1
+    - 5
+  expected:
+  - 1
+  - 5
+  - 1
+- label: single element
+  input:
+    version:
+    - 7
+  expected:
+  - 7
+explanation: 'The classic next permutation algorithm works as follows: (1) Traverse
+  from right to find the first index i where version[i] < version[i+1]. (2) If no
+  such index exists, the array is in descending order — return it sorted ascending.
+  (3) Otherwise, find the smallest element to the right of i that is larger than version[i],
+  swap them. (4) Reverse the suffix after index i. This runs in O(n) time and O(n)
+  space since we create a copy. The key insight is identifying the rightmost ''dip''
+  where a swap can produce a larger permutation, then minimizing the suffix to get
+  the very next permutation.'
+references:
+- Next Permutation Algorithm
+- Lexicographic ordering
+- Array reversal techniques
+id: 160
+test_type: function

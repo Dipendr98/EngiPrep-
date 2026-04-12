@@ -1,0 +1,59 @@
+id: 158
+title: Greatest Common Divisor
+category: warmup
+difficulty: Easy
+summary: Compute the greatest common divisor of two integers using Euclid's algorithm.
+description: Implement gcd(a, b) that returns the greatest common divisor of two positive integers a and b without using math.gcd.
+scenario: |-
+  A distributed systems team is computing the optimal chunk size for a file transfer protocol. The chunk size must evenly divide both the file size and the network buffer size, so the team needs the GCD. The function is called whenever a new file transfer session is negotiated.
+alt_scenarios:
+  - "**Fraction simplifier:** A math library reduces fractions to lowest terms by dividing numerator and denominator by their GCD before rendering."
+  - "**Grid alignment tool:** A UI layout engine finds the largest grid unit that evenly divides both the canvas width and height for snapping."
+constraints:
+  - a and b are positive integers.
+examples:
+  - input: gcd(48, 18)
+    output: '6'
+  - input: gcd(7, 5)
+    output: '1'
+starter_code: |-
+  def gcd(a: int, b: int) -> int:
+      pass
+follow_ups:
+  - Extend to compute lcm(a, b) using gcd.
+  - Compute gcd of a list of numbers.
+key_skills:
+  - math
+  - recursion
+test_type: function
+function_name: gcd
+test_cases:
+  - label: basic
+    input:
+      a: 48
+      b: 18
+    expected: 6
+  - label: coprime
+    input:
+      a: 7
+      b: 5
+    expected: 1
+  - label: one divides other
+    input:
+      a: 12
+      b: 4
+    expected: 4
+  - label: same number
+    input:
+      a: 9
+      b: 9
+    expected: 9
+explanation: |-
+  This warm-up is meant to build confidence around **recursion** with a very small surface area.
+
+  Euclid's algorithm: gcd(a, b) == gcd(b, a % b), base case gcd(a, 0) == a. The iterative form is equally correct and avoids call stack depth issues for very large inputs.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - "Euclid's algorithm: while b: a, b = b, a % b; return a — four tokens, O(log(min(a,b))) time."
+  - 'Treat GCD as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

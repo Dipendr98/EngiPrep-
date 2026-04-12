@@ -1,0 +1,69 @@
+id: 76
+title: Rotate Right
+category: warmup
+difficulty: Easy
+summary: Rotate an array to the right by k steps.
+description: Implement rotate_right(nums, k) that returns a new list rotated right by k positions.
+scenario: |-
+  A distributed task scheduler at a cloud infrastructure company cycles through a fixed pool of worker nodes by rotating the assignment list on each scheduling tick. After processing k tasks, the scheduler shifts the node list right by k so the next batch starts with a fresh lead node. The rotation must handle cases where k exceeds the pool size, so modular arithmetic is required to avoid index errors.
+alt_scenarios:
+  - "**Round-robin load balancer:** A proxy rotates its upstream server list right by the number of handled requests to ensure even distribution across replicas."
+  - "**Carousel UI component:** A frontend data service rotates a ranked list of featured items so the next page view starts at a different item in the ring."
+  - "**Cryptography:** A simple Caesar-cipher variant rotates a character-ordinal list by a key value before encoding each block of a message."
+constraints:
+- Return a new list.
+- k may be larger than the array length.
+examples:
+- input: rotate_right([1,2,3,4,5], 2)
+  output: '[4,5,1,2,3]'
+starter_code: |-
+  def rotate_right(nums: list[int], k: int) -> list[int]:
+      pass
+follow_ups:
+- Rotate in place.
+- Support left rotation too.
+key_skills:
+- arrays
+test_type: function
+function_name: rotate_right
+test_cases:
+- label: basic
+  input:
+    nums:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    k: 2
+  expected:
+  - 4
+  - 5
+  - 1
+  - 2
+  - 3
+- label: k larger than length
+  input:
+    nums:
+    - 1
+    - 2
+    - 3
+    k: 4
+  expected:
+  - 3
+  - 1
+  - 2
+- label: empty
+  input:
+    nums: []
+    k: 3
+  expected: []
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- 'Treat Rotate Right as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

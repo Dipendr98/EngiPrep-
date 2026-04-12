@@ -1,0 +1,130 @@
+title: Check User Permission via RBAC
+category: cybersecurity
+difficulty: Easy
+summary: Determine whether a user has a specific permission by resolving their assigned
+  roles in a simple RBAC system.
+description: 'You are building a Role-Based Access Control (RBAC) permission resolver
+  for an internal tool. In this system:
+
+
+  - Each **user** is assigned one or more **roles**.
+
+  - Each **role** grants a set of **permissions** (strings like "read:reports", "write:users",
+  etc.).
+
+
+  Given a mapping of roles to their permissions, a mapping of users to their assigned
+  roles, a target user, and a target permission, return `True` if the user has the
+  specified permission through any of their assigned roles, and `False` otherwise.
+
+
+  If the user does not exist in the user-role mapping, return `False`. If a role assigned
+  to a user does not exist in the role-permission mapping, simply skip that role (it
+  grants no permissions).'
+scenario: You're developing an API gateway for a SaaS platform. Before forwarding
+  any request to a microservice, the gateway must verify that the authenticated user
+  has the required permission. The permissions are managed through an RBAC model where
+  administrators assign roles to users and permissions to roles. Your task is to implement
+  the core permission check function.
+constraints:
+- Role names and permission strings are case-sensitive.
+- A user can have 0 or more roles.
+- A role can have 0 or more permissions.
+- There are at most 100 users, 50 roles, and 200 unique permissions.
+- If the user is not found, return False.
+examples:
+- input: 'has_permission({''admin'': [''read:reports'', ''write:users''], ''viewer'':
+    [''read:reports'']}, {''alice'': [''admin''], ''bob'': [''viewer'']}, ''alice'',
+    ''write:users'')'
+  output: 'True'
+- input: 'has_permission({''admin'': [''read:reports'', ''write:users''], ''viewer'':
+    [''read:reports'']}, {''alice'': [''admin''], ''bob'': [''viewer'']}, ''bob'',
+    ''write:users'')'
+  output: 'False'
+- input: 'has_permission({''admin'': [''read:reports'', ''write:users''], ''viewer'':
+    [''read:reports'']}, {''alice'': [''admin''], ''bob'': [''viewer'']}, ''charlie'',
+    ''read:reports'')'
+  output: 'False'
+starter_code: "def has_permission(role_permissions, user_roles, user, permission):\n\
+  \    pass"
+function_name: has_permission
+key_skills:
+- RBAC concepts
+- dictionary lookups
+- set/list traversal
+- cybersecurity access control basics
+follow_ups:
+- How would you extend this to support role inheritance (e.g., 'admin' inherits all
+  permissions from 'viewer') without introducing infinite loops from circular inheritance?
+- How would you handle explicit permission denials, where a role can both grant and
+  deny specific permissions, and denials take precedence?
+test_cases:
+- label: basic case - user has permission
+  input:
+    role_permissions:
+      admin:
+      - read:reports
+      - write:users
+      viewer:
+      - read:reports
+    user_roles:
+      alice:
+      - admin
+      bob:
+      - viewer
+    user: alice
+    permission: write:users
+  expected: true
+- label: basic case - user lacks permission
+  input:
+    role_permissions:
+      admin:
+      - read:reports
+      - write:users
+      viewer:
+      - read:reports
+    user_roles:
+      alice:
+      - admin
+      bob:
+      - viewer
+    user: bob
+    permission: write:users
+  expected: false
+- label: edge case - user does not exist
+  input:
+    role_permissions:
+      admin:
+      - read:reports
+      - write:users
+    user_roles:
+      alice:
+      - admin
+    user: charlie
+    permission: read:reports
+  expected: false
+- label: edge case - user has unknown role
+  input:
+    role_permissions:
+      admin:
+      - read:reports
+      - write:users
+    user_roles:
+      dave:
+      - manager
+    user: dave
+    permission: read:reports
+  expected: false
+explanation: Iterate over the roles assigned to the given user. For each role, look
+  up its permissions in the role-permission mapping. If any role grants the target
+  permission, return True. If no role grants it (or the user/role doesn't exist),
+  return False. This is a straightforward dictionary lookup and list/set membership
+  check — O(R * P) where R is the number of roles for the user and P is the max permissions
+  per role.
+references:
+- Role-Based Access Control (RBAC) model
+- NIST RBAC standard
+- Python dictionary operations
+- Principle of least privilege
+id: 170
+test_type: function

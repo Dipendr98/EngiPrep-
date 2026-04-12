@@ -1,0 +1,132 @@
+id: 103
+title: Merge Two Sorted Lists
+category: linked lists
+difficulty: Easy
+summary: Merge two sorted linked lists into one sorted list in-place.
+description: Given the heads of two sorted linked lists, merge them into a single sorted linked list by splicing existing nodes (no new nodes). Return the head of the merged list.
+scenario: |-
+  You're a platform engineer at Stripe building the reconciliation service that compares transaction ledgers from two independent payment processors. Each processor emits records sorted by timestamp as a linked list streamed from disk. Merging them into a single chronological stream must happen node-by-node without buffering both lists in memory, because ledgers can exceed 50 million records and RAM is the binding constraint.
+alt_scenarios:
+  - "**Search index merge:** An Elasticsearch shard merge combines two sorted posting lists into one during a segment compaction, reusing existing nodes to avoid heap allocation."
+  - "**Log aggregator:** A distributed tracing system merges sorted span lists from two Kafka partitions into a single timeline before writing to BigQuery."
+  - "**External sort:** A disk-based merge sort merges two sorted runs read from separate files into one sorted output stream with constant working memory."
+constraints:
+- Reuse existing nodes — do not allocate new ListNode objects
+- Both input lists are sorted in non-decreasing order
+- Either or both inputs may be empty (None)
+examples:
+- input: merge_sorted_lists(1->2->4, 1->3->4)
+  output: 1->1->2->3->4->4
+- input: merge_sorted_lists(None, 1->2->3)
+  output: 1->2->3
+starter_code: |-
+  class ListNode:
+      def __init__(self, val=0, next=None):
+          self.val = val
+          self.next = next
+
+  def merge_sorted_lists(l1: ListNode, l2: ListNode) -> ListNode:
+      pass
+follow_ups:
+- Merge k sorted lists (use a min-heap of size k).
+- Merge in-place without a dummy head node.
+- What is the time and space complexity of each approach?
+key_skills:
+- linked list
+- merge
+- dummy head pattern
+test_type: function
+test_cases:
+- label: merge two non-empty lists
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(a, b):
+        return _read(merge_sorted_lists(_make(a), _make(b)))
+  function_name: _test
+  args:
+  - - 1
+    - 2
+    - 4
+  - - 1
+    - 3
+    - 4
+  expected:
+  - 1
+  - 1
+  - 2
+  - 3
+  - 4
+  - 4
+- label: one empty list
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(a, b):
+        return _read(merge_sorted_lists(_make(a), _make(b)))
+  function_name: _test
+  args:
+  - []
+  - - 1
+    - 2
+    - 3
+  expected:
+  - 1
+  - 2
+  - 3
+- label: both empty
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make(arr):
+        if not arr: return None
+        h = ListNode(arr[0]); c = h
+        for v in arr[1:]: c.next = ListNode(v); c = c.next
+        return h
+    def _read(head):
+        r = []
+        while head: r.append(head.val); head = head.next
+        return r
+    def _test(a, b):
+        return _read(merge_sorted_lists(_make(a), _make(b)))
+  function_name: _test
+  args:
+  - []
+  - []
+  expected: []
+function_name: merge_sorted_lists
+explanation: |-
+  The dummy head pattern eliminates special-casing the first node. Create a sentinel node; keep a tail pointer on it. At each step compare l1.val vs l2.val, attach the smaller node to tail, advance both tail and the chosen pointer.
+
+  After the loop, one list may still have remaining nodes — append the non-None remainder directly (no need to iterate).
+
+  Time O(m + n), space O(1) — only the dummy node is allocated and it is not returned.
+
+  The recursive version is clean but risks stack overflow on very long lists.
+references:
+- The dummy head (sentinel) pattern avoids conditional logic for the first node — use it whenever building a new list from pieces.
+- After the main loop, one list still has nodes — attach the whole tail rather than iterating.

@@ -1,0 +1,106 @@
+id: 102
+title: Linked List Cycle Detection
+category: linked lists
+difficulty: Easy
+summary: Detect whether a linked list contains a cycle using Floyd's algorithm.
+description: Given the head of a linked list, return True if there is a cycle (a node's next pointer eventually points back to a previous node), or False if the list terminates at None. Use O(1) extra space.
+scenario: |-
+  You're on Cloudflare's traffic engineering team, and each BGP route is represented as a linked list of next-hop pointers. A misconfiguration in the routing table can produce a forwarding loop where packets bounce between two routers indefinitely, exhausting CPU and causing a silent outage. Your validator must scan the next-hop chain and flag any cycle before the route is pushed to production — using O(1) memory because route tables are checked millions of times per minute.
+alt_scenarios:
+  - "**Dependency resolver:** A package manager's dependency graph is linearized into a linked list of install steps; a circular dependency must be detected before the install begins."
+  - "**Workflow engine:** An Airflow-style DAG serialized as a task linked list must be validated for cycles before a scheduled pipeline run starts."
+  - "**Garbage collector:** A mark-and-sweep GC traverses object reference chains and must detect reference cycles to avoid infinite traversal."
+constraints:
+- Must use O(1) extra space (no visited sets)
+- Return True if a cycle exists, False otherwise
+- Empty list returns False
+examples:
+- input: has_cycle(3 -> 1 -> 2 -> [back to 1])
+  output: 'True'
+- input: has_cycle(1 -> 2 -> None)
+  output: 'False'
+starter_code: |-
+  class ListNode:
+      def __init__(self, val=0, next=None):
+          self.val = val
+          self.next = next
+
+  def has_cycle(head: ListNode) -> bool:
+      pass
+follow_ups:
+- Find the node where the cycle begins (not just whether it exists).
+- Find the length of the cycle.
+- Can you solve it with a hash set? What are the tradeoffs?
+key_skills:
+- linked list
+- Floyd's tortoise and hare
+- two pointers
+test_type: function
+test_cases:
+- label: cycle exists
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make_cycle(vals, pos):
+        nodes = [ListNode(v) for v in vals]
+        for i in range(len(nodes) - 1):
+            nodes[i].next = nodes[i + 1]
+        if pos >= 0:
+            nodes[-1].next = nodes[pos]
+        return nodes[0] if nodes else None
+    head = _make_cycle([3, 1, 2, 0], 1)
+  args:
+  - __ref__: head
+  expected: true
+- label: no cycle
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    def _make_cycle(vals, pos):
+        nodes = [ListNode(v) for v in vals]
+        for i in range(len(nodes) - 1):
+            nodes[i].next = nodes[i + 1]
+        if pos >= 0:
+            nodes[-1].next = nodes[pos]
+        return nodes[0] if nodes else None
+    head = _make_cycle([1, 2, 3, 4], -1)
+  args:
+  - __ref__: head
+  expected: false
+- label: single node no cycle
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    head = ListNode(1)
+  args:
+  - __ref__: head
+  expected: false
+- label: single node self-loop
+  setup_code: |-
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    head = ListNode(1)
+    head.next = head
+  args:
+  - __ref__: head
+  expected: true
+function_name: has_cycle
+explanation: |-
+  Floyd's tortoise-and-hare algorithm uses two pointers starting at head. Slow advances one step; fast advances two steps per iteration.
+
+  If there is a cycle, fast will eventually lap slow and they will meet. If there is no cycle, fast reaches None first.
+
+  The invariant: if the pointers meet, a cycle must exist because in a linear list fast always stays strictly ahead of slow.
+
+  Time O(n), space O(1). The hash-set approach is simpler to write but uses O(n) space — mention both in an interview and explain the tradeoff.
+references:
+- Floyd's cycle detection is the canonical O(1)-space solution — understand why the two pointers must meet inside the cycle.
+- The meeting point has a useful property for finding where the cycle starts; explore that as a follow-up.

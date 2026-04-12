@@ -1,0 +1,62 @@
+id: 81
+title: "For Loop Patterns"
+category: syntax
+difficulty: Easy
+summary: Use a for loop to compute element-wise products of two equal-length lists.
+description: >-
+  Implement `pair_products(a: list[int], b: list[int]) -> list[int]` that takes two lists
+  of equal length and returns a new list where each element is the product of the
+  corresponding elements. Use a for loop with range or zip.
+scenario: |-
+  A recommendations ML team at a streaming company is building the feature interaction layer of their real-time ranking model. Two pre-computed feature vectors — one for user affinity and one for item relevance — must be multiplied element-wise before being summed into a dot-product score. The engineer implementing this step wants a readable loop-based version first, before the team decides whether to vectorize with NumPy.
+alt_scenarios:
+  - "**Ad auction engine:** A bidding system computes element-wise products of bid multipliers and quality scores across a ranked list of ad candidates."
+  - "**Physics simulation:** A game engine multiplies corresponding mass and acceleration vectors element-wise to compute force vectors for each rigid body."
+  - "**Financial risk model:** A risk calculator multiplies position weights by scenario returns element-wise to produce per-scenario P&L values before aggregation."
+constraints:
+  - len(a) == len(b)
+  - Elements may be zero or negative
+examples:
+  - input: pair_products([1,2,3], [4,5,6])
+    output: '[4, 10, 18]'
+starter_code: |-
+  def pair_products(a: list[int], b: list[int]) -> list[int]:
+      pass
+follow_ups:
+  - How would you handle lists of different lengths without raising an error?
+  - Can you rewrite this using a list comprehension instead of a loop?
+key_skills:
+  - for loop
+  - iteration
+  - indexing
+  - zip
+test_type: function
+function_name: pair_products
+test_cases:
+  - label: basic three elements
+    input:
+      a: [1, 2, 3]
+      b: [4, 5, 6]
+    expected: [4, 10, 18]
+  - label: contains zero
+    input:
+      a: [0, 5]
+      b: [3, 7]
+    expected: [0, 35]
+  - label: all same value
+    input:
+      a: [2, 2, 2]
+      b: [2, 2, 2]
+    expected: [4, 4, 4]
+  - label: single element
+    input:
+      a: [7]
+      b: [3]
+    expected: [21]
+explanation: |-
+  Focus on two ways to write this loop: using range(len(a)) with indexing, or using
+  zip(a, b) for cleaner parallel iteration. zip is the Pythonic choice and avoids
+  off-by-one errors. Both produce identical results.
+references:
+  - "Python docs: zip() — https://docs.python.org/3/library/functions.html#zip"
+  - "Python docs: range() — https://docs.python.org/3/library/functions.html#range"

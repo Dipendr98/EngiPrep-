@@ -1,0 +1,148 @@
+id: 3
+title: Versioned Dictionary
+category: stateful
+difficulty: Medium
+summary: Dictionary that tracks history and supports rollback to any prior version.
+description: Implement a dictionary where every put and delete creates a new version. Support get(key) for the current version, get_at(key, version) for a historical version, and rollback(version) to revert to a previous state. Version numbers are auto-incrementing integers starting at 0.
+scenario: |-
+  The Developer Experience team is building a secrets manager that stores environment variables for CI pipelines. Every time an engineer updates or deletes a secret, the system must record a new immutable version so auditors can inspect what value a given key held during any historical build. Pipelines that fail can be re-run pinned to the exact variable state at their original launch time, and an operator can roll back the entire set of secrets to any past checkpoint with a single call.
+alt_scenarios:
+  - "**Infrastructure as Code platform:** A Terraform-as-a-service backend versions every workspace variable mutation so engineers can diff state between deployments and roll back a bad variable change without touching the Terraform state file."
+  - "**Game save system:** A mobile game server snapshots player inventory and stats after each action, letting support engineers restore any prior save point without data loss."
+  - "**Healthcare EHR system:** A patient-record service versions every field update to a clinical document so clinicians can view any prior state and auditors can reconstruct the record as it existed at a specific timestamp."
+constraints:
+- Keys are strings; values can be any type
+- Version numbering starts at 0 (empty state) and auto-increments on each put or delete
+- put and delete each return the new version number
+- get_at with a version before the key existed returns None
+- rollback(v) restores the dictionary to its state at the end of version v
+examples:
+- input: |-
+    vd = VersionedDict()
+    vd.put('name', 'Alice')   # v1
+    vd.put('age', 30)         # v2
+    vd.get('name')
+    vd.get_at('name', 1)
+    vd.delete('name')         # v3
+    vd.get('name')
+    vd.rollback(2)
+    vd.get('name')
+  output: |-
+    'Alice'
+    'Alice'  # value at version 1
+    None     # deleted in version 3
+    'Alice'  # rolled back to version 2, name is restored
+- input: |-
+    vd = VersionedDict()
+    vd.put('x', 1)   # v1
+    vd.put('x', 2)   # v2
+    vd.get_at('x', 1)
+    vd.get_at('x', 2)
+    vd.get_at('x', 0)
+  output: |-
+    1     # value at version 1
+    2     # value at version 2
+    None  # version 0 is the empty initial state
+starter_code: |-
+  class VersionedDict:
+      def __init__(self):
+          pass
+
+      def put(self, key: str, value) -> int:
+          pass
+
+      def delete(self, key: str) -> int:
+          pass
+
+      def get(self, key: str):
+          pass
+
+      def get_at(self, key: str, version: int):
+          pass
+
+      def rollback(self, version: int) -> None:
+          pass
+follow_ups:
+- Optimize memory so rollback doesn't duplicate the entire state.
+- Add a diff(v1, v2) method that returns what changed between two versions.
+- What if you need to support branching, like git?
+key_skills:
+- persistent data structures
+- copy-on-write
+- hash map
+- versioning
+test_type: class
+test_cases:
+- label: versioning and rollback
+  init_args: []
+  ops:
+  - put
+  - put
+  - get
+  - get_at
+  - delete
+  - get
+  - rollback
+  - get
+  op_args:
+  - - name
+    - Alice
+  - - age
+    - 30
+  - - name
+  - - name
+    - 1
+  - - name
+  - - name
+  - - 2
+  - - name
+  expected:
+  - 1
+  - 2
+  - Alice
+  - Alice
+  - 3
+  - null
+  - null
+  - Alice
+- label: historical value
+  init_args: []
+  ops:
+  - put
+  - put
+  - get_at
+  - get_at
+  - get_at
+  op_args:
+  - - x
+    - 1
+  - - x
+    - 2
+  - - x
+    - 1
+  - - x
+    - 2
+  - - x
+    - 0
+  expected:
+  - 1
+  - 2
+  - 1
+  - 2
+  - null
+class_name: VersionedDict
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **persistent data structures** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **copy-on-write** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review copy-on-write ideas and how versioned state can avoid full snapshots.
+- Practice identifying the smallest state slice that needs to be copied on each mutation.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Study how systems keep historical state queryable without making rollback logic fragile.

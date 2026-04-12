@@ -1,0 +1,85 @@
+id: 120
+title: Combinations
+category: backtracking
+difficulty: Medium
+summary: Generate all combinations of k numbers from 1 to n.
+description: Given two integers n and k, return all possible combinations of k numbers chosen from the range [1, n]. Each combination should be sorted in ascending order, and the result set should not contain duplicate combinations.
+scenario: |-
+  You're a reliability engineer at PagerDuty building the on-call rotation validator for enterprise customers. A customer has n engineers on their team, and their SLA requires that every possible group of k engineers has been trained together on at least one simulated incident. Your tool must enumerate all C(n, k) unique k-engineer combinations so the training scheduler can assign one tabletop exercise per group — missing any combination would leave a coverage gap that violates the customer's compliance audit.
+alt_scenarios:
+  - "**Clinical trial design:** A biostatistics tool generates every combination of k treatment factors from n available variables to design a full-factorial experiment with no condition left untested."
+  - "**Poker hand evaluator:** A card game engine pre-generates all C(52, 5) five-card combinations from a standard deck to build a complete hand-rank lookup table at startup."
+  - "**Network fault injection:** A chaos engineering framework generates every subset of k services from n to simulate, ensuring all possible simultaneous failure combinations are tested during a game day."
+constraints:
+- 1 <= k <= n <= 20
+- Numbers in each combination are from [1..n]
+- Combinations are sorted; no duplicates in the result
+- Order within a combination doesn't matter (combinations, not permutations)
+examples:
+- input: 'combinations(4, 2)'
+  output: '[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]'
+- input: 'combinations(1, 1)'
+  output: '[[1]]'
+starter_code: |-
+  def combinations(n: int, k: int) -> list[list[int]]:
+      pass
+follow_ups:
+- Generate all permutations instead (order matters).
+- Generate combinations with replacement (can repeat numbers).
+- Use Python's itertools.combinations and explain how it works internally.
+key_skills:
+- backtracking
+- combinations
+- recursion
+test_type: function
+test_cases:
+- label: C(4,2)
+  setup_code: |-
+    def _test(n, k):
+        return sorted(combinations(n, k))
+  function_name: _test
+  args:
+  - 4
+  - 2
+  expected:
+  - - 1
+    - 2
+  - - 1
+    - 3
+  - - 1
+    - 4
+  - - 2
+    - 3
+  - - 2
+    - 4
+  - - 3
+    - 4
+- label: C(1,1)
+  args:
+  - 1
+  - 1
+  expected:
+  - - 1
+function_name: combinations
+explanation: |-
+  Backtracking: build combinations by iterating from a start value up to n. At each step, add the current number to the current combination and recurse with start+1. When the combination reaches length k, record it and return.
+
+  Pruning: the remaining numbers must be enough to fill the combination. If len(curr) + (n - start + 1) < k, prune early — not enough numbers left.
+
+  ```python
+  def bt(start, curr):
+      if len(curr) == k:
+          result.append(list(curr))
+          return
+      for i in range(start, n + 1):
+          curr.append(i)
+          bt(i + 1, curr)
+          curr.pop()
+  ```
+
+  Time O(C(n,k) * k) — C(n,k) combinations, each taking O(k) to copy. Space O(k) for the recursion stack.
+
+  Python's itertools.combinations implements the same algorithm more efficiently in C.
+references:
+- The pruning condition (not enough numbers left) can significantly reduce the search space for large n.
+- This is the backtracking template — learn it once, apply it to subsets, permutations, and combinations.

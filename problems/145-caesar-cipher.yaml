@@ -1,0 +1,62 @@
+id: 145
+title: Caesar Cipher
+category: warmup
+difficulty: Easy
+summary: Shift each letter in a string by k positions.
+description: Implement caesar(text, k) that shifts every alphabetic character in text forward by k positions in the alphabet, wrapping around. Non-alphabetic characters are left unchanged. The case of each letter is preserved.
+scenario: |-
+  A developer relations team at a security company is building a toy encryption demo for a conference workshop. Attendees will encode short messages with a Caesar cipher and pass them to a neighbor to decode. The function needs to handle uppercase and lowercase letters and ignore spaces and punctuation so participants can encode full sentences.
+alt_scenarios:
+  - "**Obfuscated config values:** An internal tool lightly obfuscates non-sensitive config strings before writing them to a shared log so they are not immediately readable over someone's shoulder."
+  - "**CTF puzzle generator:** A capture-the-flag platform generates Caesar-encrypted hints that teams must decode to advance to the next challenge."
+constraints:
+  - k can be any integer (including negative or >= 26). Non-alpha characters pass through unchanged.
+examples:
+  - input: caesar("Hello, World!", 3)
+    output: '"Khoor, Zruog!"'
+starter_code: |-
+  def caesar(text: str, k: int) -> str:
+      pass
+follow_ups:
+  - Implement the decoding function using the same caesar().
+  - Support a Vigenère cipher with a keyword.
+key_skills:
+  - strings
+  - math
+test_type: function
+function_name: caesar
+test_cases:
+  - label: basic
+    input:
+      text: "Hello, World!"
+      k: 3
+    expected: "Khoor, Zruog!"
+  - label: wrap around
+    input:
+      text: "xyz"
+      k: 3
+    expected: "abc"
+  - label: zero shift
+    input:
+      text: "abc"
+      k: 0
+    expected: "abc"
+  - label: full rotation
+    input:
+      text: "abc"
+      k: 26
+    expected: "abc"
+  - label: negative shift
+    input:
+      text: "Khoor"
+      k: -3
+    expected: "Hello"
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  Use ord() and chr() to shift within the alphabet. Normalize k with k % 26 to handle large or negative shifts. Preserve case by checking isupper()/islower().
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'chr((ord(c) - ord(''a'') + k) % 26 + ord(''a'')) is the core formula for lowercase letters.'
+  - 'Treat Caesar Cipher as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

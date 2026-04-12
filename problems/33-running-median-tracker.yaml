@@ -1,0 +1,100 @@
+id: 33
+title: Running Median Tracker
+category: streaming
+difficulty: Hard
+summary: Maintain the median of a growing stream of numbers efficiently.
+description: Implement add(num) which adds a number to the stream and median() which returns the current median. If the count is even, return the average of the two middle values. Both operations should be better than O(n).
+scenario: |-
+  You're on the Reliability Engineering team at a payments processor, and the SLA for your authorization API is defined in terms of P50 latency—not average—because a small fraction of slow calls can mask a degraded backend when using a mean. The dashboard widget labeled "P50 latency (live)" must update every time a new authorization response is recorded, and it's queried hundreds of times per minute by automated alerting rules. Re-sorting the full latency history on each request would burn CPU on every pod; you need a data structure that absorbs new samples in O(log n) and returns the current median in O(1).
+alt_scenarios:
+  - "**Streaming media platform (video encoding pipeline):** Tracking the rolling median encoding time across thousands of concurrent jobs so the scheduler can dynamically allocate worker capacity based on actual job durations rather than historical averages."
+  - "**Healthcare device monitoring:** Maintaining the running median of a patient's heart rate readings from a continuous ECG stream so bedside alert logic uses a robust central-tendency measure that isn't skewed by sensor noise spikes."
+  - "**Financial data feed (market data team):** Computing the live median trade size for a given equity symbol across a session's tick stream so a trading algorithm can distinguish between institutional and retail order flow in real time."
+constraints:
+- Numbers can be integers or floats
+- add() should be O(log n)
+- median() should be O(1)
+- For even count, return the average of the two middle values as a float
+- The stream can contain duplicate values
+- median() called on an empty tracker should raise an error
+examples:
+- input: |-
+    tracker = RunningMedianTracker()
+    tracker.add(3)
+    tracker.add(1)
+    tracker.median()
+  output: '2.0  # Two elements [1, 3], median is average of both = 2.0'
+- input: |-
+    tracker.add(5)
+    tracker.median()
+  output: '3  # Three elements [1, 3, 5], middle element is 3'
+- input: |-
+    tracker.add(2)
+    tracker.add(4)
+    tracker.median()
+  output: '3  # Five elements [1, 2, 3, 4, 5], middle element is 3'
+starter_code: |-
+  class RunningMedianTracker:
+      def __init__(self):
+          pass
+
+      def add(self, num: float) -> None:
+          pass
+
+      def median(self) -> float:
+          pass
+follow_ups:
+- Support remove(num) to delete a previously added number.
+- Extend to find any arbitrary percentile, not just the median.
+- What if numbers arrive in a distributed fashion across multiple machines?
+key_skills:
+- two heaps (max-heap + min-heap)
+- balancing invariant
+- streaming
+test_type: class
+test_cases:
+- label: running medians
+  init_args: []
+  ops:
+  - add
+  - add
+  - median
+  - add
+  - median
+  - add
+  - add
+  - median
+  op_args:
+  - - 3
+  - - 1
+  - []
+  - - 5
+  - []
+  - - 2
+  - - 4
+  - []
+  expected:
+  - null
+  - null
+  - 2.0
+  - null
+  - 3
+  - null
+  - null
+  - 3
+class_name: RunningMedianTracker
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **two heaps (max-heap + min-heap)** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **balancing invariant** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Think about incremental updates where you never want to recompute everything from scratch.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.
+- After implementing Running Median Tracker, re-run the provided hardcoded tests and explain why each one protects an important invariant.

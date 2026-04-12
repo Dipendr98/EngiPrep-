@@ -1,0 +1,80 @@
+id: 164
+title: JWT Token Validator
+category: cybersecurity
+difficulty: Hard
+summary: Parse and validate JSON Web Token structure and claims
+description: |
+  Implement a function that parses a JWT (JSON Web Token) string and validates its structure and claims.
+  
+  A JWT has three parts separated by dots: header.payload.signature
+  Each part is Base64URL encoded.
+  
+  Your function should:
+  1. Verify the token has exactly 3 parts
+  2. Decode the header and payload from Base64URL
+  3. Parse them as JSON
+  4. Validate the header has "alg" and "typ" fields
+  5. Validate the payload claims:
+     - "exp" (expiration): must not be expired (compare against provided current_time)
+     - "nbf" (not before): must not be used before this time
+     - "iss" (issuer): if expected_issuer is provided, must match
+  
+  Return a dict with:
+  - "valid": boolean
+  - "header": decoded header dict (or None if invalid)
+  - "payload": decoded payload dict (or None if invalid)
+  - "errors": list of validation error strings
+  
+  Note: Do NOT verify the cryptographic signature (part 3) — just validate structure and claims.
+scenario: |
+  You're building an API gateway that needs to inspect incoming JWT tokens before
+  forwarding requests to microservices. The gateway must validate token structure
+  and check expiration without having access to the signing key.
+constraints:
+  - Use base64 module for decoding (Base64URL uses - and _ instead of + and /)
+  - current_time is a Unix timestamp (integer)
+  - expected_issuer is optional (None means skip issuer check)
+  - Handle malformed tokens gracefully — never raise exceptions
+examples:
+  - input: "validate_jwt(\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxOTk5OTk5OTk5fQ.sig\", 1700000000)"
+    output: "{\"valid\": true, \"errors\": []}"
+  - input: "validate_jwt(\"not.a.jwt\", 1700000000)"
+    output: "{\"valid\": false, \"errors\": [\"Invalid header: not valid JSON\"]}"
+starter_code: |
+  def validate_jwt(token, current_time, expected_issuer=None):
+      pass
+key_skills:
+  - JWT
+  - authentication
+  - base64 encoding
+  - token validation
+follow_ups:
+  - How would you verify the signature if you had the secret key?
+  - How would you handle token refresh and rotation?
+test_type: function
+function_name: validate_jwt
+test_cases:
+  - label: valid token
+    input:
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxOTk5OTk5OTk5fQ.signature"
+      current_time: 1700000000
+    expected:
+      valid: true
+  - label: expired token
+    input:
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxMDAwMDAwMDAwfQ.signature"
+      current_time: 1700000000
+    expected:
+      valid: false
+  - label: malformed token
+    input:
+      token: "this-is-not-a-jwt"
+      current_time: 1700000000
+    expected:
+      valid: false
+  - label: empty token
+    input:
+      token: ""
+      current_time: 1700000000
+    expected:
+      valid: false

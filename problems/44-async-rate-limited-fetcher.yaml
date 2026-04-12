@@ -1,0 +1,104 @@
+id: 44
+title: Async Rate-Limited Fetcher
+category: concurrency
+difficulty: Hard
+summary: Fetch multiple URLs concurrently with a rate limit on requests per second.
+description: Implement a fetcher that processes a list of URLs concurrently with at most max_concurrent in-flight requests and at most max_per_second requests started per second. Return results as they complete. Handle individual request failures without aborting the batch.
+scenario: |-
+  You're on the Data Integrations team at a company that syncs product catalog data from dozens of third-party supplier APIs nightly. Each supplier enforces both a concurrency limit (no more than 5 simultaneous connections) and a rate limit (no more than 20 requests per second) in their API terms of service—exceeding either results in a 429 or an IP ban. You need a fetcher that saturates the allowed bandwidth—processing thousands of product URLs as fast as the constraints permit—without aborting the entire batch when one supplier URL returns a 404 or times out, and you need to stream results back so the catalog writer can start persisting records without waiting for the last URL to resolve.
+alt_scenarios:
+  - "**SEO audit tool:** Crawling thousands of pages on a customer's website to check for broken links and metadata issues, respecting the site's crawl-delay directive and keeping concurrent connections low enough to avoid triggering bot-protection rules."
+  - "**Security vulnerability scanner:** Querying the NVD or GitHub Advisory Database API for CVE details across a large set of package versions, observing their published rate limits, and collecting results even when some version identifiers return 404."
+  - "**Price monitoring service:** Fetching current prices from hundreds of competitor product pages concurrently with per-domain rate limits so individual slow or failing domains don't block progress on the rest of the batch."
+constraints:
+- max_concurrent limits simultaneous in-flight requests (use a semaphore).
+- max_per_second limits how many new requests may be started in any 1-second sliding window.
+- Individual failures (timeouts, HTTP errors) must not abort remaining requests.
+- Each result dict contains 'url' and either ('status', 'body') or 'error'.
+- You may use aiohttp or httpx as the underlying HTTP library.
+- The function is async and must work with asyncio.
+examples:
+- input: |-
+    results = await fetch_all(
+        urls=['https://a.com', 'https://b.com', 'https://c.com'],
+        max_concurrent=2,
+        max_per_second=5
+    )
+  output: |-
+    [
+      {'url': 'https://a.com', 'status': 200, 'body': '...'},
+      {'url': 'https://b.com', 'status': 200, 'body': '...'},
+      {'url': 'https://c.com', 'status': 200, 'body': '...'}
+    ]
+    At most 2 requests are in-flight at any instant and no more than 5 are started in any 1-second window.
+- input: |-
+    results = await fetch_all(
+        urls=['https://good.com', 'https://down.com', 'https://also-good.com'],
+        max_concurrent=3,
+        max_per_second=10
+    )
+    # https://down.com times out
+  output: |-
+    [
+      {'url': 'https://good.com', 'status': 200, 'body': '...'},
+      {'url': 'https://down.com', 'error': 'TimeoutError: ...'},
+      {'url': 'https://also-good.com', 'status': 200, 'body': '...'}
+    ]
+    The failure for down.com is captured without aborting the other fetches.
+starter_code: |-
+  import asyncio
+  from typing import Any, Dict, List
+
+  async def fetch_all(
+      urls: List[str],
+      max_concurrent: int = 10,
+      max_per_second: int = 20
+  ) -> List[Dict[str, Any]]:
+      pass
+follow_ups:
+- Add per-domain rate limiting.
+- Support retries with backoff for failed requests.
+- Add a progress callback that reports completion percentage.
+key_skills:
+- semaphore
+- token bucket
+- async/await
+- error isolation
+test_type: function
+test_cases:
+- label: captures success and failure
+  setup_code: |-
+    import asyncio
+
+    async def fetch_url(url):
+        await asyncio.sleep(0)
+        if 'down' in url:
+            raise TimeoutError('down')
+        return {'url': url, 'status': 200, 'body': url.upper()}
+  kwargs:
+    urls:
+    - https://a.com
+    - https://down.com
+    max_concurrent: 2
+    max_per_second: 5
+  expected:
+  - url: https://a.com
+    status: 200
+    body: HTTPS://A.COM
+  - url: https://down.com
+    error: 'TimeoutError: down'
+function_name: fetch_all
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **semaphore** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **token bucket** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Write down the shared state and the blocking conditions before choosing locks or queues.
+- Test mentally for races, starvation, and forgotten wakeups.
+- After implementing Async Rate-Limited Fetcher, re-run the provided hardcoded tests and explain why each one protects an important invariant.

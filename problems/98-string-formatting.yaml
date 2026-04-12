@@ -1,0 +1,69 @@
+id: 98
+title: "String Formatting & f-strings"
+category: syntax
+difficulty: Easy
+summary: Use f-strings to format student records into grade report strings with letter grades.
+description: >-
+  Implement `format_report(records: list[dict]) -> list[str]` that takes a list of
+  dicts each with "name" (str) and "score" (int, 0-100), and returns a list of formatted
+  strings like "Alice: 92/100 — A" where the grade is A (>=90), B (>=80), C (>=70),
+  D (>=60), or F (<60). Use f-strings.
+scenario: |-
+  An engineering team at an edtech company is building the notification service that emails grade summaries to students after each automated assessment. The service receives a batch of result records from the grading engine and must render each one as a human-readable string — including the letter grade — before handing it off to the email delivery system. Using f-strings keeps the formatting logic inline and easy to audit when the email template changes.
+alt_scenarios:
+  - "**HR performance system:** A people-ops tool formats employee review scores into a standardized summary string with letter ratings for inclusion in quarterly review PDFs."
+  - "**Compliance reporting:** A regulatory reporting service formats audit scores into structured strings with categorical labels before writing them to a compliance log."
+  - "**Game achievement system:** A mobile game backend formats player XP totals into rank strings using grade thresholds to display on the player's profile card."
+constraints:
+  - score is an integer in the range [0, 100]
+  - Grade thresholds are inclusive (score of exactly 90 is an A)
+  - records may be empty
+  - The em dash character in the format string is "—" (U+2014)
+examples:
+  - input: 'format_report([{"name":"Alice","score":92},{"name":"Bob","score":74}])'
+    output: '["Alice: 92/100 — A", "Bob: 74/100 — C"]'
+starter_code: |-
+  def format_report(records: list[dict]) -> list[str]:
+      pass
+follow_ups:
+  - How would you right-align the score within a fixed-width field using f-string format specs?
+  - How would you add a "+" modifier for scores at the top of each grade band?
+key_skills:
+  - f-strings
+  - string formatting
+  - conditionals
+  - dict access
+test_type: function
+function_name: format_report
+test_cases:
+  - label: A and C grade
+    input:
+      records:
+        - {name: "Alice", score: 92}
+        - {name: "Bob", score: 74}
+    expected: ["Alice: 92/100 \u2014 A", "Bob: 74/100 \u2014 C"]
+  - label: F grade
+    input:
+      records:
+        - {name: "X", score: 55}
+    expected: ["X: 55/100 \u2014 F"]
+  - label: B and A boundary
+    input:
+      records:
+        - {name: "P", score: 80}
+        - {name: "Q", score: 90}
+    expected: ["P: 80/100 \u2014 B", "Q: 90/100 \u2014 A"]
+  - label: empty list
+    input:
+      records: []
+    expected: []
+explanation: |-
+  f-strings (`f"Hello {name}"`) embed expressions directly into string literals and are
+  the modern Python way to format strings. They support format specs like `{val:.2f}` for
+  decimals or `{val:>10}` for alignment. For conditional values inside f-strings, compute
+  the grade in a separate variable first, then reference it in the f-string. f-strings are
+  faster and more readable than `.format()` or `%` formatting.
+references:
+  - "Python docs: f-strings — https://docs.python.org/3/reference/lexical_analysis.html#f-strings"
+  - "PEP 498: Literal String Interpolation"
+  - "Python docs: format string syntax — https://docs.python.org/3/library/string.html#format-string-syntax"

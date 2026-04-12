@@ -1,0 +1,145 @@
+id: 132
+title: Debug — Fix the Sliding Window Maximum
+category: debugging
+difficulty: Medium
+summary: Find and fix bugs in a sliding window maximum implementation using a deque.
+description: The implementation below is supposed to find the maximum value in every window of size k as it slides across the array, returning a list of maximums. It has three bugs that cause wrong results on various inputs. Find and fix all three bugs without changing the algorithm's O(n) approach.
+scenario: |-
+  You're a senior engineer on the Observability team at a cloud infrastructure company. The SLA dashboard that displays rolling peak latency over a configurable look-back window (k samples) is showing incorrect maximums during incident review sessions — engineers are missing real spikes because the displayed peak is wrong. You've been handed the deque-based implementation and a set of failing regression tests; your job is to identify and fix all three bugs without regressing the O(n) complexity that makes the dashboard viable at 10k metrics/second.
+alt_scenarios:
+  - "**Real-time fraud scoring:** A payments risk engine computes the maximum transaction amount in a rolling k-second window to flag velocity anomalies; the same eviction off-by-one and inverted monotone comparison cause legitimate large transactions to be silently omitted from the window maximum."
+  - "**Video streaming bitrate controller:** An adaptive bitrate algorithm tracks the peak bandwidth sample over the last k probes to set encoding quality; the first-window bug causes the controller to under-estimate available bandwidth at stream start, triggering unnecessary quality downgrades."
+  - "**Stock trading signal generator:** An algorithmic trading service computes the rolling high price over a k-bar window to generate breakout signals; the same three bugs cause the signal to fire one bar late and report stale highs, leading to missed entries."
+constraints:
+- Return a list of max values for each window position (len(nums) - k + 1 values total)
+- Use the deque-based O(n) approach — do not replace with O(n*k) brute force
+- k is guaranteed to be between 1 and len(nums) inclusive
+examples:
+- input: 'sliding_window_max([1,3,-1,-3,5,3,6,7], 3)'
+  output: '[3,3,5,5,6,7]'
+- input: 'sliding_window_max([1], 1)'
+  output: '[1]'
+starter_code: |-
+  from collections import deque
+
+  def sliding_window_max(nums: list[int], k: int) -> list[int]:
+      # The deque stores INDICES (not values) of useful candidates.
+      # Invariant: deque is monotonically decreasing by value (front = max of window).
+
+      result = []
+      dq = deque()  # stores indices
+
+      for i in range(len(nums)):
+          # Bug 1: should remove indices that are out of the current window
+          # Current (wrong): removes if index < i - k (off by one)
+          if dq and dq[0] < i - k:     # BUG 1: should be <= not <
+              dq.popleft()
+
+          # Bug 2: should pop from the RIGHT while back element is smaller
+          # Current (wrong): pops while back element is LARGER (inverted comparison)
+          while dq and nums[dq[-1]] >= nums[i]:  # BUG 2: should be <=, not >=
+              dq.pop()
+
+          dq.append(i)
+
+          # Bug 3: window hasn't formed yet — should start collecting at i >= k-1
+          # Current (wrong): starts at i >= k (misses the first complete window)
+          if i >= k:                    # BUG 3: should be i >= k - 1
+              result.append(nums[dq[0]])
+
+      return result
+follow_ups:
+- Implement sliding window minimum (trivial change — explain it).
+- Return the index of the maximum instead of its value.
+- Extend to a 2D sliding window maximum (harder).
+key_skills:
+- debugging
+- monotonic deque
+- sliding window
+- invariant reasoning
+test_type: function
+test_cases:
+- label: standard case
+  args:
+  - - 1
+    - 3
+    - -1
+    - -3
+    - 5
+    - 3
+    - 6
+    - 7
+  - 3
+  expected:
+  - 3
+  - 3
+  - 5
+  - 5
+  - 6
+  - 7
+- label: window size 1 returns input
+  args:
+  - - 4
+    - 2
+    - 7
+    - 1
+  - 1
+  expected:
+  - 4
+  - 2
+  - 7
+  - 1
+- label: window equals array size
+  args:
+  - - 3
+    - 1
+    - 5
+    - 2
+    - 4
+  - 5
+  expected:
+  - 5
+- label: decreasing array
+  args:
+  - - 9
+    - 7
+    - 5
+    - 3
+    - 1
+  - 2
+  expected:
+  - 9
+  - 7
+  - 5
+  - 3
+- label: all same values
+  args:
+  - - 4
+    - 4
+    - 4
+    - 4
+  - 2
+  expected:
+  - 4
+  - 4
+  - 4
+function_name: sliding_window_max
+explanation: |-
+  The three bugs and their fixes:
+
+  **Bug 1 — Eviction condition**: `dq[0] < i - k` should be `dq[0] <= i - k`.
+  - When i = k, the window is [1..k] (0-indexed: [0..k-1]). Index 0 is the leftmost valid cell; index 0 is valid at i=k-1 but NOT at i=k.
+  - `0 < k - k = 0` is False → index 0 is never evicted even when it's out of the window.
+  - Fix: `<=` evicts index 0 when i=k: `0 <= k - k = 0` is True.
+
+  **Bug 2 — Monotone direction**: `nums[dq[-1]] >= nums[i]` should be `nums[dq[-1]] < nums[i]` (or equivalently, pop while `<= ` depending on tie-breaking preference).
+  - The deque must be monotonically decreasing. We pop from the back when the back element is SMALLER than the incoming element (it can never be the future max).
+  - The buggy code pops when the back is LARGER — this destroys the invariant entirely.
+  - Fix: `while dq and nums[dq[-1]] < nums[i]: dq.pop()` or `nums[dq[-1]] <= nums[i]`.
+
+  **Bug 3 — Window formation**: `if i >= k` should be `if i >= k - 1`.
+  - The first complete window is at index k-1 (0-indexed). The buggy code waits until index k, skipping the first window entirely.
+  - Fix: `if i >= k - 1`.
+references:
+- Draw the deque state by hand for the first 3 iterations of a small example before debugging in code.
+- The monotonic deque invariant: front = current window max; back is always <= the element in front of it.

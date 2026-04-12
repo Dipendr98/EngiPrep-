@@ -1,0 +1,53 @@
+id: 135
+title: Fibonacci
+category: warmup
+difficulty: Easy
+summary: Return the nth Fibonacci number iteratively.
+description: "Implement fibonacci(n) that returns the nth Fibonacci number (0-indexed: fibonacci(0) == 0, fibonacci(1) == 1)."
+scenario: |-
+  A developer tools team is generating test fixture sequences for a series of performance benchmarks. Several benchmarks use Fibonacci numbers as input sizes because they grow at a predictable sub-exponential rate. The generator is called once per benchmark configuration file at startup, so correctness matters more than micro-optimization.
+alt_scenarios:
+  - "**Load test sizing:** A load-testing framework uses Fibonacci numbers to define stepped concurrency levels that scale gradually without sudden jumps."
+  - "**Spiral layout engine:** A UI library generates Fibonacci-based tile sizes for a golden-ratio layout algorithm used in dashboard widgets."
+constraints:
+  - n is a non-negative integer.
+examples:
+  - input: fibonacci(6)
+    output: '8'
+starter_code: |-
+  def fibonacci(n: int) -> int:
+      pass
+follow_ups:
+  - Solve it recursively with memoization.
+  - Compute it in O(log n) using matrix exponentiation.
+key_skills:
+  - math
+  - iteration
+test_type: function
+function_name: fibonacci
+test_cases:
+  - label: zero
+    input:
+      n: 0
+    expected: 0
+  - label: one
+    input:
+      n: 1
+    expected: 1
+  - label: sixth
+    input:
+      n: 6
+    expected: 8
+  - label: tenth
+    input:
+      n: 10
+    expected: 55
+explanation: |-
+  This warm-up is meant to build confidence around **iteration** with a very small surface area.
+
+  The iterative approach uses two variables and updates them in a single loop, avoiding the exponential blow-up of naive recursion.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - Prefer the iterative two-variable approach over naive recursion to avoid recomputing subproblems.
+  - 'Treat Fibonacci as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

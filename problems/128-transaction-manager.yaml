@@ -1,0 +1,189 @@
+id: 128
+title: In-Memory Transaction Manager
+category: stateful
+difficulty: Medium
+summary: Key-value store with begin/commit/rollback transaction semantics.
+description: Implement a TransactionManager class that wraps an in-memory key-value store and supports ACID-style transactions. Operations — get, set, delete — applied within a transaction are invisible to other reads until committed. Rolling back reverts all changes in the current transaction. Support nested transactions (savepoints).
+scenario: |-
+  You're a systems engineer at a game studio building the embedded configuration store used by the Unreal-based game engine at runtime. During a level load, the engine writes dozens of asset keys atomically — texture budgets, spawn tables, audio channels — and any failure mid-write must roll back all changes cleanly to the last known good state. Nested transactions act as savepoints so a subsystem can tentatively apply a batch of changes and roll back just that batch if its validation step fails, without disturbing the outer transaction.
+alt_scenarios:
+  - "**Schema migration runner:** A database migration tool wraps each schema change in a transaction layer, rolling back only the failing migration step and leaving previously committed schema changes intact."
+  - "**Infrastructure-as-code planner:** A Terraform-style provisioner applies resource changes in layered transactions — individual resource updates can be rolled back on error while already-confirmed upstream dependencies remain committed."
+  - "**Multi-step checkout flow:** An e-commerce order service uses nested transaction semantics to stage inventory holds, payment reservations, and shipping label creation independently, rolling back only the failed stage without releasing already-confirmed upstream locks."
+constraints:
+- set(key, value) and delete(key) are always applied to the current transaction's working copy
+- get(key) reads from the innermost uncommitted layer that has the key, falling through to committed state
+- begin() starts a new transaction (nesting allowed)
+- commit() merges the current transaction into the parent (or commits to the base store if outermost)
+- rollback() discards the current transaction's changes without touching the parent
+- commit() or rollback() when no transaction is active raises RuntimeError
+examples:
+- input: |-
+    tm = TransactionManager()
+    tm.set('x', 1)
+    tm.begin()
+    tm.set('x', 2)
+    tm.get('x')    # 2 (pending in inner txn)
+    tm.rollback()
+    tm.get('x')    # 1 (rolled back to outer)
+  output: '2, 1'
+- input: |-
+    tm.begin()
+    tm.set('y', 10)
+    tm.commit()
+    tm.get('y')   # 10 now in base store
+  output: '10'
+starter_code: |-
+  class TransactionManager:
+      def __init__(self):
+          self._store = {}       # committed base store
+          self._txn_stack = []   # stack of dicts, one per active transaction
+
+      def begin(self) -> None:
+          """Start a new transaction (push a new layer)."""
+          pass
+
+      def commit(self) -> None:
+          """Commit the current transaction. Raises RuntimeError if none active."""
+          pass
+
+      def rollback(self) -> None:
+          """Discard the current transaction. Raises RuntimeError if none active."""
+          pass
+
+      def set(self, key: str, value) -> None:
+          """Set key=value in the current transaction layer (or base store)."""
+          pass
+
+      def get(self, key: str, default=None):
+          """Get value, reading through transaction layers from innermost to outermost."""
+          pass
+
+      def delete(self, key: str) -> None:
+          """Mark key as deleted in the current layer."""
+          pass
+follow_ups:
+- Add isolation levels (read committed vs. serializable).
+- Persist the base store to disk and recover on restart.
+- Support multi-threaded access with per-transaction locks.
+key_skills:
+- transaction semantics
+- layered state
+- stack
+- rollback/commit pattern
+test_type: class
+class_name: TransactionManager
+test_cases:
+- label: basic set and get without transaction
+  init_args: []
+  ops:
+  - set
+  - get
+  op_args:
+  - [a, 1]
+  - [a]
+  expected:
+  - null
+  - 1
+- label: rollback discards changes
+  init_args: []
+  ops:
+  - set
+  - begin
+  - set
+  - get
+  - rollback
+  - get
+  op_args:
+  - [x, 1]
+  - []
+  - [x, 2]
+  - [x]
+  - []
+  - [x]
+  expected:
+  - null
+  - null
+  - null
+  - 2
+  - null
+  - 1
+- label: commit merges into base
+  init_args: []
+  ops:
+  - begin
+  - set
+  - commit
+  - get
+  op_args:
+  - []
+  - [y, 10]
+  - []
+  - [y]
+  expected:
+  - null
+  - null
+  - null
+  - 10
+- label: nested transactions
+  init_args: []
+  ops:
+  - set
+  - begin
+  - set
+  - begin
+  - set
+  - get
+  - rollback
+  - get
+  - commit
+  - get
+  op_args:
+  - [z, 0]
+  - []
+  - [z, 1]
+  - []
+  - [z, 2]
+  - [z]
+  - []
+  - [z]
+  - []
+  - [z]
+  expected:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - 2
+  - null
+  - 1
+  - null
+  - 1
+- label: commit or rollback with no transaction raises error
+  init_args: []
+  ops:
+  - rollback
+  op_args:
+  - []
+  expected:
+  - null
+  expected_errors:
+  - runtimeerror
+explanation: |-
+  Data model: a base `_store` dict and a `_txn_stack` list of dicts (one per active transaction level). A special sentinel value (e.g., a _DELETED object) marks deleted keys within a layer.
+
+  get(key): walk the stack from top (innermost) to bottom, then the base store. Return the first match, or default. If the value is _DELETED, return default.
+
+  set(key, value): write to the top of the stack (or _store if no active transaction).
+
+  delete(key): write _DELETED sentinel to the top of the stack (or remove from _store).
+
+  commit(): pop the top layer and merge its contents into the layer below it (or _store if outermost). Merged overwrites, including _DELETED sentinels (so a delete in the inner layer propagates outward). Raise RuntimeError if stack is empty.
+
+  rollback(): pop and discard the top layer. Raise RuntimeError if stack is empty.
+
+  The sentinel approach for deletes is cleaner than a separate deleted-keys set per layer because it participates naturally in the layer lookup order.
+references:
+- The _DELETED sentinel lets deletes participate in the same layer-lookup order as sets — no separate tracking needed.
+- commit() merges into the layer below (not the base store) when nested — the outer transaction still controls whether to commit further.

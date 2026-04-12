@@ -1,0 +1,10 @@
+Configuration:
+- target_level: staff
+- round_type: coding
+- language: Python
+- difficulty: medium-hard
+- interviewer_mode: strict
+- company_flavor: openai
+- domain_bias: backend
+- include_followups: true
+- include_debrief: true

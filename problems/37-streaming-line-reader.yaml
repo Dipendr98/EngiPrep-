@@ -1,0 +1,86 @@
+id: 37
+title: Streaming Line Reader
+category: infra
+difficulty: Medium
+summary: Buffered reader that yields complete lines from chunked byte input.
+description: Implement a streaming reader that receives arbitrary byte chunks via feed(chunk) and yields complete lines as they become available. Lines are delimited by newline characters. Partial lines are buffered until the next chunk completes them. Support a max_line_length to prevent memory issues.
+scenario: |-
+  You're building the log-streaming feature for an internal developer portal that lets engineers tail their service's stdout in real time from a browser, piped through a WebSocket from the Kubernetes pod. The kubelet streams log bytes to your backend in arbitrary TCP chunks—sometimes arriving mid-line, sometimes three lines bundled together in a single packet—and your backend must parse out complete lines to forward to the browser as discrete messages. You also need to guard against a runaway service that emits a single enormous line (a JSON blob, a stack trace with no newlines) that would otherwise buffer unbounded in memory until the connection closes.
+alt_scenarios:
+  - "**SSH session proxy:** Parsing command output from a remote shell where stdout arrives in variable-length read() chunks, and the proxy must reconstruct complete lines before forwarding them to a terminal emulator."
+  - "**Network protocol parser (SMTP/FTP command channel):** Reading client commands from a TCP socket where protocol lines may span multiple recv() calls, requiring a buffer that accumulates bytes until a CRLF delimiter is found."
+  - "**CSV streaming importer:** Processing a large CSV file upload sent in multipart chunks over HTTP, emitting complete rows to a downstream validator as soon as they are delimited, without loading the entire file into memory."
+constraints:
+- Lines are delimited by '\n' (newline character)
+- Chunks are Python strings
+- max_line_length is a positive integer; exceeding it raises a LineTooLongError
+- feed() returns a list of complete lines without the trailing newline
+- flush() returns any remaining buffered content as a single-element list, or [] if empty
+- Empty lines (consecutive newlines) are valid and should be yielded as empty strings
+examples:
+- input: |-
+    reader = StreamingLineReader(max_line_length=1024)
+    reader.feed('hello wo')
+  output: '[]  # partial line, no newline yet — buffered internally'
+- input: reader.feed('rld\nfoo\nba')
+  output: '[''hello world'', ''foo'']  # two complete lines emitted; ''ba'' is buffered'
+- input: reader.flush()
+  output: '[''ba'']  # remaining buffer returned as a final line'
+starter_code: |-
+  class LineTooLongError(Exception):
+      pass
+
+  class StreamingLineReader:
+      def __init__(self, max_line_length: int = 65536):
+          pass
+
+      def feed(self, chunk: str) -> list:
+          pass
+
+      def flush(self) -> list:
+          pass
+follow_ups:
+- Support multiple delimiters (\n, \r\n, \r).
+- 'Add back-pressure: pause reading if the consumer is slow.'
+- Handle encoding (UTF-8 with multi-byte characters split across chunks).
+key_skills:
+- buffer management
+- iterator/generator pattern
+- string searching
+- memory bounds
+test_type: class
+test_cases:
+- label: buffer and flush
+  init_args:
+  - 1024
+  ops:
+  - feed
+  - feed
+  - flush
+  op_args:
+  - - hello wo
+  - - |-
+      rld
+      foo
+      ba
+  - []
+  expected:
+  - []
+  - - hello world
+    - foo
+  - - ba
+class_name: StreamingLineReader
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **buffer management** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **iterator/generator pattern** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Streaming Line Reader, re-run the provided hardcoded tests and explain why each one protects an important invariant.

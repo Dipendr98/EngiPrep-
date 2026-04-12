@@ -1,0 +1,110 @@
+id: 32
+title: Log Aggregator Pipeline
+category: streaming
+difficulty: Medium
+summary: Aggregate log entries by key with configurable reducers.
+description: 'Implement a pipeline that processes a stream of log entries (key-value dicts). Support group_by(field), then apply reducers: count(), sum(field), avg(field), min/max(field). Return the aggregated results. For example, group by ''status_code'' and count each.'
+scenario: |-
+  You're on the Observability Platform team at a B2B SaaS company, and every week an engineer opens a Jira ticket asking "can someone run a quick query to count 5xx responses by endpoint?" Spinning up Athena or BigQuery for every ad hoc question takes 20 minutes of setup and costs money. You're building a lightweight in-process log aggregation tool that ingests a batch of structured log dicts captured during a time window and lets engineers chain group_by and reducer calls—count, sum, avg, min, max—to answer these questions instantly in a Python notebook or CLI, without touching the data warehouse.
+alt_scenarios:
+  - "**A/B testing platform:** Aggregating experiment event logs by variant ID to compute per-variant conversion counts and average revenue without loading the full dataset into a SQL engine."
+  - "**DevOps cost analysis tool:** Grouping cloud billing line-item records by service and region, then summing spend and computing average cost-per-request, so teams can audit costs from a local CSV export."
+  - "**Customer success team tooling:** Grouping support ticket records by account tier and computing average resolution time and ticket count so the CS team can spot accounts at risk of churn without a BI tool."
+constraints:
+- Log entries are Python dicts with string keys and string or numeric values
+- The group_by field must exist in every log entry
+- Fields passed to sum/avg/min/max contain numeric values
+- If a group has no entries, it should not appear in results
+- The pipeline should handle an empty stream gracefully
+examples:
+- input: |-
+    agg = LogAggregator()
+    agg.ingest({'endpoint': '/api/users', 'status': 200, 'latency_ms': 45})
+    agg.ingest({'endpoint': '/api/users', 'status': 200, 'latency_ms': 52})
+    agg.ingest({'endpoint': '/api/orders', 'status': 500, 'latency_ms': 210})
+    agg.group_by('endpoint').count()
+  output: '{''/api/users'': 2, ''/api/orders'': 1}'
+- input: agg.group_by('endpoint').avg('latency_ms')
+  output: '{''/api/users'': 48.5, ''/api/orders'': 210.0}'
+- input: agg.group_by('status').sum('latency_ms')
+  output: "{'200': 97, '500': 210}"
+starter_code: |-
+  class LogAggregator:
+      def __init__(self):
+          pass
+
+      def ingest(self, log_entry: dict) -> None:
+          pass
+
+      def group_by(self, field: str) -> 'LogAggregator':
+          pass
+
+      def count(self) -> dict:
+          pass
+
+      def sum(self, field: str) -> dict:
+          pass
+
+      def avg(self, field: str) -> dict:
+          pass
+
+      def min(self, field: str) -> dict:
+          pass
+
+      def max(self, field: str) -> dict:
+          pass
+follow_ups:
+- Add a having() filter that runs after aggregation.
+- Support nested group-by (group by A then by B).
+- Add a streaming mode that emits partial results periodically.
+key_skills:
+- hash map grouping
+- reducer pattern
+- functional composition
+- streaming
+test_type: class
+test_cases:
+- label: aggregate by group
+  init_args: []
+  ops:
+  - ingest
+  - ingest
+  - ingest
+  - __eval__
+  - __eval__
+  op_args:
+  - - endpoint: /api/users
+      status: "200"
+      latency_ms: 45
+  - - endpoint: /api/users
+      status: "200"
+      latency_ms: 52
+  - - endpoint: /api/orders
+      status: "500"
+      latency_ms: 210
+  - - obj.group_by('endpoint').count()
+  - - obj.group_by('status').sum('latency_ms')
+  expected:
+  - null
+  - null
+  - null
+  - /api/users: 2
+    /api/orders: 1
+  - "200": 97
+    "500": 210
+class_name: LogAggregator
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map grouping** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **reducer pattern** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Think about incremental updates where you never want to recompute everything from scratch.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.
+- After implementing Log Aggregator Pipeline, re-run the provided hardcoded tests and explain why each one protects an important invariant.

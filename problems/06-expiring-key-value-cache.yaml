@@ -1,0 +1,85 @@
+id: 6
+title: Expiring Key-Value Cache
+category: stateful
+difficulty: Medium
+summary: Cache where entries automatically expire after a per-key TTL.
+description: Implement a cache where each put(key, value, ttl_seconds) stores a value that expires after ttl_seconds. get(key) returns the value if it exists and hasn't expired, otherwise returns None. The cache should not leak memory from expired entries.
+scenario: |-
+  The Identity team at a SaaS company caches OAuth access tokens in a per-process store to avoid hitting the authorization server on every API call. Each token has its own expiry time stamped by the issuer, ranging from 30 seconds to 24 hours. The cache must return the token if it is still valid, return nothing if it has expired, and not accumulate stale entries indefinitely—memory from expired tokens should be reclaimed without a full scan on every read.
+alt_scenarios:
+  - "**CDN edge node:** An edge caching layer stores HTTP responses with per-object TTLs derived from Cache-Control headers, evicting entries lazily when they are next requested past their expiry."
+  - "**Session store:** A web application caches user session objects with a 30-minute idle TTL so inactive sessions are automatically invalidated without a background sweep."
+  - "**DNS negative cache:** A resolver stores NXDOMAIN responses with the TTL from the SOA record so repeated lookups for non-existent hosts don't flood upstream nameservers."
+constraints: []
+examples: []
+starter_code: |-
+  class ExpiringCache:
+      def put(self, key, value, ttl_seconds: float) -> None:
+          pass
+
+      def get(self, key):
+          pass
+follow_ups:
+- Add a cleanup strategy that doesn't scan all entries on every call.
+- Add a capacity limit with LRU eviction for non-expired entries.
+- What data structure would you use if TTL values vary widely?
+key_skills:
+- hash map
+- heap or sorted structure
+- lazy vs eager cleanup
+- TTL
+test_type: class
+test_cases:
+- label: expires after ttl
+  init_args: []
+  ops:
+  - put
+  - get
+  - __sleep__
+  - get
+  op_args:
+  - - a
+    - 1
+    - 0.02
+  - - a
+  - - 0.03
+  - - a
+  expected:
+  - null
+  - 1
+  - null
+  - null
+- label: non expired remains
+  init_args: []
+  ops:
+  - put
+  - put
+  - get
+  op_args:
+  - - x
+    - 10
+    - 0.1
+  - - y
+    - 20
+    - 0.1
+  - - y
+  expected:
+  - null
+  - null
+  - 20
+class_name: ExpiringCache
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **heap or sorted structure** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- 'Focus on invariants first: what state must always stay true after every method call?'
+- Practice stepping through short operation sequences by hand before writing code.
+- After implementing Expiring Key-Value Cache, re-run the provided hardcoded tests and explain why each one protects an important invariant.

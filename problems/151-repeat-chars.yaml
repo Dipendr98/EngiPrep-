@@ -1,0 +1,56 @@
+id: 151
+title: Repeat Characters
+category: warmup
+difficulty: Easy
+summary: Repeat each character in a string n times.
+description: Implement repeat_chars(s, n) that returns a new string where every character in s is repeated n times consecutively.
+scenario: |-
+  A visual design tool for developers generates ASCII-art banner text by stretching each character horizontally. The stretch factor is configurable per banner style. The function is called once per character style render pass in the banner generation pipeline.
+alt_scenarios:
+  - "**Encoding scheme:** A simple run-length encoder pre-processes strings by expanding each character to a fixed-width slot before applying a downstream codec."
+  - "**Test data generator:** A fuzzing harness generates stress-test strings by repeating each character of a seed string to fill larger buffers."
+constraints:
+  - n is a positive integer. s may be empty.
+examples:
+  - input: repeat_chars("abc", 3)
+    output: '"aaabbbccc"'
+starter_code: |-
+  def repeat_chars(s: str, n: int) -> str:
+      pass
+follow_ups:
+  - Implement the reverse: compress consecutive repeated characters into char + count.
+  - Support per-character repeat counts given as a list.
+key_skills:
+  - strings
+test_type: function
+function_name: repeat_chars
+test_cases:
+  - label: basic
+    input:
+      s: "abc"
+      n: 3
+    expected: "aaabbbccc"
+  - label: single char
+    input:
+      s: "x"
+      n: 5
+    expected: "xxxxx"
+  - label: n equals one
+    input:
+      s: "hi"
+      n: 1
+    expected: "hi"
+  - label: empty string
+    input:
+      s: ""
+      n: 4
+    expected: ""
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  Join each character repeated n times: "".join(c * n for c in s). Character multiplication (c * n) is idiomatic Python.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - '"".join(c * n for c in s) is the idiomatic one-liner using character repetition.'
+  - 'Treat Repeat Characters as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

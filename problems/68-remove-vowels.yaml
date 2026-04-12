@@ -1,0 +1,49 @@
+id: 68
+title: Remove Vowels
+category: warmup
+difficulty: Easy
+summary: Return a string without vowels.
+description: Implement remove_vowels(s) that removes English vowels from the string, preserving the order of the remaining characters.
+scenario: |-
+  The search indexing team at a mid-size e-commerce company needs to generate compact, consonant-only keys from product titles to power a fuzzy phonetic lookup index. Incoming titles like "Interview Prep Guide" must be stripped of vowels before being hashed into the lookup table. A backend engineer is writing the preprocessing step that runs on every new product ingestion before the data lands in Elasticsearch.
+alt_scenarios:
+  - "**NLP pipeline:** A text normalization stage removes vowels from raw tokens to create skeletal keys for a consonant-based stemming dictionary."
+  - "**URL slug generator:** A marketing tool strips vowels from long product names to produce shorter, URL-safe identifiers within a character-count budget."
+  - "**Compression codec:** A lightweight encoder omits vowels from English field values in a compact binary format used by an IoT telemetry system."
+constraints:
+- Treat vowels case-insensitively.
+examples:
+- input: remove_vowels("Interview")
+  output: ntrvw
+starter_code: |-
+  def remove_vowels(s: str) -> str:
+      pass
+follow_ups:
+- Remove only repeated vowels.
+- Also collapse runs of whitespace.
+key_skills:
+- strings
+test_type: function
+function_name: remove_vowels
+test_cases:
+- label: basic
+  input:
+    s: Interview
+  expected: ntrvw
+- label: already none
+  input:
+    s: rhythms
+  expected: rhythms
+- label: all vowels
+  input:
+    s: aeiouAEIOU
+  expected: ''
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Remove Vowels as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

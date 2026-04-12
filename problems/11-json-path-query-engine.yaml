@@ -1,0 +1,75 @@
+id: 11
+title: JSON Path Query Engine
+category: parsing
+difficulty: Hard
+summary: Implement a subset of JSONPath to query nested data structures.
+description: 'Implement query(data, path) where path is a JSONPath-like string. Support dot notation ($.store.book), array indexing ($[0]), wildcards ($.*), and recursive descent ($..). Return all matching values. For example, query({''a'': {''b'': [1,2,3]}}, ''$.a.b[1]'') returns [2].'
+scenario: |-
+  The Observability team at a cloud company receives structured JSON payloads from hundreds of different services, each with a slightly different schema. On-call engineers need to write ad-hoc queries against live alert payloads—things like "give me every `message` field anywhere in this nested structure" or "pull the second element from `$.errors[1].details`"—without writing one-off parsing code for each schema. You need to implement a JSONPath query engine that handles dot notation, array indexing, wildcards, and recursive descent so engineers can slice arbitrary payloads with a single expression.
+alt_scenarios:
+  - "**API contract testing tool:** A testing framework evaluates JSONPath assertions against HTTP response bodies to verify that deeply nested fields match expected values without hard-coding field access logic."
+  - "**ETL transformation layer:** A data-ingestion pipeline uses JSONPath expressions to extract specific fields from heterogeneous vendor webhook payloads before normalizing them into a common schema."
+  - "**Policy engine:** A security policy evaluator runs JSONPath queries against IAM request context objects to extract the resource ARN and action fields needed to make an allow/deny decision."
+constraints: []
+examples: []
+starter_code: |-
+  def query(data, path: str) -> list:
+      pass
+follow_ups:
+- Add filter expressions like $[?(@.price < 10)].
+- Support setting values at a path, not just reading.
+- How would you optimize for repeated queries on the same data?
+key_skills:
+- recursive traversal
+- pattern matching
+- tokenization
+- tree navigation
+test_type: function
+test_cases:
+- label: array index
+  input:
+    data:
+      a:
+        b:
+        - 1
+        - 2
+        - 3
+    path: $.a.b[1]
+  expected:
+  - 2
+- label: wildcard
+  input:
+    data:
+      a: 1
+      b: 2
+    path: $.*
+  expected:
+  - 1
+  - 2
+- label: recursive descent
+  input:
+    data:
+      a:
+        target: 1
+      b:
+      - target: 2
+    path: $..target
+  expected:
+  - 1
+  - 2
+function_name: query
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **recursive traversal** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **pattern matching** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to split raw input into meaningful tokens before you start building structure.
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.
+- After implementing JSON Path Query Engine, re-run the provided hardcoded tests and explain why each one protects an important invariant.

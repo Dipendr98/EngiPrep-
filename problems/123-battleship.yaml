@@ -1,0 +1,162 @@
+id: 123
+title: Battleship
+category: stateful
+difficulty: Medium
+summary: Implement Battleship with ship placement, attack resolution, and sunk detection.
+description: |-
+  Design a Battleship class for a single player's board (10x10 grid). Implement place_ship(name, cells) to register a ship covering the given list of (row, col) cells, and attack(row, col) which returns 'miss', 'hit', or 'sunk: {ship_name}'. When all ships are sunk, is_game_over() returns True.
+scenario: |-
+  You're a backend engineer on the Live Games team at a mobile studio shipping a turn-based naval strategy game to 500k daily active users. Each player's board is a server-side secret — the opponent never sees ship positions, only attack results. On every turn your service receives a grid coordinate, checks it against the hidden layout, updates per-ship damage state, and returns a precise result ('miss', 'hit', or 'sunk: carrier') so the client can animate the outcome without any additional round-trips.
+alt_scenarios:
+  - "**Feature flag targeting:** A feature-flag service tracks which user cohorts ('ships') have been fully exposed to a rollout, marking a flag as fully released only when every targeted segment has been hit by the activation event."
+  - "**Cloud resource teardown:** A deprovisioning orchestrator tracks which component groups (databases, load balancers, worker pools) still have live instances, reporting each group as 'cleared' when all its members are terminated and declaring the environment destroyed when none remain."
+  - "**Fraud detection rule engine:** A risk platform maps incoming transaction attributes to named rule clusters, registers a partial or full rule trigger per cluster, and escalates a case only when every cell of a flagged cluster has been matched."
+constraints:
+- Grid is 10x10, rows and cols 0-9
+- place_ship raises ValueError if cells overlap an existing ship or are out of bounds
+- attack raises ValueError if the cell was already attacked
+- "attack returns 'miss', 'hit', or 'sunk: {ship_name}'"
+- A ship is sunk when every one of its cells has been hit
+- is_game_over() returns True when all ships are sunk
+examples:
+- input: |-
+    b = Battleship()
+    b.place_ship('destroyer', [(0,0),(0,1)])
+    b.attack(0,0)
+    b.attack(0,1)
+    b.is_game_over()
+  output: 'hit, sunk: destroyer, True'
+starter_code: |-
+  class Battleship:
+      SIZE = 10
+
+      def __init__(self):
+          self.ships = {}       # name -> set of (row, col) remaining cells
+          self.attacked = set() # (row, col) cells already attacked
+          self.occupied = {}    # (row, col) -> ship name
+
+      def place_ship(self, name: str, cells: list) -> None:
+          """Register a ship. Raises ValueError on overlap or out-of-bounds."""
+          pass
+
+      def attack(self, row: int, col: int) -> str:
+          """Process an attack. Returns 'miss', 'hit', or 'sunk: {name}'."""
+          pass
+
+      def is_game_over(self) -> bool:
+          """Return True when all ships have been sunk."""
+          pass
+follow_ups:
+- Add a two-player mode where boards are hidden from each other.
+- Validate that ships must be placed in straight lines (horizontal or vertical only).
+- Add a salvo mode where each player fires one shot per remaining ship per turn.
+key_skills:
+- game state management
+- set operations
+- class design
+- input validation
+test_type: class
+class_name: Battleship
+test_cases:
+- label: hit and sunk one ship
+  init_args: []
+  ops:
+  - place_ship
+  - attack
+  - attack
+  - is_game_over
+  op_args:
+  - [destroyer, [[0, 0], [0, 1]]]
+  - [0, 0]
+  - [0, 1]
+  - []
+  expected:
+  - null
+  - hit
+  - 'sunk: destroyer'
+  - true
+- label: miss then hit two ships
+  init_args: []
+  ops:
+  - place_ship
+  - place_ship
+  - attack
+  - attack
+  - attack
+  - is_game_over
+  op_args:
+  - [carrier, [[2, 2], [2, 3], [2, 4]]]
+  - [sub, [[5, 5]]]
+  - [9, 9]
+  - [2, 2]
+  - [5, 5]
+  - []
+  expected:
+  - null
+  - null
+  - miss
+  - hit
+  - 'sunk: sub'
+  - false
+- label: duplicate attack raises error
+  init_args: []
+  ops:
+  - place_ship
+  - attack
+  - attack
+  op_args:
+  - [boat, [[3, 3]]]
+  - [3, 3]
+  - [3, 3]
+  expected:
+  - null
+  - 'sunk: boat'
+  - null
+  expected_errors:
+  - null
+  - null
+  - valueerror
+- label: all ships sunk triggers game over
+  init_args: []
+  ops:
+  - place_ship
+  - place_ship
+  - attack
+  - attack
+  - attack
+  - is_game_over
+  op_args:
+  - [a, [[0, 0]]]
+  - [b, [[1, 1]]]
+  - [0, 0]
+  - [1, 1]
+  - [9, 9]
+  - []
+  expected:
+  - null
+  - null
+  - 'sunk: a'
+  - 'sunk: b'
+  - miss
+  - true
+explanation: |-
+  Data model:
+  - ships: maps name to a set of remaining (unhit) cells. Empty set means sunk.
+  - occupied: maps (row, col) to ship name for O(1) hit lookup.
+  - attacked: set of already-attacked cells for duplicate-attack detection.
+
+  place_ship: validate bounds and no overlap with occupied, then populate both ships and occupied.
+
+  attack:
+  1. Raise ValueError if already attacked.
+  2. Add to attacked set.
+  3. If cell not in occupied, return 'miss'.
+  4. Else remove cell from ships[name]. If ships[name] is empty, delete the ship and return 'sunk: {name}'.
+  5. Else return 'hit'.
+
+  is_game_over: return len(ships) == 0.
+
+  The key design choice: tracking remaining cells per ship as a set means sunk detection is O(1) — removing a hit cell and checking emptiness is all you need.
+references:
+- Storing remaining ship cells as sets makes sunk detection O(1).
+- Separate occupied from ships so attack lookup stays O(1) regardless of ship sizes.

@@ -1,0 +1,104 @@
+id: 27
+title: Real-Time Leaderboard
+category: search
+difficulty: Medium
+summary: Leaderboard supporting score updates, rank queries, and top-K retrieval.
+description: Implement a leaderboard. update(player_id, score) sets a player's score. top(k) returns the top K players sorted by score descending. rank(player_id) returns the 1-based rank. All operations should be efficient for 100K+ players.
+scenario: |-
+  You're on the Games Backend team at a mobile gaming company running a live tournament with 150K concurrent players. Every time a player completes a match, their score is updated and the global leaderboard must reflect the change immediately—players refresh the leaderboard page constantly during the event window. The front-end makes two high-frequency calls: top(k) to render the public leaderboard and rank(player_id) to show each player their own position. Sorting the full player set on every request is not an option given the event traffic, so the data structure needs to support sub-millisecond rank queries.
+alt_scenarios:
+  - "**Fantasy sports platform:** Updating team standings in real-time as live game scores change, so millions of users see their league rank shift play-by-play without expensive full-table sorts."
+  - "**Sales performance dashboard (Salesforce-style CRM):** Showing each account executive their current rank among hundreds of peers by quota attainment, updated each time a deal is closed in the CRM."
+  - "**Crypto exchange:** Maintaining a real-time leaderboard of traders ranked by 24-hour P&L, with thousands of position updates per second flowing in from the matching engine."
+constraints:
+- Player IDs are unique strings
+- Scores are non-negative integers
+- update() replaces the player's previous score (not additive)
+- If two players have the same score, break ties by player_id alphabetically
+- rank() on an unknown player_id should return -1
+examples:
+- input: |-
+    update('alice', 1500)
+    update('bob', 2000)
+    update('carol', 1800)
+    top(2)
+  output: '[(''bob'', 2000), (''carol'', 1800)]  — top 2 players by score descending'
+- input: rank('carol')
+  output: 2  — carol has the second-highest score
+- input: |-
+    update('alice', 2500)
+    rank('alice')
+  output: 1  — alice's score updated to 2500, now ranked first
+starter_code: |-
+  class Leaderboard:
+      def __init__(self):
+          pass
+
+      def update(self, player_id: str, score: int) -> None:
+          pass
+
+      def top(self, k: int) -> list[tuple[str, int]]:
+          pass
+
+      def rank(self, player_id: str) -> int:
+          pass
+follow_ups:
+- Add get_range(start_rank, end_rank) for paginated retrieval.
+- Support score decay over time.
+- How would you shard this across multiple servers?
+key_skills:
+- sorted set / balanced BST
+- hash map
+- rank queries
+- top-k
+test_type: class
+test_cases:
+- label: top and rank
+  init_args: []
+  ops:
+  - update
+  - update
+  - update
+  - __eval__
+  - rank
+  - update
+  - rank
+  op_args:
+  - - alice
+    - 1500
+  - - bob
+    - 2000
+  - - carol
+    - 1800
+  - - '[list(item) for item in obj.top(2)]'
+  - - carol
+  - - alice
+    - 2500
+  - - alice
+  expected:
+  - null
+  - null
+  - null
+  - - - bob
+      - 2000
+    - - carol
+      - 1800
+  - 2
+  - null
+  - 1
+class_name: Leaderboard
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **sorted set / balanced BST** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **hash map** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing Real-Time Leaderboard, re-run the provided hardcoded tests and explain why each one protects an important invariant.

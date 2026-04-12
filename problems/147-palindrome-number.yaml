@@ -1,0 +1,59 @@
+id: 147
+title: Palindrome Number
+category: warmup
+difficulty: Easy
+summary: Check if an integer reads the same forwards and backwards.
+description: Implement is_palindrome_number(n) that returns True if n reads the same forwards and backwards. Negative numbers are not palindromes.
+scenario: |-
+  A license-plate generation service wants to offer "premium palindrome plates" — plates where the numeric suffix is a palindrome. Before issuing a plate, the backend checks whether the requested number qualifies. The check runs on every issuance request, so it needs to be a fast single-expression check.
+alt_scenarios:
+  - "**Timestamp symmetry check:** A logging tool flags log sequence numbers that are palindromes for a novelty daily digest sent to the engineering team."
+  - "**Lottery number validator:** A lottery platform highlights palindrome ticket numbers in its UI as a fun feature for players."
+constraints:
+  - Negative integers are never palindromes.
+examples:
+  - input: is_palindrome_number(121)
+    output: 'True'
+  - input: is_palindrome_number(-121)
+    output: 'False'
+starter_code: |-
+  def is_palindrome_number(n: int) -> bool:
+      pass
+follow_ups:
+  - Solve without converting to a string (reverse half the digits mathematically).
+  - Find the nearest palindrome number to n.
+key_skills:
+  - math
+  - strings
+test_type: function
+function_name: is_palindrome_number
+test_cases:
+  - label: palindrome
+    input:
+      n: 121
+    expected: true
+  - label: negative
+    input:
+      n: -121
+    expected: false
+  - label: not palindrome
+    input:
+      n: 123
+    expected: false
+  - label: single digit
+    input:
+      n: 7
+    expected: true
+  - label: ends in zero
+    input:
+      n: 10
+    expected: false
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  The simplest approach: convert to string and check s == s[::-1], then handle negatives first. The math approach reverses only the second half to avoid overflow in other languages.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'In Python, str(n) == str(n)[::-1] is fine; in other languages reversing an integer avoids string allocation.'
+  - 'Treat Palindrome Number as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

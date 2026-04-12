@@ -1,0 +1,59 @@
+id: 53
+title: Palindrome Checker
+category: search
+difficulty: Easy
+summary: Decide if a string is a palindrome after normalization.
+description: Implement is_palindrome(s) that ignores non-alphanumeric characters and letter case, then returns whether the normalized string reads the same forward and backward.
+scenario: |-
+  The content moderation team at a social platform is building a fast pre-filter for their submission pipeline that detects certain classes of spam, one of which is the use of mirrored or reversed phrases that evade keyword blacklists. Before the expensive ML classifier runs, the pipeline applies a lightweight pass that normalizes each token — stripping punctuation, folding case — and checks whether the result reads the same forward and backward. The check must run in O(n) time on strings up to several thousand characters without allocating a reversed copy.
+alt_scenarios:
+  - "**Genomics sequencing:** A bioinformatics tool checks whether a DNA strand segment forms a palindromic sequence, which indicates a restriction enzyme recognition site."
+  - "**Password policy enforcement:** A security service rejects passwords that, after lowercasing, are palindromes, as they appear disproportionately in leaked credential datasets."
+  - "**Search autocorrect:** A search engine's query-normalization layer identifies symmetric query strings as likely mis-keys before routing them to spell-check suggestions."
+constraints:
+- Treat letters and digits as significant
+- An empty normalized string counts as a palindrome
+examples:
+- input: 'is_palindrome("A man, a plan, a canal: Panama")'
+  output: 'True'
+- input: is_palindrome("race a car")
+  output: 'False'
+starter_code: |-
+  def is_palindrome(s: str) -> bool:
+      pass
+follow_ups:
+- Return the normalized string alongside the boolean result.
+- Support Unicode categories more carefully.
+key_skills:
+- search
+- two pointers
+test_type: function
+function_name: is_palindrome
+test_cases:
+- label: classic true
+  input:
+    s: 'A man, a plan, a canal: Panama'
+  expected: true
+- label: false case
+  input:
+    s: race a car
+  expected: false
+- label: empty after filtering
+  input:
+    s: .,
+  expected: true
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **search** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **two pointers** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review indexing tradeoffs: what you precompute, what you scan, and how ranking is derived.'
+- Practice scanning from both ends or from two sorted arrays without losing track of termination conditions.
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.

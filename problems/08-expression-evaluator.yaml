@@ -1,0 +1,63 @@
+id: 8
+title: Expression Evaluator
+category: parsing
+difficulty: Hard
+summary: Evaluate arithmetic expressions with operators, parentheses, and variables.
+description: Implement evaluate(expression, variables) that computes the result of an arithmetic expression string containing integers, +, -, *, /, parentheses, and variable names. Variables are provided as a dictionary. Handle operator precedence correctly. Division is integer division.
+scenario: |-
+  The Analytics team at a SaaS company lets customers write custom metric formulas in a dashboard builder—expressions like `(revenue - refunds) * conversion_rate / 100`. The formula engine must evaluate these strings safely at query time, substituting named variables with values pulled from the warehouse, and respecting standard operator precedence without calling `eval`. Malformed or variable-missing expressions should surface a clear error rather than silently return a wrong number.
+alt_scenarios:
+  - "**Infrastructure cost estimator:** A cloud-pricing tool evaluates user-defined cost formulas containing resource variables (cpu_hours, storage_gb) to produce bill estimates before provisioning."
+  - "**Spreadsheet engine:** A browser-based spreadsheet evaluates cell formulas referencing named ranges, handling operator precedence and parenthesized sub-expressions across thousands of cells."
+  - "**CI pipeline condition evaluator:** A build system evaluates branch-protection rule expressions like `changed_files > 10 * (base_coverage - head_coverage)` to decide whether to require additional reviewer approval."
+constraints: []
+examples: []
+starter_code: |-
+  def evaluate(expression: str, variables: dict[str, int]) -> int:
+      pass
+follow_ups:
+- Add support for unary minus (e.g. '-x' or '-(a+b)').
+- Add support for user-defined functions like max(a, b).
+- How would you report useful error messages for malformed expressions?
+key_skills:
+- recursive descent parsing
+- tokenization
+- operator precedence
+- stack
+test_type: function
+test_cases:
+- label: precedence
+  input:
+    expression: 2 + 3 * 4
+    variables: {}
+  expected: 14
+- label: variables and parentheses
+  input:
+    expression: (a + b) * c
+    variables:
+      a: 2
+      b: 3
+      c: 4
+  expected: 20
+- label: integer division
+  input:
+    expression: x / 3
+    variables:
+      x: 8
+  expected: 2
+function_name: evaluate
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **recursive descent parsing** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **tokenization** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to split raw input into meaningful tokens before you start building structure.
+- Study recursive-descent or stack-based expression evaluation so precedence is encoded cleanly.
+- Review how stacks help with matching delimiters, backtracking, and incremental parsing.
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.

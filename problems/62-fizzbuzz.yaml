@@ -1,0 +1,66 @@
+id: 62
+title: FizzBuzz
+category: warmup
+difficulty: Easy
+summary: Generate the classic FizzBuzz sequence.
+description: Implement fizz_buzz(n) that returns a list of strings from 1 to n, replacing multiples of 3 with "Fizz", multiples of 5 with "Buzz", and multiples of both with "FizzBuzz".
+scenario: |-
+  A backend engineer at a developer-education startup is generating synthetic datasets for a coding challenge platform. The scaffolding system needs to produce reference output for test cases automatically, and the first dataset it must generate is the classic FizzBuzz sequence up to a configurable length. The generator will be called thousands of times per day by the test-runner, so it needs to be correct, readable, and produce output in a single pass without branching on a per-character basis.
+alt_scenarios:
+  - "**Configuration templating:** A build system generates numbered placeholder names for CI matrix entries, substituting group labels at every third and fifth index for human-readable lane identification."
+  - "**Batch job labeling:** A data pipeline assigns category tags to numbered task slots, marking every nth slot with a predefined label as part of a round-robin work distribution scheme."
+constraints:
+- n is positive.
+examples:
+- input: fizz_buzz(5)
+  output: '["1", "2", "Fizz", "4", "Buzz"]'
+starter_code: |-
+  def fizz_buzz(n: int) -> list[str]:
+      pass
+follow_ups:
+- Support custom replacement rules.
+- Stream values instead of returning a list.
+key_skills:
+- arrays
+- counting
+test_type: function
+function_name: fizz_buzz
+test_cases:
+- label: five
+  input:
+    n: 5
+  expected:
+  - '1'
+  - '2'
+  - Fizz
+  - '4'
+  - Buzz
+- label: fifteen
+  input:
+    n: 15
+  expected:
+  - '1'
+  - '2'
+  - Fizz
+  - '4'
+  - Buzz
+  - Fizz
+  - '7'
+  - '8'
+  - Fizz
+  - Buzz
+  - '11'
+  - Fizz
+  - '13'
+  - '14'
+  - FizzBuzz
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat FizzBuzz as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

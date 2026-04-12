@@ -1,0 +1,66 @@
+id: 82
+title: "While Loop: Two Pointer"
+category: syntax
+difficulty: Easy
+summary: Use a while loop with two pointers to find indices of two numbers in a sorted list that sum to a target.
+description: >-
+  Implement `two_sum_sorted(nums: list[int], target: int) -> list[int]` that takes a
+  sorted list of distinct integers and a target, and returns the 0-based indices of the
+  two numbers that sum to the target. Use a while loop with two pointers. Guaranteed
+  exactly one solution exists.
+scenario: |-
+  A trading infrastructure team at a hedge fund maintains a sorted list of live bid prices and needs to find the two bids whose combined value matches a target spread for a pairs trade. The list is kept sorted at all times by the order book, so a two-pointer scan is O(n) and far faster than a nested loop over thousands of prices. The engineer is implementing this lookup to run inside the hot path of the matching engine.
+alt_scenarios:
+  - "**Chemistry lab tool:** A molecular database scans a sorted list of molecular weights to find two compounds whose combined mass equals a target reaction value."
+  - "**Logistics optimizer:** A route planner searches a sorted list of segment distances to find two legs whose total matches a required delivery window."
+  - "**Memory allocator:** A buddy allocator scans a sorted free-block list to find two adjacent block sizes that together satisfy an allocation request."
+constraints:
+  - nums is sorted in ascending order
+  - All integers in nums are distinct
+  - Exactly one solution is guaranteed
+examples:
+  - input: two_sum_sorted([2,7,11,15], 9)
+    output: '[0, 1]'
+  - input: two_sum_sorted([2,3,5,8], 8)
+    output: '[1, 2]'
+starter_code: |-
+  def two_sum_sorted(nums: list[int], target: int) -> list[int]:
+      pass
+follow_ups:
+  - How would you adapt this if the list were not sorted?
+  - What if there could be duplicate values in the list?
+key_skills:
+  - while loop
+  - two pointers
+  - binary search mindset
+test_type: function
+function_name: two_sum_sorted
+test_cases:
+  - label: basic pair at start
+    input:
+      nums: [2, 7, 11, 15]
+      target: 9
+    expected: [0, 1]
+  - label: middle pair
+    input:
+      nums: [2, 3, 5, 8]
+      target: 8
+    expected: [1, 2]
+  - label: last two elements
+    input:
+      nums: [1, 2, 3, 4, 5]
+      target: 9
+    expected: [3, 4]
+  - label: two-element list
+    input:
+      nums: [2, 4]
+      target: 6
+    expected: [0, 1]
+explanation: |-
+  Two pointers start at opposite ends of a sorted list. If the sum is too large, move
+  the right pointer left; if too small, move the left pointer right. This avoids O(n²)
+  brute force. The while loop condition `left < right` naturally terminates when pointers
+  cross.
+references:
+  - "Pattern: Two Pointers on sorted arrays"
+  - "LeetCode 167: Two Sum II — Input Array Is Sorted"

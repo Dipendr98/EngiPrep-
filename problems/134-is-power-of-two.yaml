@@ -1,0 +1,59 @@
+id: 134
+title: Is Power of Two
+category: warmup
+difficulty: Easy
+summary: Check if an integer is a power of two.
+description: Implement is_power_of_two(n) that returns True if n is a power of two, False otherwise.
+scenario: |-
+  A systems engineer at a cloud provider is validating memory allocation requests. Allocations must be a power-of-two number of bytes to align with the buddy allocator's block sizes. The validator is called in the kernel path on every malloc request, so it needs to be a single tight check with no loops.
+alt_scenarios:
+  - "**Image processing:** A graphics pipeline validates that texture dimensions are powers of two before uploading to the GPU for mipmap generation."
+  - "**Network buffer sizing:** A packet processor checks that requested buffer sizes are powers of two to ensure alignment with ring buffer slots."
+constraints:
+  - n is a positive integer.
+examples:
+  - input: is_power_of_two(8)
+    output: 'True'
+  - input: is_power_of_two(6)
+    output: 'False'
+starter_code: |-
+  def is_power_of_two(n: int) -> bool:
+      pass
+follow_ups:
+  - Solve it without any bitwise operators.
+  - Handle n <= 0 gracefully.
+key_skills:
+  - math
+  - bit manipulation
+test_type: function
+function_name: is_power_of_two
+test_cases:
+  - label: power
+    input:
+      n: 8
+    expected: true
+  - label: not power
+    input:
+      n: 6
+    expected: false
+  - label: one
+    input:
+      n: 1
+    expected: true
+  - label: large power
+    input:
+      n: 1024
+    expected: true
+  - label: large non-power
+    input:
+      n: 1023
+    expected: false
+explanation: |-
+  This warm-up is meant to build confidence around **bit manipulation** with a very small surface area.
+
+  The classic trick: n & (n - 1) == 0 clears the lowest set bit. For a power of two there is only one set bit, so the result is zero.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'Key insight: every power of two has exactly one set bit in binary. n & (n-1) strips the lowest set bit.'
+  - 'Treat Is Power of Two as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

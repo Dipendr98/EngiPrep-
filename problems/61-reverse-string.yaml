@@ -1,0 +1,49 @@
+id: 61
+title: Reverse String
+category: warmup
+difficulty: Easy
+summary: Return a string with characters reversed.
+description: Implement reverse_string(s) that returns the input string reversed.
+scenario: |-
+  A firmware team at an embedded-systems company is writing a lightweight display driver for a low-power e-ink badge. Character strings received over BLE must be mirrored before being written to the display buffer because the screen's physical ribbon cable is mounted in reverse orientation. The reversal runs on a microcontroller with no standard-library string support, so the engineer needs a clean, allocation-free implementation that reverses the byte sequence in place before the next display refresh cycle.
+alt_scenarios:
+  - "**URL slug generator:** A CMS normalizes article slugs by reversing them as part of a URL obfuscation scheme that prevents crawlers from guessing sequential content IDs."
+  - "**Checksum validation:** A network protocol library reverses byte strings before computing a checksum to match a legacy big-endian wire format used by older hardware devices."
+constraints:
+- The input may be empty.
+- Return a new string.
+examples:
+- input: reverse_string("hello")
+  output: '"olleh"'
+starter_code: |-
+  def reverse_string(s: str) -> str:
+      pass
+follow_ups:
+- Reverse only alphabetic characters.
+- Do it in place for a mutable character array.
+key_skills:
+- strings
+test_type: function
+function_name: reverse_string
+test_cases:
+- label: basic
+  input:
+    s: hello
+  expected: olleh
+- label: empty
+  input:
+    s: ''
+  expected: ''
+- label: spaces
+  input:
+    s: ab cd
+  expected: dc ba
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Reverse String as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

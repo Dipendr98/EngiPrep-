@@ -1,0 +1,120 @@
+id: 112
+title: Number of Islands
+category: graphs
+difficulty: Medium
+summary: Count connected components of '1's in a 2D grid using DFS or BFS.
+description: Given a 2D grid of '1's (land) and '0's (water), count the number of islands. An island is a group of adjacent '1's connected horizontally or vertically. You may modify the grid in-place.
+scenario: |-
+  You're an engineer on Google Maps' geospatial data team, processing 10-meter-resolution land/water binary rasters derived from Sentinel-2 satellite imagery. Each tile arrives as a 512x512 grid of '1' (land) and '0' (water) pixels, and your pipeline must count the number of distinct land parcels — connected land regions — before feeding them into the polygon-simplification step. Loading the full tile into an explicit graph structure would triple memory usage, so the DFS must operate directly on the grid in-place.
+alt_scenarios:
+  - "**Cloud infrastructure topology:** A cloud orchestration tool counts the number of isolated VPC network segments in a connectivity matrix to detect accidentally partitioned environments."
+  - "**PCB trace validator:** An EDA tool counts connected copper regions on a printed circuit board layout to verify that no unintended shorts or isolated islands exist before fabrication."
+  - "**Game map generator:** A procedural dungeon generator counts disconnected room clusters in a binary floor map to ensure all rooms are reachable before the level is finalized."
+constraints:
+- Adjacency is 4-directional (up, down, left, right) — not diagonal
+- You may mark visited cells in-place (set '1' to '0') or use a visited set
+- An empty grid returns 0
+examples:
+- input: |-
+    grid = [
+      ["1","1","1","1","0"],
+      ["1","1","0","1","0"],
+      ["1","1","0","0","0"],
+      ["0","0","0","0","0"]
+    ]
+    num_islands(grid)
+  output: '1'
+- input: |-
+    grid = [
+      ["1","1","0","0","0"],
+      ["1","1","0","0","0"],
+      ["0","0","1","0","0"],
+      ["0","0","0","1","1"]
+    ]
+    num_islands(grid)
+  output: '3'
+starter_code: |-
+  def num_islands(grid: list[list[str]]) -> int:
+      pass
+follow_ups:
+- Count the size of each island and return the maximum.
+- Solve without modifying the grid (use a visited set instead).
+- Extend to 8-directional adjacency (include diagonals).
+key_skills:
+- graph traversal
+- DFS
+- connected components
+- matrix
+test_type: function
+test_cases:
+- label: one island
+  args:
+  - - - "1"
+      - "1"
+      - "1"
+      - "1"
+      - "0"
+    - - "1"
+      - "1"
+      - "0"
+      - "1"
+      - "0"
+    - - "1"
+      - "1"
+      - "0"
+      - "0"
+      - "0"
+    - - "0"
+      - "0"
+      - "0"
+      - "0"
+      - "0"
+  expected: 1
+- label: three islands
+  args:
+  - - - "1"
+      - "1"
+      - "0"
+      - "0"
+      - "0"
+    - - "1"
+      - "1"
+      - "0"
+      - "0"
+      - "0"
+    - - "0"
+      - "0"
+      - "1"
+      - "0"
+      - "0"
+    - - "0"
+      - "0"
+      - "0"
+      - "1"
+      - "1"
+  expected: 3
+- label: empty grid
+  args:
+  - []
+  expected: 0
+- label: all water
+  args:
+  - - - "0"
+      - "0"
+    - - "0"
+      - "0"
+  expected: 0
+function_name: num_islands
+explanation: |-
+  For each unvisited '1' cell, increment the island count and run a DFS/BFS to sink the whole island (mark all connected '1's as '0' or visited).
+
+  DFS approach: when you find a '1', call dfs(r, c) which marks (r,c) as '0' and recursively calls itself on the four neighbors if they are in bounds and equal '1'.
+
+  BFS approach: use a queue, enqueue the starting cell, then process neighbors the same way.
+
+  In-place modification is fine when the grid is a local copy; use a visited set if you must preserve the input.
+
+  Time O(rows * cols), space O(rows * cols) for the recursion stack or BFS queue in the worst case.
+references:
+- Sinking cells in-place is the most concise approach — mark as '0' immediately when enqueuing to avoid revisiting.
+- This is the classic "connected components" problem on an implicit graph — the edges are the 4-directional adjacencies.

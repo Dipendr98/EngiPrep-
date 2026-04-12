@@ -1,0 +1,59 @@
+id: 150
+title: All Unique Characters
+category: warmup
+difficulty: Easy
+summary: Check if all characters in a string are unique.
+description: Implement all_unique(s) that returns True if every character in s appears exactly once, False otherwise.
+scenario: |-
+  A password policy service at a security company enforces a rule that no character may repeat in a generated one-time token. The validator runs on every token before it is issued to ensure the character-uniqueness constraint holds.
+alt_scenarios:
+  - "**Sudoku helper:** A puzzle validator checks that a row, column, or box contains no repeated digits as part of a broader Sudoku solution verifier."
+  - "**Anagram pre-check:** A word game validates that a player's rack of tiles contains no duplicate letters before entering the fast-path anagram solver."
+constraints:
+  - s may be empty (empty string has all unique characters). Case-sensitive.
+examples:
+  - input: all_unique("abcdef")
+    output: 'True'
+  - input: all_unique("abcdea")
+    output: 'False'
+starter_code: |-
+  def all_unique(s: str) -> bool:
+      pass
+follow_ups:
+  - Solve without using a set (O(1) extra space using bit manipulation for ASCII).
+  - Return the first duplicate character instead of a boolean.
+key_skills:
+  - strings
+  - sets
+test_type: function
+function_name: all_unique
+test_cases:
+  - label: all unique
+    input:
+      s: "abcdef"
+    expected: true
+  - label: duplicate
+    input:
+      s: "abcdea"
+    expected: false
+  - label: empty
+    input:
+      s: ""
+    expected: true
+  - label: single char
+    input:
+      s: "z"
+    expected: true
+  - label: case sensitive
+    input:
+      s: "aA"
+    expected: true
+explanation: |-
+  This warm-up is meant to build confidence around **sets** with a very small surface area.
+
+  len(s) == len(set(s)) is the one-liner. An early-exit loop with a seen set is equivalent and slightly more efficient for long strings with early duplicates.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'len(set(s)) == len(s) exploits the fact that sets deduplicate, so any reduction in size means there was a duplicate.'
+  - 'Treat All Unique Characters as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

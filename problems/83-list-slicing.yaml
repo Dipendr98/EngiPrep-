@@ -1,0 +1,58 @@
+id: 83
+title: "List Slicing"
+category: syntax
+difficulty: Easy
+summary: Use Python slice syntax to reverse a list, extract every other element, and get the last three elements.
+description: >-
+  Implement `slice_ops(lst: list) -> list` that takes a list and returns a list of
+  three results: (1) the list reversed using slicing, (2) every other element starting
+  from index 0, (3) the last 3 elements. Use only slicing — no reversed(), no loop.
+scenario: |-
+  A wearables firmware team at a health-tech company is writing a Python preprocessing script that runs on raw accelerometer sample buffers before they are sent to a cloud ML model. The script needs to reverse the buffer for time-series alignment, downsample by taking every other reading to halve bandwidth, and extract the last three readings as a context window. Using pure slice notation keeps the code concise and avoids introducing loops that would be harder to review during a safety audit.
+alt_scenarios:
+  - "**Data pipeline:** A feature engineering job reverses a time-ordered event list, downsamples it by stride, and extracts a recent-window tail for model input."
+  - "**Audio processing:** A DSP utility reverses a PCM sample buffer, extracts alternating samples for a decimation filter, and slices the last N samples for a fade-out."
+  - "**Replay buffer:** A reinforcement learning training loop slices experience replay buffers to extract reversed trajectories and fixed-length episode tails for batch updates."
+constraints:
+  - len(lst) >= 3
+  - Use only slice notation; no reversed(), sorted(), or explicit loops
+examples:
+  - input: slice_ops([1,2,3,4,5,6])
+    output: '([6, 5, 4, 3, 2, 1], [1, 3, 5], [4, 5, 6])'
+starter_code: |-
+  def slice_ops(lst: list) -> list:
+      pass
+follow_ups:
+  - How would you get every third element starting from index 1?
+  - What does lst[1:-1] return, and when is that useful?
+key_skills:
+  - slicing
+  - list manipulation
+  - step argument
+  - negative indices
+test_type: function
+function_name: slice_ops
+test_cases:
+  - label: six elements
+    input:
+      lst: [1, 2, 3, 4, 5, 6]
+    expected: [[6, 5, 4, 3, 2, 1], [1, 3, 5], [4, 5, 6]]
+  - label: five elements
+    input:
+      lst: [10, 20, 30, 40, 50]
+    expected: [[50, 40, 30, 20, 10], [10, 30, 50], [30, 40, 50]]
+  - label: exactly three elements
+    input:
+      lst: [1, 2, 3]
+    expected: [[3, 2, 1], [1, 3], [1, 2, 3]]
+  - label: eight elements
+    input:
+      lst: [0, 1, 2, 3, 4, 5, 6, 7]
+    expected: [[7, 6, 5, 4, 3, 2, 1, 0], [0, 2, 4, 6], [5, 6, 7]]
+explanation: |-
+  Python slicing syntax is `lst[start:stop:step]`. `lst[::-1]` reverses via step=-1.
+  `lst[::2]` takes every other element. `lst[-3:]` takes the last 3 using a negative
+  start. Mastering these removes the need for many explicit loops in interview solutions.
+references:
+  - "Python docs: sequence slicing — https://docs.python.org/3/library/stdtypes.html#common-sequence-operations"
+  - "Extended slices (step argument) — https://docs.python.org/3/whatsnew/2.3.html#extended-slices"

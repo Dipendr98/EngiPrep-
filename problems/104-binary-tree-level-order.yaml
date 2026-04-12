@@ -1,0 +1,121 @@
+id: 104
+title: Binary Tree Level Order Traversal
+category: trees
+difficulty: Easy
+summary: Return each level of a binary tree as a separate list (BFS).
+description: Given the root of a binary tree, return its level-order traversal as a list of lists, where each inner list contains the values at that depth from left to right. Use a queue-based BFS approach.
+scenario: |-
+  You're a backend engineer at Notion building the page-hierarchy API that powers the sidebar tree view. The workspace hierarchy is stored as a tree, and the client requests a level-by-level snapshot so it can render parent pages before their children — preventing a flash of unsorted content. Your endpoint must return each depth level as a separate ordered list, efficiently traversing trees that can be thousands of nodes deep across enterprise workspaces.
+alt_scenarios:
+  - "**Dependency installer:** A build system like Bazel processes a dependency tree level-by-level so that all prerequisites at depth N are built before any target at depth N+1 begins."
+  - "**Kubernetes rollout controller:** A deployment controller propagates pod restarts level-by-level through a service mesh topology to minimize cascading failures."
+  - "**Social graph BFS:** A LinkedIn-style platform finds all first-degree connections before second-degree, returning each hop as a separate list for the 'People You May Know' feature."
+constraints:
+- Return an empty list for an empty tree
+- Each level's values must be in left-to-right order
+- Use BFS (queue), not DFS
+examples:
+- input: 'level_order([3,9,20,null,null,15,7])'
+  output: '[[3],[9,20],[15,7]]'
+- input: 'level_order([1])'
+  output: '[[1]]'
+starter_code: |-
+  from collections import deque
+  from typing import Optional
+
+  class TreeNode:
+      def __init__(self, val=0, left=None, right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+
+  def level_order(root: Optional[TreeNode]) -> list[list[int]]:
+      pass
+follow_ups:
+- Return the zigzag level order (alternate left-right and right-left per level).
+- Return only the values on the right side of the tree (rightmost node per level).
+- Find the maximum value at each level.
+key_skills:
+- binary tree
+- BFS
+- queue
+test_type: function
+test_cases:
+- label: three-level tree
+  setup_code: |-
+    from collections import deque
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals):
+        return level_order(_make(vals))
+  function_name: _test
+  args:
+  - - 3
+    - 9
+    - 20
+    - null
+    - null
+    - 15
+    - 7
+  expected:
+  - - 3
+  - - 9
+    - 20
+  - - 15
+    - 7
+- label: single node
+  setup_code: |-
+    from collections import deque
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _make(vals):
+        if not vals: return None
+        nodes = [TreeNode(v) if v is not None else None for v in vals]
+        kids = iter(nodes[1:])
+        for node in nodes:
+            if node:
+                node.left = next(kids, None)
+                node.right = next(kids, None)
+        return nodes[0]
+    def _test(vals):
+        return level_order(_make(vals))
+  function_name: _test
+  args:
+  - - 1
+  expected:
+  - - 1
+- label: empty tree
+  setup_code: |-
+    from collections import deque
+    class TreeNode:
+        def __init__(self, val=0, left=None, right=None):
+            self.val = val; self.left = left; self.right = right
+    def _test(vals):
+        return level_order(None)
+  function_name: _test
+  args:
+  - []
+  expected: []
+function_name: level_order
+explanation: |-
+  Use a queue (deque). Start by enqueuing the root. Each iteration processes exactly one level: snapshot the current queue length, dequeue that many nodes, collect their values, and enqueue their children.
+
+  The snapshot-length trick is the key: it freezes the boundary between the current level and the next before you start adding children.
+
+  Time O(n), space O(n) for the queue (worst case: a complete binary tree's last level holds n/2 nodes).
+
+  Contrast with DFS level-order: you can do it with a depth parameter, but BFS is more natural and avoids stack overhead.
+references:
+- The "snapshot queue size" pattern is the standard way to process one level at a time in BFS — memorize it.
+- A deque from collections is preferred over a list for O(1) popleft.

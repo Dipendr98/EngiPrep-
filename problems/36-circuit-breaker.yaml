@@ -1,0 +1,130 @@
+id: 36
+title: Circuit Breaker
+category: infra
+difficulty: Medium
+summary: Protect downstream services by tripping a breaker after repeated failures.
+description: 'Implement a circuit breaker with three states: CLOSED (normal), OPEN (failing, reject all calls), and HALF_OPEN (testing recovery). Track failure rate. Trip to OPEN when failure_threshold is exceeded within a window. After a cooldown period, move to HALF_OPEN and allow one test call. If it succeeds, close; if it fails, reopen.'
+scenario: |-
+  You're on the API Gateway team at a large e-commerce platform. During the holiday peak, a downstream inventory service fell into a crash-loop—and the gateway kept dutifully forwarding 30K requests per minute to it, each timing out after 5 seconds, which exhausted the gateway's own thread pool and caused a total outage that outlasted the original inventory incident by 40 minutes. You're retrofitting every downstream proxy with a circuit breaker so the next time a dependency degrades, the gateway fails fast, gives the downstream room to recover, and cautiously resumes traffic once the cooldown elapses.
+alt_scenarios:
+  - "**Mobile app backend (BFF layer):** Wrapping calls to a third-party credit-score API so that after several consecutive failures the BFF returns a cached fallback response immediately, rather than holding the mobile client connection open for a 30-second timeout."
+  - "**Database access layer:** Protecting a read replica from cascading overload by tripping a breaker when connection errors exceed a threshold, so application threads stop queuing queries and shed load until the replica recovers."
+  - "**Microservice mesh (service-to-service calls):** Implementing per-downstream breakers in a service mesh sidecar so any single flaky dependency can't exhaust the calling service's connection pool and bring down unrelated features."
+constraints:
+- failure_threshold is the number of failures within the window that trips the breaker
+- window_seconds is the sliding window length for counting failures
+- cooldown_seconds is how long to stay OPEN before transitioning to HALF_OPEN
+- In OPEN state, all calls immediately raise CircuitOpenError without invoking the function
+- In HALF_OPEN state, exactly one test call is allowed through
+- A successful call in CLOSED or HALF_OPEN resets the failure count
+- Timestamps are passed explicitly as floats (no real clock dependency)
+examples:
+- input: |-
+    cb = CircuitBreaker(failure_threshold=3, window_seconds=60, cooldown_seconds=30)
+    cb.state()  # 'CLOSED'
+    cb.record_failure(t=100)
+    cb.record_failure(t=105)
+    cb.record_failure(t=110)
+    cb.state()
+  output: '''OPEN''  # 3 failures within 60s window trips the breaker'
+- input: |-
+    cb.call(some_func, timestamp=120)
+    # 120 is only 10s after the breaker opened (cooldown is 30s)
+  output: 'Raises CircuitOpenError  # still in cooldown, all calls rejected'
+- input: |-
+    cb.call(some_func, timestamp=145)
+    # 145 is 35s after open — cooldown has passed, state moves to HALF_OPEN
+    # some_func succeeds
+  output: Returns some_func's result; state transitions to 'CLOSED'
+starter_code: |-
+  class CircuitOpenError(Exception):
+      pass
+
+  class CircuitBreaker:
+      def __init__(self, failure_threshold: int, window_seconds: float,
+                   cooldown_seconds: float):
+          pass
+
+      def call(self, func, timestamp: float, *args, **kwargs):
+          pass
+
+      def state(self) -> str:
+          pass
+
+      def record_success(self, timestamp: float) -> None:
+          pass
+
+      def record_failure(self, timestamp: float) -> None:
+          pass
+follow_ups:
+- Support per-error-type thresholds.
+- Add a fallback function that runs when the circuit is open.
+- How would you share circuit state across multiple instances?
+key_skills:
+- state machine
+- sliding window counters
+- timer management
+- error classification
+test_type: class
+test_cases:
+- label: open half open close
+  setup_code: |-
+    def ok():
+        return 'ok'
+  init_args:
+  - 3
+  - 60
+  - 30
+  ops:
+  - state
+  - record_failure
+  - record_failure
+  - record_failure
+  - state
+  - call
+  - call
+  - state
+  op_args:
+  - []
+  - - 100
+  - - 105
+  - - 110
+  - []
+  - - __ref__: ok
+    - 120
+  - - __ref__: ok
+    - 145
+  - []
+  expected:
+  - CLOSED
+  - null
+  - null
+  - null
+  - OPEN
+  - null
+  - ok
+  - CLOSED
+  expected_errors:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - CircuitOpenError
+  - null
+  - null
+class_name: CircuitBreaker
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **state machine** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **sliding window counters** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Circuit Breaker, re-run the provided hardcoded tests and explain why each one protects an important invariant.

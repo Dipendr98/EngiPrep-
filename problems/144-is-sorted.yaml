@@ -1,0 +1,58 @@
+id: 144
+title: Is Sorted
+category: warmup
+difficulty: Easy
+summary: Check if a list is sorted in non-decreasing order.
+description: Implement is_sorted(nums) that returns True if nums is sorted in non-decreasing order, False otherwise.
+scenario: |-
+  A distributed database coordinator validates that the index keys arriving from each storage node are in sorted order before merging them. If any node returns an unsorted chunk the merge is aborted and the node is flagged for repair. The validator is called on every chunk before the merge begins.
+alt_scenarios:
+  - "**Test fixture assertion:** A unit test helper checks that a list of timestamps emitted by a scheduler is monotonically non-decreasing."
+  - "**Leaderboard sanity check:** A gaming backend verifies that score entries in a pre-sorted response from a cache node actually arrive in order."
+constraints:
+  - An empty list or single-element list is considered sorted.
+examples:
+  - input: is_sorted([1, 2, 2, 3])
+    output: 'True'
+  - input: is_sorted([1, 3, 2])
+    output: 'False'
+starter_code: |-
+  def is_sorted(nums: list[int]) -> bool:
+      pass
+follow_ups:
+  - Support descending order as a parameter.
+  - Return the index of the first out-of-order element.
+key_skills:
+  - arrays
+test_type: function
+function_name: is_sorted
+test_cases:
+  - label: sorted with duplicate
+    input:
+      nums: [1, 2, 2, 3]
+    expected: true
+  - label: unsorted
+    input:
+      nums: [1, 3, 2]
+    expected: false
+  - label: empty
+    input:
+      nums: []
+    expected: true
+  - label: single
+    input:
+      nums: [42]
+    expected: true
+  - label: descending
+    input:
+      nums: [5, 4, 3]
+    expected: false
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  Compare each adjacent pair in one pass. Python's all(a <= b for a, b in zip(nums, nums[1:])) is idiomatic and short-circuits on the first violation.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'all(nums[i] <= nums[i+1] for i in range(len(nums)-1)) is explicit; zip(nums, nums[1:]) is slightly more Pythonic.'
+  - 'Treat Is Sorted as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

@@ -1,0 +1,64 @@
+id: 13
+title: Template Engine
+category: parsing
+difficulty: Medium
+summary: Render templates with variable substitution, loops, and conditionals.
+description: Implement render(template, context) for a simple template language. Support variable interpolation {{ name }}, conditionals {% if condition %}...{% endif %}, and loops {% for item in list %}...{% endfor %}. Context is a dictionary of variables.
+scenario: |-
+  The Notifications team at a B2B SaaS company lets product managers define email and Slack message templates that mix static copy with dynamic data—customer name, plan tier, a list of failed checks, and conditional sections that only appear for enterprise accounts. Rather than shipping a full Jinja2 dependency into the notifications microservice, you need a lightweight template engine that handles variable interpolation, `{% if %}` blocks, and `{% for %}` loops so PMs can iterate on copy without deploying code.
+alt_scenarios:
+  - "**Infrastructure-as-code generator:** A scaffolding CLI renders Kubernetes manifest templates with project-specific variables, loops over replica counts, and conditionally includes sidecar definitions."
+  - "**Legal document automation:** A contracts platform renders NDAs and MSAs from templates that loop over signatory names and conditionally include jurisdiction-specific clauses based on customer metadata."
+  - "**Code generation tool:** A developer SDK generator renders language-specific client stubs from a shared template that loops over API endpoints and conditionally emits async variants."
+constraints: []
+examples: []
+starter_code: |-
+  def render(template: str, context: dict) -> str:
+      pass
+follow_ups:
+- Add template inheritance with {% extends 'base' %} and {% block %}.
+- Add filters like {{ name | upper }}.
+- How would you sandbox this to prevent code injection?
+key_skills:
+- tokenization
+- recursive parsing
+- string building
+- tree evaluation
+test_type: function
+test_cases:
+- label: variables
+  input:
+    template: Hello {{ name }}!
+    context:
+      name: Ada
+  expected: Hello Ada!
+- label: loop
+  input:
+    template: '{% for item in items %}[{{ item }}]{% endfor %}'
+    context:
+      items:
+      - a
+      - b
+  expected: '[a][b]'
+- label: if
+  input:
+    template: '{% if is_admin %}admin{% endif %}'
+    context:
+      is_admin: true
+  expected: admin
+function_name: render
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **tokenization** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **recursive parsing** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to split raw input into meaningful tokens before you start building structure.
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.
+- After implementing Template Engine, re-run the provided hardcoded tests and explain why each one protects an important invariant.

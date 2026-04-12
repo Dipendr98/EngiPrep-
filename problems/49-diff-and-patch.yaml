@@ -1,0 +1,130 @@
+id: 49
+title: Diff and Patch
+category: api_design
+difficulty: Hard
+summary: Compute the diff between two data structures and apply patches.
+description: Implement diff(old, new) that returns a list of operations (add, remove, replace) to transform old into new. Works on nested dicts and lists. Implement patch(data, operations) that applies those operations. Paths should use dot notation for nesting.
+scenario: |-
+  The infrastructure team at a cloud provider manages thousands of per-environment Terraform-style JSON configs stored in a Git-like versioning system. When an SRE submits a change to production — bumping a connection pool limit, toggling a feature flag, updating a TLS certificate path — the review system must surface a precise, human-readable diff that names every changed, added, or removed field using dot-notation paths before the change is applied. You need diff() to produce a minimal list of typed operations over deeply nested structures and patch() to apply those operations atomically without mutating the original document.
+alt_scenarios:
+  - "**Collaborative document editing:** A real-time editor tracks changes between successive auto-saved JSON document states so that concurrent edits can be merged or surfaced as conflicts."
+  - "**API response regression testing:** A test harness diffs expected versus actual JSON responses from a REST API, reporting only the fields that changed between software versions."
+  - "**Database schema migration auditing:** A schema management tool diffs two versions of a table definition object to generate a human-readable migration summary before executing DDL."
+constraints:
+- Supports nested dicts and lists of arbitrary depth.
+- 'Paths use dot notation: ''a.b.c'' for nested dicts, ''a.0'' for list indices.'
+- 'Operation types: ''add'', ''remove'', ''replace''.'
+- diff(old, new) returns a list of operation dicts.
+- patch(data, ops) returns a new structure (does not mutate the original).
+- patch(old, diff(old, new)) must produce a result equal to new.
+examples:
+- input: |-
+    old = {'a': 1, 'b': {'c': 2, 'd': 3}}
+    new = {'a': 1, 'b': {'c': 99, 'e': 4}}
+    ops = diff(old, new)
+  output: |-
+    [
+      {'op': 'replace', 'path': 'b.c', 'old_value': 2, 'new_value': 99},
+      {'op': 'remove',  'path': 'b.d', 'old_value': 3},
+      {'op': 'add',     'path': 'b.e', 'new_value': 4}
+    ]
+- input: |-
+    data = {'a': 1, 'b': {'c': 2, 'd': 3}}
+    ops = [
+      {'op': 'replace', 'path': 'b.c', 'new_value': 99},
+      {'op': 'remove',  'path': 'b.d'},
+      {'op': 'add',     'path': 'b.e', 'new_value': 4}
+    ]
+    result = patch(data, ops)
+  output: '{''a'': 1, ''b'': {''c'': 99, ''e'': 4}}'
+- input: |-
+    old = {'items': [1, 2, 3]}
+    new = {'items': [1, 4, 3, 5]}
+    ops = diff(old, new)
+  output: |-
+    [
+      {'op': 'replace', 'path': 'items.1', 'old_value': 2, 'new_value': 4},
+      {'op': 'add',     'path': 'items.3', 'new_value': 5}
+    ]
+starter_code: |
+  from typing import Any, Dict, List
+
+  def diff(old: Any, new: Any) -> List[Dict[str, Any]]:
+      """Compute operations to transform old into new."""
+      pass
+
+  def patch(data: Any, operations: List[Dict[str, Any]]) -> Any:
+      """Apply a list of operations to data and return the result."""
+      pass
+follow_ups:
+- Support array move operations (not just add/remove).
+- Detect conflicts when applying two patches to the same base.
+- Optimize for large structures where only a small portion changed.
+key_skills:
+- recursive comparison
+- tree diffing
+- path representation
+- deep copy/mutation
+test_type: function
+test_cases:
+- label: nested diff
+  function_name: diff
+  input:
+    old:
+      a: 1
+      b:
+        c: 2
+        d: 3
+    new:
+      a: 1
+      b:
+        c: 99
+        e: 4
+  expected:
+  - op: replace
+    path: b.c
+    old_value: 2
+    new_value: 99
+  - op: remove
+    path: b.d
+    old_value: 3
+  - op: add
+    path: b.e
+    new_value: 4
+- label: patch
+  function_name: patch
+  input:
+    data:
+      a: 1
+      b:
+        c: 2
+        d: 3
+    operations:
+    - op: replace
+      path: b.c
+      new_value: 99
+    - op: remove
+      path: b.d
+    - op: add
+      path: b.e
+      new_value: 4
+  expected:
+    a: 1
+    b:
+      c: 99
+      e: 4
+function_name: diff
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **recursive comparison** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **tree diffing** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Keep caller ergonomics in mind: a clean API should make the correct usage obvious.'
+- Use tests to define the contract, especially around chaining, defaults, and error cases.
+- After implementing Diff and Patch, re-run the provided hardcoded tests and explain why each one protects an important invariant.

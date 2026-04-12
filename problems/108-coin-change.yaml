@@ -1,0 +1,82 @@
+id: 108
+title: Coin Change
+category: dynamic programming
+difficulty: Medium
+summary: Find the fewest coins needed to make a target amount.
+description: Given an array of coin denominations and a target amount, return the minimum number of coins needed to make up that amount. If the amount cannot be made with any combination of the coins, return -1. You have an unlimited supply of each denomination.
+scenario: |-
+  You're a backend engineer at Square building the cash-drawer management service for point-of-sale terminals in retail stores. When a customer pays with cash, the terminal must compute the minimum number of bills and coins to return as change, using whatever denominations are currently loaded in the drawer. If exact change is impossible given the available denominations, the terminal must surface a "manual override required" alert rather than dispensing incorrectly. This runs on embedded hardware where response time under 10ms is a contractual SLA.
+alt_scenarios:
+  - "**Cloud cost optimizer:** A FinOps tool finds the fewest reserved-instance commitment tiers needed to cover an AWS account's exact compute budget with no overspend."
+  - "**Packet fragmentation:** A network layer finds the minimum number of MTU-sized segments needed to transmit a payload of exactly k bytes across a constrained link."
+  - "**Time zone offset calculator:** A scheduling system finds the fewest UTC-offset increments (in available zone steps) needed to reach a target offset for a global meeting."
+constraints:
+- You may use each coin denomination any number of times
+- Return -1 if the amount cannot be made
+- Coin denominations and amount are positive integers
+examples:
+- input: 'coin_change([1,5,10,25], 41)'
+  output: '4  # 25+10+5+1'
+- input: 'coin_change([2], 3)'
+  output: '-1'
+- input: 'coin_change([1], 0)'
+  output: '0'
+starter_code: |-
+  def coin_change(coins: list[int], amount: int) -> int:
+      pass
+follow_ups:
+- Count the total number of ways to make the amount (combination sum variant).
+- Return the actual coins used, not just the count.
+- What changes if you can use each coin at most once (0/1 knapsack)?
+key_skills:
+- dynamic programming
+- bottom-up DP
+- unbounded knapsack
+test_type: function
+test_cases:
+- label: classic case
+  args:
+  - - 1
+    - 5
+    - 10
+    - 25
+  - 41
+  expected: 4
+- label: impossible
+  args:
+  - - 2
+  - 3
+  expected: -1
+- label: amount zero
+  args:
+  - - 1
+  - 0
+  expected: 0
+- label: single coin exact match
+  args:
+  - - 5
+  - 5
+  expected: 1
+- label: larger amount
+  args:
+  - - 1
+    - 2
+    - 5
+  - 11
+  expected: 3
+function_name: coin_change
+explanation: |-
+  Bottom-up DP: create a dp array of size amount+1, initialized to infinity (float('inf')). Set dp[0] = 0 (zero coins needed to make 0).
+
+  For each sub-amount from 1 to amount, try every coin. If coin <= sub-amount, dp[i] = min(dp[i], dp[i - coin] + 1).
+
+  At the end, return dp[amount] if it's not infinity, else -1.
+
+  Why bottom-up over top-down: avoids Python recursion depth limits and is often faster in practice due to no call overhead.
+
+  Time O(amount * len(coins)), space O(amount).
+
+  Common mistake: initializing dp with 0 instead of infinity — this makes every amount look solved.
+references:
+- This is the canonical unbounded knapsack variant — review how it differs from 0/1 knapsack (no per-item limit).
+- The recurrence dp[i] = min(dp[i - coin] + 1 for coin in coins if coin <= i) is worth memorizing.

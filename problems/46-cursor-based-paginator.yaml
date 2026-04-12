@@ -1,0 +1,114 @@
+id: 46
+title: Cursor-Based Paginator
+category: api_design
+difficulty: Medium
+summary: Paginate through a sorted dataset using opaque cursors instead of page numbers.
+description: Implement a paginator for a sorted dataset. paginate(cursor, page_size) returns a page of items and a next_cursor. The cursor should be opaque to the client. Support forward and backward pagination. Handle items being added or deleted between pages without skipping or duplicating.
+scenario: |-
+  The platform team at a social media company is redesigning the Activity Feed API after users report missing posts and duplicate entries when paginating through their notification history. The root cause is offset-based pagination: a new post inserted at position 5 during scrolling shifts every subsequent row, causing the mobile client to re-fetch items it already showed or skip ones it never saw. You need a cursor-based paginator where an opaque token encodes the exact sort key of the last returned item so that page resumption is stable regardless of concurrent inserts or deletes.
+alt_scenarios:
+  - "**E-commerce order history:** A checkout platform lets customers page through years of orders and must stay stable when orders are retrospectively updated or cancelled between requests."
+  - "**Log streaming UI:** An observability dashboard pages through structured log events by timestamp and must not skip or duplicate entries even as new logs stream in continuously."
+  - "**Admin audit trail:** A compliance tool exposes paginated access logs for regulators and requires every page boundary to be reproducible on demand, days after the initial query."
+constraints:
+- Cursors must be opaque strings (e.g., base64-encoded JSON). Clients should not parse them.
+- The underlying dataset is a list of dicts sorted by sort_key.
+- 'Pagination must be stable: inserting or deleting items between pages must not cause duplicates or skips for the paginating client.'
+- page_size is a positive integer.
+- direction is 'forward' (default) or 'backward'.
+- Return has_next / has_prev booleans alongside the cursor.
+examples:
+- input: |-
+    data = [{'id': 1, 'ts': 100}, {'id': 2, 'ts': 200}, {'id': 3, 'ts': 300},
+            {'id': 4, 'ts': 400}, {'id': 5, 'ts': 500}]
+    pag = CursorPaginator(data, sort_key='ts')
+    page1 = pag.paginate(cursor=None, page_size=2)
+  output: |-
+    page1 = {
+      'items': [{'id': 1, 'ts': 100}, {'id': 2, 'ts': 200}],
+      'next_cursor': 'eyJ0cyI6IDIwMH0=',   # opaque base64
+      'has_next': True
+    }
+- input: |-
+    # Continuing: fetch page 2 using next_cursor from page 1
+    page2 = pag.paginate(cursor='eyJ0cyI6IDIwMH0=', page_size=2)
+  output: |-
+    page2 = {
+      'items': [{'id': 3, 'ts': 300}, {'id': 4, 'ts': 400}],
+      'next_cursor': 'eyJ0cyI6IDQwMH0=',
+      'has_next': True
+    }
+- input: |-
+    # Backward pagination from a cursor
+    page_back = pag.paginate(cursor='eyJ0cyI6IDQwMH0=', page_size=2, direction='backward')
+  output: |-
+    page_back = {
+      'items': [{'id': 2, 'ts': 200}, {'id': 3, 'ts': 300}],
+      'prev_cursor': 'eyJ0cyI6IDIwMH0=',
+      'has_prev': True
+    }
+starter_code: |
+  from typing import Any, Dict, List, Optional
+
+  class CursorPaginator:
+      def __init__(self, data: List[Dict], sort_key: str):
+          pass
+
+      def paginate(
+          self,
+          cursor: Optional[str] = None,
+          page_size: int = 10,
+          direction: str = 'forward'
+      ) -> Dict[str, Any]:
+          """Return a page of items and the next/prev cursor."""
+          pass
+follow_ups:
+- Support sorting by different fields while maintaining stable cursors.
+- Add total count estimation without scanning everything.
+- How would you implement this on top of a SQL database?
+key_skills:
+- cursor encoding/decoding
+- binary search
+- stable pagination
+- edge cases
+test_type: class
+test_cases:
+- label: forward pagination
+  setup_code: 'data = [{''id'': 1, ''ts'': 100}, {''id'': 2, ''ts'': 200}, {''id'': 3, ''ts'': 300}, {''id'': 4, ''ts'': 400}, {''id'': 5, ''ts'': 500}]'
+  init_args:
+  - __ref__: data
+  - ts
+  ops:
+  - __eval__
+  - __eval__
+  - __eval__
+  op_args:
+  - - obj.paginate(None, 2)['items']
+  - - obj.paginate(None, 2)['has_next']
+  - - obj.paginate(obj.paginate(None, 2)['next_cursor'], 2)['items']
+  expected:
+  - - id: 1
+      ts: 100
+    - id: 2
+      ts: 200
+  - true
+  - - id: 3
+      ts: 300
+    - id: 4
+      ts: 400
+class_name: CursorPaginator
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **cursor encoding/decoding** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **binary search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review lower-bound / upper-bound style binary search and the off-by-one rules that keep it correct.
+- 'Keep caller ergonomics in mind: a clean API should make the correct usage obvious.'
+- Use tests to define the contract, especially around chaining, defaults, and error cases.
+- After implementing Cursor-Based Paginator, re-run the provided hardcoded tests and explain why each one protects an important invariant.

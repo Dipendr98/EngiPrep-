@@ -1,0 +1,62 @@
+id: 97
+title: "Generators & yield"
+category: syntax
+difficulty: Medium
+summary: Write a generator that yields running averages, then wrap it to return a rounded list.
+description: >-
+  Write a generator function `_running_avg_gen(nums)` that yields the running average
+  after each element. Then implement `running_averages(nums: list[float]) -> list[float]`
+  that returns the result as a list, with each value rounded to 2 decimal places.
+scenario: |-
+  An observability team at a cloud company is building the data backend for a real-time latency chart that displays a smoothed p50 trace as API response times arrive. Rather than storing a growing history of raw values and recomputing the average on every frame, the engineer uses a generator that maintains only a running total and a count, yielding the updated average after each new data point. This keeps memory constant regardless of how long the dashboard session runs.
+alt_scenarios:
+  - "**ML training monitor:** A training loop uses a running-average generator to compute a smoothed loss trace over mini-batches without accumulating all batch losses in memory."
+  - "**IoT telemetry aggregator:** A sensor gateway yields a running average of temperature readings from a continuous data stream to populate a live equipment health display."
+  - "**Financial tick processor:** A market data feed handler computes a running average of trade prices using a generator to power a live VWAP indicator on a trading terminal."
+constraints:
+  - nums is non-empty
+  - Each yielded value is the mean of all elements seen so far
+  - Return values are rounded to 2 decimal places
+examples:
+  - input: running_averages([1,2,3,4])
+    output: '[1.0, 1.5, 2.0, 2.5]'
+starter_code: |-
+  def running_averages(nums: list[float]) -> list[float]:
+      pass
+follow_ups:
+  - How would you turn this into an infinite generator that accepts new values via send()?
+  - What is the memory advantage of a generator over building a list inside the function?
+key_skills:
+  - generators
+  - yield
+  - lazy evaluation
+  - running totals
+test_type: function
+function_name: running_averages
+test_cases:
+  - label: four integers
+    input:
+      nums: [1, 2, 3, 4]
+    expected: [1.0, 1.5, 2.0, 2.5]
+  - label: three elements with jump
+    input:
+      nums: [10, 20, 30]
+    expected: [10.0, 15.0, 20.0]
+  - label: single element
+    input:
+      nums: [5]
+    expected: [5.0]
+  - label: all zeros
+    input:
+      nums: [0, 0, 0]
+    expected: [0.0, 0.0, 0.0]
+explanation: |-
+  A generator function uses `yield` to produce values one at a time without building the
+  full result list in memory. This is useful for streaming or infinite sequences. The
+  generator maintains local state (like a running total) between yields. `list(gen)` or
+  a for loop materializes all values. Generator expressions `(expr for x in iterable)`
+  are the inline form.
+references:
+  - "Python docs: generators — https://docs.python.org/3/glossary.html#term-generator"
+  - "PEP 255: Simple Generators"
+  - "Python docs: yield expression — https://docs.python.org/3/reference/expressions.html#yield-expressions"

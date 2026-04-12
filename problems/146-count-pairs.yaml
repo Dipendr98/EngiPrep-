@@ -1,0 +1,57 @@
+id: 146
+title: Count Pairs
+category: warmup
+difficulty: Easy
+summary: Count pairs in a list that sum to a target.
+description: Implement count_pairs(nums, target) that returns the number of unique index pairs (i, j) where i < j and nums[i] + nums[j] == target.
+scenario: |-
+  A fraud detection team is scanning transaction amounts for suspicious complementary pairs — two transactions whose amounts sum to a round-number target that is a common money-laundering threshold. The scanner receives a daily batch of transaction amounts and counts how many complementary pairs exist to decide whether to escalate the account for review.
+alt_scenarios:
+  - "**Chemistry lab:** A simulation checks how many reagent concentration pairs sum to a target molarity for an automated mixing protocol."
+  - "**Game level design:** A puzzle generator counts how many tile-value pairs sum to the target unlock code to ensure a level has exactly the right number of solutions."
+constraints:
+  - Each index pair is counted once (i < j). Elements may be negative.
+examples:
+  - input: count_pairs([1, 2, 3, 4, 5], 6)
+    output: '2'
+starter_code: |-
+  def count_pairs(nums: list[int], target: int) -> int:
+      pass
+follow_ups:
+  - Return the actual pairs instead of the count.
+  - Solve it in O(n) using a hash set.
+key_skills:
+  - arrays
+  - hash maps
+test_type: function
+function_name: count_pairs
+test_cases:
+  - label: basic
+    input:
+      nums: [1, 2, 3, 4, 5]
+      target: 6
+    expected: 2
+  - label: no pairs
+    input:
+      nums: [1, 2, 3]
+      target: 10
+    expected: 0
+  - label: duplicates
+    input:
+      nums: [2, 2, 2]
+      target: 4
+    expected: 3
+  - label: negatives
+    input:
+      nums: [-1, 1, 0, 2]
+      target: 1
+    expected: 2
+explanation: |-
+  This warm-up is meant to build confidence around **hash maps** with a very small surface area.
+
+  The brute-force O(n²) double loop is fine here. The O(n) approach uses a frequency map: for each element check if target - element has been seen.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - The complement trick (target - x) is the foundation of the two-sum family of problems.
+  - 'Treat Count Pairs as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

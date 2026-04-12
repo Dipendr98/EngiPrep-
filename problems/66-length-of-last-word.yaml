@@ -1,0 +1,48 @@
+id: 66
+title: Length of Last Word
+category: warmup
+difficulty: Easy
+summary: Return the length of the final word in a string.
+description: Implement length_of_last_word(s) that returns the length of the last word, ignoring trailing spaces.
+scenario: |-
+  The natural language processing team at a document intelligence company is building a preprocessing pipeline that extracts the last token from raw OCR-produced text lines before passing them to a named-entity classifier. OCR output frequently contains trailing spaces, line-feed artifacts, or padding from the scanner, so the extractor must trim whitespace from the right before measuring the final word — which is often a key entity like a city name, currency code, or date. You need a function that handles trailing whitespace correctly and returns the character length of the last word in O(n) time.
+alt_scenarios:
+  - "**Log parser:** A log ingestion service extracts the final field from whitespace-delimited syslog lines to determine the status code or error token before routing to the right alert rule."
+  - "**Command-line argument handler:** A shell scripting helper extracts the last word of a user-supplied string argument as the target filename before opening or writing the file."
+constraints:
+- Words are separated by spaces.
+examples:
+- input: length_of_last_word("hello world  ")
+  output: '5'
+starter_code: |-
+  def length_of_last_word(s: str) -> int:
+      pass
+follow_ups:
+- Return the last word itself.
+- Treat punctuation as separators too.
+key_skills:
+- strings
+test_type: function
+function_name: length_of_last_word
+test_cases:
+- label: trailing spaces
+  input:
+    s: 'hello world  '
+  expected: 5
+- label: single word
+  input:
+    s: CodePrep
+  expected: 8
+- label: leading and trailing
+  input:
+    s: '  fly me  '
+  expected: 2
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Length of Last Word as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

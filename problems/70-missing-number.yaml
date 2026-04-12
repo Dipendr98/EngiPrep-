@@ -1,0 +1,60 @@
+id: 70
+title: Missing Number
+category: warmup
+difficulty: Easy
+summary: Find the missing value from 0..n.
+description: Implement missing_number(nums) where nums contains n distinct numbers from the range [0, n]. Return the missing one.
+scenario: |-
+  A data integrity team at a logistics company audits daily shipment ID sequences. Each day's batch is supposed to contain consecutive integer IDs starting from 0, but a bug in the warehouse scanner occasionally drops one scan. The on-call engineer needs a fast check that takes the scanned ID list and returns the missing ID so the warehouse team can rescan the right package before the truck departs.
+alt_scenarios:
+  - "**Database audit tool:** An ETL validator detects which row ID was skipped during a bulk insert into a sequential primary-key table."
+  - "**Sensor network health check:** A telemetry aggregator identifies the missing sequence number in a packet stream to trigger a retransmit request to the sensor."
+  - "**CI pipeline integrity:** A build system confirms which step number is absent from a reported run log before marking the pipeline as complete."
+constraints:
+- Exactly one value is missing.
+examples:
+- input: missing_number([3,0,1])
+  output: '2'
+starter_code: |-
+  def missing_number(nums: list[int]) -> int:
+      pass
+follow_ups:
+- Solve it with XOR.
+- Detect duplicates too.
+key_skills:
+- arrays
+- counting
+test_type: function
+function_name: missing_number
+test_cases:
+- label: middle missing
+  input:
+    nums:
+    - 3
+    - 0
+    - 1
+  expected: 2
+- label: zero missing
+  input:
+    nums:
+    - 1
+    - 2
+  expected: 0
+- label: last missing
+  input:
+    nums:
+    - 0
+    - 1
+    - 2
+    - 3
+  expected: 4
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Missing Number as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

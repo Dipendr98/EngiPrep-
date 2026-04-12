@@ -1,0 +1,62 @@
+id: 156
+title: Rotate Left
+category: warmup
+difficulty: Easy
+summary: Rotate a list left by k positions.
+description: Implement rotate_left(lst, k) that returns a new list with all elements shifted left by k positions, wrapping elements from the front to the back.
+scenario: |-
+  A circular buffer implementation for a ring-topology network needs to resynchronize its view after a leader election shifts the starting node. The coordinator calls rotate_left to realign the node list so the new leader is at index 0, while all other nodes maintain their relative order.
+alt_scenarios:
+  - "**Playlist management:** A music player rotates the queue left when the user skips forward k songs, placing the next song at the front without discarding the skipped ones."
+  - "**Round-robin scheduler:** A task dispatcher rotates its worker list left after each scheduling cycle to implement fair round-robin assignment."
+constraints:
+  - k may be greater than len(lst). An empty list should return an empty list.
+examples:
+  - input: rotate_left([1, 2, 3, 4, 5], 2)
+    output: '[3, 4, 5, 1, 2]'
+starter_code: |-
+  def rotate_left(lst: list, k: int) -> list:
+      pass
+follow_ups:
+  - Rotate in-place using the reverse trick in O(1) space.
+  - Support both left and right rotation with a direction parameter.
+key_skills:
+  - arrays
+  - slicing
+test_type: function
+function_name: rotate_left
+test_cases:
+  - label: basic
+    input:
+      lst: [1, 2, 3, 4, 5]
+      k: 2
+    expected: [3, 4, 5, 1, 2]
+  - label: k larger than length
+    input:
+      lst: [1, 2, 3]
+      k: 5
+    expected: [3, 1, 2]
+  - label: k is zero
+    input:
+      lst: [1, 2, 3]
+      k: 0
+    expected: [1, 2, 3]
+  - label: empty
+    input:
+      lst: []
+      k: 3
+    expected: []
+  - label: full rotation
+    input:
+      lst: [1, 2, 3]
+      k: 3
+    expected: [1, 2, 3]
+explanation: |-
+  This warm-up is meant to build confidence around **slicing** with a very small surface area.
+
+  Normalize k with k % len(lst) to handle large values, then return lst[k:] + lst[:k]. This is O(n) and reads as plain English.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - 'k = k % len(lst) handles the wrap; lst[k:] + lst[:k] does the rotation in one line.'
+  - 'Treat Rotate Left as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

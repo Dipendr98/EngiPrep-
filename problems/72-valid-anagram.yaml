@@ -1,0 +1,54 @@
+id: 72
+title: Valid Anagram
+category: warmup
+difficulty: Easy
+summary: Check if two strings contain the same letters with the same counts.
+description: Implement is_anagram(a, b) that returns True when two strings are anagrams of each other.
+scenario: |-
+  A plagiarism-detection service at an edtech company needs to catch students who submit answers by rearranging the letters of a model answer. Before running a more expensive semantic diff, the pipeline runs a fast anagram check on each submitted token against the reference token — if the character counts match, the submission is flagged for human review. The engineer building this pre-filter wants a clean, O(n) implementation that handles tokens up to a few hundred characters.
+alt_scenarios:
+  - "**Search synonym index:** A search engine checks whether two query tokens are letter-for-letter rearrangements to deduplicate synonym entries in its index."
+  - "**Cryptography tooling:** A cipher utility verifies that an encrypted output is a character-level permutation of the plaintext before signing the result."
+  - "**Test data generator:** A QA tool confirms that a shuffled version of a test string contains identical character counts before injecting it as a fuzz input."
+constraints:
+- Assume lowercase ASCII letters.
+examples:
+- input: is_anagram("anagram", "nagaram")
+  output: 'True'
+starter_code: |-
+  def is_anagram(a: str, b: str) -> bool:
+      pass
+follow_ups:
+- Ignore whitespace and punctuation.
+- Support full Unicode normalization.
+key_skills:
+- hash map
+- strings
+test_type: function
+function_name: is_anagram
+test_cases:
+- label: true case
+  input:
+    a: anagram
+    b: nagaram
+  expected: true
+- label: false case
+  input:
+    a: rat
+    b: car
+  expected: false
+- label: different lengths
+  input:
+    a: ab
+    b: a
+  expected: false
+explanation: |-
+  This warm-up is meant to build confidence around **hash map** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Use a hash map when you need fast membership checks or counts without rescanning the input.
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- 'Treat Valid Anagram as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

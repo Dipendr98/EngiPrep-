@@ -1,0 +1,90 @@
+id: 25
+title: In-Memory Search Index
+category: search
+difficulty: Hard
+summary: Build an inverted index supporting multi-word search with ranking.
+description: Implement a simple search engine. index(doc_id, text) tokenizes and indexes a document. search(query) returns document IDs ranked by relevance. Support multi-word queries where all words must appear. Rank by term frequency.
+scenario: |-
+  Your team is building an internal runbook search tool for a 2,000-person engineering org where incident responders need to find the right playbook within seconds of a page firing. Dozens of runbooks are ingested as plaintext at startup, and on-call engineers query them with multi-keyword searches like "kafka consumer lag." Every queried word must appear in the document, and results need to be ranked so the most-mentioned-term document surfaces first—giving the on-call engineer a fighting chance of landing on the right page without scrolling. You're implementing the inverted index that backs the search, with TF-IDF scoring planned for the next sprint.
+alt_scenarios:
+  - "**Legal tech platform:** Indexing thousands of contract clauses so lawyers can search for documents containing specific terms like 'indemnification' and 'limitation of liability' with results ranked by term density."
+  - "**E-commerce catalog team:** Powering a product search prototype over a few hundred thousand SKU descriptions, where all query keywords must match and results rank by total term frequency before ML reranking is added."
+  - "**Security operations center:** Indexing firewall and SIEM alert text so analysts can search across millions of log lines using multi-term queries and immediately see the most frequently matching events."
+constraints:
+- Tokenize by splitting on whitespace and converting to lowercase
+- Multi-word queries require ALL words to be present in a document
+- Rank results by the sum of term frequencies across all query terms
+- Document IDs are positive integers
+- Re-indexing a doc_id replaces the previous content for that ID
+examples:
+- input: |-
+    index(1, 'the quick brown fox')
+    index(2, 'the quick brown dog')
+    index(3, 'the fox jumps high')
+    search('quick brown')
+  output: '[1, 2]  — both docs contain ''quick'' AND ''brown''; ranked by sum of term frequencies'
+- input: search('fox')
+  output: '[1, 3]  — both contain ''fox''; order depends on frequency (both have 1, so either order)'
+- input: search('quick fox')
+  output: '[1]  — only doc 1 contains both ''quick'' and ''fox'''
+starter_code: |-
+  class SearchIndex:
+      def __init__(self):
+          pass
+
+      def index(self, doc_id: int, text: str) -> None:
+          pass
+
+      def search(self, query: str) -> list[int]:
+          pass
+follow_ups:
+- Add TF-IDF scoring.
+- Support phrase queries where words must appear adjacent.
+- Add incremental index updates without rebuilding.
+key_skills:
+- inverted index
+- tokenization
+- hash map
+- sorting by score
+test_type: class
+test_cases:
+- label: and search
+  init_args: []
+  ops:
+  - index
+  - index
+  - index
+  - search
+  - search
+  op_args:
+  - - 1
+    - the quick brown fox
+  - - 2
+    - the quick brown dog
+  - - 3
+    - the fox jumps high
+  - - quick brown
+  - - quick fox
+  expected:
+  - null
+  - null
+  - null
+  - - 1
+    - 2
+  - - 1
+class_name: SearchIndex
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **inverted index** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **tokenization** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review how to split raw input into meaningful tokens before you start building structure.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.

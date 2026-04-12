@@ -1,0 +1,97 @@
+id: 24
+title: Shortest Path with Constraints
+category: search
+difficulty: Hard
+summary: Find the cheapest route between nodes with transfer limits or layovers.
+description: Given a weighted directed graph representing flights (source, dest, cost), find the cheapest path from start to end with at most K stops. Return the cost and the path, or -1 if no valid path exists.
+scenario: |-
+  You're on the Routing Engine team at an online travel agency processing several million fare searches per day. Customers increasingly filter for "no more than 1 stop," and the naive approach of running Dijkstra without a stop constraint returns routes that violate that requirement. You need to extend the routing engine to track both accumulated cost and stop count as first-class dimensions of graph state, so a customer searching SFO to JFK with at most one layover gets the true cheapest valid itinerary—or a clear "no route" response—rather than an incorrect answer.
+alt_scenarios:
+  - "**Logistics network optimization (FedEx/UPS-style):** Finding the cheapest delivery path through a hub-and-spoke network where shipments can pass through at most K sorting facilities before reaching the destination."
+  - "**Network packet routing (SDN team):** Computing minimum-cost paths through a software-defined network where policy limits how many hops a packet may traverse between ingress and egress points."
+  - "**Supply chain platform:** Identifying the lowest-cost sourcing route from a raw-material supplier to a factory, with a constraint on how many intermediate distributors the order may flow through."
+constraints:
+- All flight costs are positive integers
+- max_stops is the number of intermediate cities (0 means direct flights only)
+- If multiple paths tie on cost, return any valid one
+- The graph may contain cycles
+- Up to 100 cities and 10,000 flights
+examples:
+- input: |-
+    flights = [('SFO','ORD',200), ('ORD','JFK',150), ('SFO','JFK',500), ('ORD','DEN',100), ('DEN','JFK',120)]
+    cheapest('SFO', 'JFK', max_stops=1)
+  output: (350, ['SFO', 'ORD', 'JFK'])  — SFO→ORD ($200) + ORD→JFK ($150) = $350 with 1 stop
+- input: cheapest('SFO', 'JFK', max_stops=0)
+  output: (500, ['SFO', 'JFK'])  — only the direct flight is valid with 0 stops
+- input: cheapest('SFO', 'LAX', max_stops=2)
+  output: -1  — no route exists from SFO to LAX in this graph
+starter_code: |-
+  class FlightRouter:
+      def __init__(self, flights: list[tuple[str, str, int]]):
+          """flights is a list of (source, destination, cost) tuples."""
+          pass
+
+      def cheapest(self, start: str, end: str, max_stops: int) -> tuple[int, list[str]] | int:
+          """Return (cost, path) for the cheapest route, or -1 if none exists."""
+          pass
+follow_ups:
+- 'Add time windows: each edge is only available at certain times.'
+- Find all paths within 20% of the optimal cost.
+- What if edge costs change dynamically?
+key_skills:
+- BFS/Dijkstra with state
+- dynamic programming
+- graph traversal
+- pruning
+test_type: class
+test_cases:
+- label: cheapest route
+  init_args:
+  - - - SFO
+      - ORD
+      - 200
+    - - ORD
+      - JFK
+      - 150
+    - - SFO
+      - JFK
+      - 500
+    - - ORD
+      - DEN
+      - 100
+    - - DEN
+      - JFK
+      - 120
+  ops:
+  - __eval__
+  - __eval__
+  - __eval__
+  op_args:
+  - - list(obj.cheapest('SFO', 'JFK', 1))
+  - - list(obj.cheapest('SFO', 'JFK', 0))
+  - - obj.cheapest('SFO', 'LAX', 2)
+  expected:
+  - - 350
+    - - SFO
+      - ORD
+      - JFK
+  - - 500
+    - - SFO
+      - JFK
+  - -1
+class_name: FlightRouter
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **BFS/Dijkstra with state** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **dynamic programming** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review BFS/DFS tradeoffs and what metadata you need to carry during traversal.
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing Shortest Path with Constraints, re-run the provided hardcoded tests and explain why each one protects an important invariant.

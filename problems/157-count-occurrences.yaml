@@ -1,0 +1,57 @@
+id: 157
+title: Count Occurrences
+category: warmup
+difficulty: Easy
+summary: Count how many times a target value appears in a list.
+description: Implement count_occurrences(nums, target) that returns how many times target appears in nums.
+scenario: |-
+  A quality control system at a manufacturing plant tracks defect codes logged by sensors on an assembly line. The QC engineer wants to know how many times a specific defect code appeared in the day's log before filing an incident report. The function is called once per defect code per daily report generation.
+alt_scenarios:
+  - "**A/B test counter:** An analytics backend counts how many users in a sample group received treatment variant B before computing the conversion rate."
+  - "**Inventory audit:** A warehouse tool counts how many SKU entries in a daily scan match a particular product code to reconcile against expected stock levels."
+constraints:
+  - nums may be empty. Return 0 if target is not found.
+examples:
+  - input: count_occurrences([1, 2, 2, 3, 2], 2)
+    output: '3'
+starter_code: |-
+  def count_occurrences(nums: list, target) -> int:
+      pass
+follow_ups:
+  - Return a dict of counts for all distinct values in one pass.
+  - Use binary search for sorted lists.
+key_skills:
+  - arrays
+  - counting
+test_type: function
+function_name: count_occurrences
+test_cases:
+  - label: multiple
+    input:
+      nums: [1, 2, 2, 3, 2]
+      target: 2
+    expected: 3
+  - label: not found
+    input:
+      nums: [1, 2, 3]
+      target: 5
+    expected: 0
+  - label: all match
+    input:
+      nums: [4, 4, 4]
+      target: 4
+    expected: 3
+  - label: empty
+    input:
+      nums: []
+      target: 1
+    expected: 0
+explanation: |-
+  This warm-up is meant to build confidence around **arrays** with a very small surface area.
+
+  nums.count(target) is the built-in one-liner. A manual loop counter is equally correct. Both are O(n).
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+  - list.count() is O(n) and reads clearly. For multiple counts in one pass, use collections.Counter.
+  - 'Treat Count Occurrences as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

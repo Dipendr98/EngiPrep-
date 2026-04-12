@@ -1,0 +1,63 @@
+id: 65
+title: Binary Search
+category: warmup
+difficulty: Easy
+summary: Find the index of a target in a sorted array.
+description: Implement binary_search(nums, target) that returns the index of target in a sorted array or -1 if not found.
+scenario: |-
+  The search infrastructure team at a streaming music platform maintains a sorted in-memory index of track IDs for each genre playlist. When a user requests a specific track, the lookup service must confirm whether the track ID is present in the playlist index and return its position in O(log n) — the playlists can contain tens of thousands of entries, and a linear scan would cause noticeable latency at peak request rates. You need a clean binary search implementation with an explicit loop invariant that handles the single-element and not-found edge cases correctly.
+alt_scenarios:
+  - "**Feature flag rollout:** A rollout system checks whether a user's numeric ID falls within a sorted list of opted-in IDs using binary search to evaluate targeting rules at request time."
+  - "**Firmware version lookup:** An OTA update service binary-searches a sorted release manifest to find whether a device's current firmware version is eligible for a specific update channel."
+constraints:
+- nums is sorted ascending.
+- Return any correct index when duplicates exist.
+examples:
+- input: binary_search([1,3,5,7], 5)
+  output: '2'
+starter_code: |-
+  def binary_search(nums: list[int], target: int) -> int:
+      pass
+follow_ups:
+- Return the first occurrence.
+- Return the insertion index if not found.
+key_skills:
+- binary search
+- arrays
+test_type: function
+function_name: binary_search
+test_cases:
+- label: found
+  input:
+    nums:
+    - 1
+    - 3
+    - 5
+    - 7
+    target: 5
+  expected: 2
+- label: not found
+  input:
+    nums:
+    - 1
+    - 3
+    - 5
+    - 7
+    target: 4
+  expected: -1
+- label: single item
+  input:
+    nums:
+    - 2
+    target: 2
+  expected: 0
+explanation: |-
+  This warm-up is meant to build confidence around **binary search** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- 'Keep your loop invariant explicit: what range can still contain the answer?'
+- 'Review the most common array patterns: one pass, two pointers, prefix accumulation, and counting.'
+- 'Treat Binary Search as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

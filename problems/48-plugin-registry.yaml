@@ -1,0 +1,174 @@
+id: 48
+title: Plugin Registry
+category: api_design
+difficulty: Medium
+summary: Extensible plugin system with registration, discovery, and lifecycle hooks.
+description: 'Implement a plugin registry. register(name, plugin) registers a plugin object. Plugins must implement an initialize() and shutdown() method. get(name) retrieves a plugin. Support dependency ordering: plugins can declare dependencies on other plugins, and initialize() must be called in dependency order.'
+scenario: |-
+  The platform engineering team at a B2B SaaS company is building a self-service extension system so that product squads can ship optional capabilities — a metrics-exporter plugin, an SSO plugin that depends on the auth-core plugin, a reporting plugin that depends on both — without modifying the main application binary. You need a plugin registry that accepts registrations at startup, resolves the dependency graph using a topological sort, and calls each plugin's initialize() in safe dependency order so that no plugin starts before its dependencies are live. On graceful shutdown the order reverses, and any circular or missing dependency must be caught before any plugin touches production state.
+alt_scenarios:
+  - "**Game engine modules:** A game studio's engine loads renderer, physics, and audio subsystems in dependency order at scene start and tears them down cleanly on exit."
+  - "**CI/CD pipeline steps:** A build system resolves step dependencies across lint, test, compile, and publish stages and refuses to start if the dependency graph contains a cycle."
+  - "**Kubernetes operator controllers:** A multi-controller operator initializes custom resource controllers in an order that satisfies inter-controller dependencies declared in their specs."
+constraints:
+- Each plugin object must have a 'dependencies' attribute (list of plugin name strings), and initialize() and shutdown() methods.
+- register(name, plugin) raises if name is already registered.
+- get(name) returns the plugin or raises KeyError.
+- initialize_all() calls initialize() in topological (dependency) order.
+- shutdown_all() calls shutdown() in reverse dependency order.
+- Circular dependencies must be detected and raise an error.
+examples:
+- input: |-
+    class DBPlugin:
+        dependencies = []
+        def initialize(self): print('DB started')
+        def shutdown(self): print('DB stopped')
+
+    class AuthPlugin:
+        dependencies = ['database']
+        def initialize(self): print('Auth started')
+        def shutdown(self): print('Auth stopped')
+
+    reg = PluginRegistry()
+    reg.register('database', DBPlugin())
+    reg.register('auth', AuthPlugin())
+    reg.initialize_all()
+  output: |-
+    DB started
+    Auth started
+    (database is initialized before auth because auth depends on it)
+- input: reg.shutdown_all()
+  output: |-
+    Auth stopped
+    DB stopped
+    (reverse dependency order)
+- input: |-
+    class BadPlugin:
+        dependencies = ['nonexistent']
+        def initialize(self): pass
+        def shutdown(self): pass
+
+    reg.register('bad', BadPlugin())
+    reg.initialize_all()
+  output: 'Raises DependencyError: "Plugin ''bad'' depends on ''nonexistent'' which is not registered."'
+starter_code: |
+  from typing import Any
+
+  class PluginRegistry:
+      def __init__(self):
+          pass
+
+      def register(self, name: str, plugin: Any) -> None:
+          """Register a plugin by name."""
+          pass
+
+      def get(self, name: str) -> Any:
+          """Retrieve a registered plugin."""
+          pass
+
+      def initialize_all(self) -> None:
+          """Initialize all plugins in dependency order."""
+          pass
+
+      def shutdown_all(self) -> None:
+          """Shut down all plugins in reverse dependency order."""
+          pass
+follow_ups:
+- Add plugin versioning and compatibility checking.
+- 'Support hot-reloading: replace a plugin at runtime.'
+- Add hook points where plugins can extend core behavior.
+key_skills:
+- registry pattern
+- dependency resolution
+- topological sort
+- lifecycle management
+test_type: class
+test_cases:
+- label: dependency order
+  setup_code: |-
+    logs = []
+
+    class DBPlugin:
+        dependencies = []
+        def initialize(self):
+            logs.append('db:init')
+        def shutdown(self):
+            logs.append('db:down')
+
+    class AuthPlugin:
+        dependencies = ['database']
+        def initialize(self):
+            logs.append('auth:init')
+        def shutdown(self):
+            logs.append('auth:down')
+
+    db_plugin = DBPlugin()
+    auth_plugin = AuthPlugin()
+  init_args: []
+  ops:
+  - register
+  - register
+  - initialize_all
+  - __eval__
+  - shutdown_all
+  - __eval__
+  op_args:
+  - - database
+    - __ref__: db_plugin
+  - - auth
+    - __ref__: auth_plugin
+  - []
+  - - logs
+  - []
+  - - logs
+  expected:
+  - null
+  - null
+  - null
+  - - db:init
+    - auth:init
+  - null
+  - - db:init
+    - auth:init
+    - auth:down
+    - db:down
+- label: missing dependency
+  setup_code: |-
+    class BadPlugin:
+        dependencies = ['missing']
+        def initialize(self):
+            pass
+        def shutdown(self):
+            pass
+
+    bad_plugin = BadPlugin()
+  init_args: []
+  ops:
+  - register
+  - initialize_all
+  op_args:
+  - - bad
+    - __ref__: bad_plugin
+  - []
+  expected:
+  - null
+  - null
+  expected_errors:
+  - null
+  - depends
+class_name: PluginRegistry
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **registry pattern** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **dependency resolution** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Know both Kahn’s algorithm and DFS-based cycle detection so you can choose the clearer tool.
+- 'Keep caller ergonomics in mind: a clean API should make the correct usage obvious.'
+- Use tests to define the contract, especially around chaining, defaults, and error cases.
+- After implementing Plugin Registry, re-run the provided hardcoded tests and explain why each one protects an important invariant.

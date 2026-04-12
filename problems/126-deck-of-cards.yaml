@@ -1,0 +1,180 @@
+id: 126
+title: Deck of Cards
+category: stateful
+difficulty: Easy
+summary: Model a standard deck with shuffle, deal, and reset — classic OOP design.
+description: Design a Deck class that models a standard 52-card deck (4 suits × 13 ranks). Implement shuffle() to randomize the remaining cards, deal() to remove and return the top card, cards_remaining() to return the count, and reset() to restore and re-shuffle the full deck. A Card has a suit and rank.
+scenario: |-
+  You're a platform engineer at a social gaming startup building a shared card game engine library that three product teams — Poker, Blackjack, and Go Fish — will integrate independently. The library must be clean, predictable, and fully testable in CI without flaky randomness: callers pass a seed so integration tests get deterministic deal sequences, while production omits the seed for true randomness. The Deck class is the foundation every game variant builds on.
+alt_scenarios:
+  - "**Test data factory:** A QA tooling library provides a seeded, resettable data generator that produces shuffled samples from a fixed corpus, giving CI pipelines reproducible test fixtures while keeping production runs randomized."
+  - "**A/B experiment assignment:** An experimentation platform maintains a pool of variant tokens, deals them out to incoming users in a shuffled order, and resets the pool each experiment cycle — with seeding available for offline analysis and replay."
+  - "**Job scheduler with random priority:** A batch job dispatcher holds a shuffled queue of pending tasks, pops the top task on each scheduling tick, and reseeds the queue at the start of each scheduling epoch to prevent starvation."
+constraints:
+- Suits are 'Hearts', 'Diamonds', 'Clubs', 'Spades'
+- Ranks are 2–10, 'Jack', 'Queen', 'King', 'Ace' (13 total)
+- deal() raises IndexError when the deck is empty
+- shuffle() randomizes whatever cards remain (not just a full deck)
+- reset() restores all 52 cards and shuffles
+- Card objects must support str() for display, e.g. 'Ace of Spades'
+examples:
+- input: |-
+    d = Deck(seed=42)
+    d.cards_remaining()   # 52
+    c = d.deal()
+    str(c)                # some card
+    d.cards_remaining()   # 51
+  output: '52, "7 of Hearts", 51  (exact card depends on seed)'
+starter_code: |-
+  import random
+
+  class Card:
+      SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+      RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
+
+      def __init__(self, suit: str, rank):
+          self.suit = suit
+          self.rank = rank
+
+      def __str__(self) -> str:
+          pass
+
+      def __repr__(self) -> str:
+          return self.__str__()
+
+
+  class Deck:
+      def __init__(self, seed: int = None):
+          """Initialize and shuffle a full 52-card deck. seed for reproducibility."""
+          pass
+
+      def shuffle(self) -> None:
+          """Shuffle the remaining cards in place."""
+          pass
+
+      def deal(self):
+          """Remove and return the top Card. Raises IndexError if empty."""
+          pass
+
+      def cards_remaining(self) -> int:
+          """Return the number of cards left in the deck."""
+          pass
+
+      def reset(self) -> None:
+          """Restore all 52 cards and shuffle."""
+          pass
+follow_ups:
+- Add a Hand class that holds a player's cards and computes hand rank (for Poker).
+- Support multiple decks (shoe) for Blackjack.
+- Add a discard pile and allow drawing from it.
+key_skills:
+- class design
+- OOP
+- encapsulation
+- random with seed
+test_type: class
+class_name: Deck
+test_cases:
+- label: full deck has 52 cards
+  init_args: []
+  init_kwargs:
+    seed: 0
+  ops:
+  - cards_remaining
+  op_args:
+  - []
+  expected:
+  - 52
+- label: deal reduces count
+  init_args: []
+  init_kwargs:
+    seed: 0
+  ops:
+  - deal
+  - cards_remaining
+  op_args:
+  - []
+  - []
+  expected:
+  - null
+  - 51
+  compare:
+  - false
+  - true
+- label: deal all 52 then empty raises error
+  init_args: []
+  init_kwargs:
+    seed: 0
+  ops:
+  - __eval__
+  - cards_remaining
+  - deal
+  op_args:
+  - '[obj.deal() for _ in range(52)]'
+  - []
+  - []
+  expected:
+  - null
+  - 0
+  - null
+  compare:
+  - false
+  - true
+  - false
+  expected_errors:
+  - null
+  - null
+  - indexerror
+- label: reset restores 52 cards
+  init_args: []
+  init_kwargs:
+    seed: 0
+  ops:
+  - deal
+  - deal
+  - reset
+  - cards_remaining
+  op_args:
+  - []
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - null
+  - 52
+  compare:
+  - false
+  - false
+  - false
+  - true
+- label: card string format
+  init_args: []
+  init_kwargs:
+    seed: 99
+  ops:
+  - __eval__
+  op_args:
+  - str(obj.deal())
+  expected:
+  - null
+  compare:
+  - false
+explanation: |-
+  Card.__str__ should return '{rank} of {suit}'.
+
+  Deck internally holds a list of Card objects. __init__ calls reset() to build and shuffle. shuffle() uses random.shuffle in-place on the remaining list. deal() pops from the end (O(1)) — index 0 is "top of deck" conventionally but end-of-list pop is identical in behavior and faster.
+
+  Seeding: pass seed to random.seed() at construction (and in reset) for reproducibility in tests.
+
+  reset() rebuilds all 52 cards using a nested comprehension over SUITS × RANKS, then calls shuffle().
+
+  Design discussion points:
+  - Why separate Card and Deck classes? Single responsibility.
+  - Why a seed parameter? Testability.
+  - Why pop() over pop(0)? O(1) vs O(n).
+  - What would a Shoe (multi-deck) look like? Compose multiple Decks.
+references:
+- Use pop() from the end of the list for O(1) deal — the "top" of the deck is just a convention.
+- Accept a seed in the constructor to make the class testable without mocking random.

@@ -1,0 +1,156 @@
+id: 122
+title: Connect Four
+category: stateful
+difficulty: Medium
+summary: Implement Connect Four with gravity, win detection, and full-column rejection.
+description: Design a ConnectFour class for a 6-row × 7-column grid. Two players (1 and 2) alternate dropping pieces into columns. A piece falls to the lowest available row. drop(col) places the current player's piece and returns the result ('Player 1 wins', 'Player 2 wins', 'draw', or 'continue'). The win condition is four consecutive pieces horizontally, vertically, or diagonally.
+scenario: |-
+  You're on the Games Infrastructure team building the server-side engine for a browser-based board game platform launching at 100k concurrent users. The engine exposes a single REST endpoint that accepts a column number from the client; your handler must simulate gravity to find the landing row, reject drops into full columns, scan all four directions for a four-in-a-row win, and return the authoritative game state — all within a single request cycle with no client-side logic trusted.
+alt_scenarios:
+  - "**Logging pipeline:** A log aggregation service accepts append-only writes into fixed-size buckets, rejects overflow when a bucket is full, and detects when a consecutive run of matching severity levels crosses an alert threshold."
+  - "**Warehouse slot management:** An inventory system assigns items to the next available shelf slot in a column, rejects placements when a column is at capacity, and triggers a pick alert when a consecutive run of the same SKU meets a batch threshold."
+  - "**Approval chain tracker:** A compliance tool routes approvals through a fixed hierarchy, rejects duplicate submissions, and detects when a required sequence of consecutive sign-offs from the same department constitutes a conflict of interest."
+constraints:
+- Rows 0–5 (0 = top), columns 0–6
+- A piece falls to the lowest unfilled row in the column
+- Dropping into a full column raises ValueError
+- Dropping after game over raises ValueError
+- Win is four in a row in any direction (horizontal, vertical, diagonal)
+- Draw when the board is full with no winner
+examples:
+- input: 'drop(3) six times alternating players'
+  output: 'Player 1 wins (vertical stack in column 3)'
+starter_code: |-
+  class ConnectFour:
+      ROWS = 6
+      COLS = 7
+
+      def __init__(self):
+          self.board = [[0]*self.COLS for _ in range(self.ROWS)]
+          self.current = 1
+          self.over = False
+
+      def drop(self, col: int) -> str:
+          """Drop current player's piece into col. Returns game result string."""
+          pass
+
+      def get_board(self) -> list[list[int]]:
+          """Return a copy of the board (0=empty, 1=player1, 2=player2)."""
+          pass
+follow_ups:
+- Implement an AI that uses minimax with alpha-beta pruning.
+- Generalize to a configurable win length (connect-k).
+- Detect a block/threat situation and return a warning to the UI.
+key_skills:
+- game state management
+- gravity simulation
+- win detection (4 directions)
+- board representation
+test_type: class
+class_name: ConnectFour
+test_cases:
+- label: player 1 wins vertically
+  init_args: []
+  ops:
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  op_args:
+  - [3]
+  - [4]
+  - [3]
+  - [4]
+  - [3]
+  - [4]
+  - [3]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - Player 1 wins
+- label: player 1 wins horizontally
+  init_args: []
+  ops:
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  op_args:
+  - [0]
+  - [0]
+  - [1]
+  - [1]
+  - [2]
+  - [2]
+  - [3]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - Player 1 wins
+- label: full column raises error
+  init_args: []
+  ops:
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  - drop
+  op_args:
+  - [0]
+  - [1]
+  - [0]
+  - [1]
+  - [0]
+  - [1]
+  - [0]
+  - [0]
+  expected:
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - continue
+  - null
+  expected_errors:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - null
+  - null
+  - valueerror
+explanation: |-
+  Gravity: find the lowest empty row in a column by scanning from bottom (row 5) upward.
+
+  Win detection: after placing a piece at (r, c), check all four directions from that cell. For each direction (horizontal, vertical, and both diagonals), count consecutive same-player pieces both ways and sum them. If total >= 4 (including the placed piece), it's a win.
+
+  Direction vectors: (0,1), (1,0), (1,1), (1,-1) — each covers a pair of opposite directions.
+
+  Draw: check if all cells in row 0 (the top) are non-zero — if so and no winner, the board is full.
+
+  Common bugs:
+  1. Checking all cells for a win rather than only the cells adjacent to the just-played piece (still correct but O(rows*cols) not O(1)).
+  2. Off-by-one in the consecutive-count loop (should include the placed piece itself).
+references:
+- Check only from the last-placed piece in all 4 directions — this is faster and avoids re-scanning the whole board.
+- The ±direction trick (count both ways on the same axis and sum) is the cleanest way to detect four-in-a-row.

@@ -1,0 +1,81 @@
+id: 74
+title: Simple Counter
+category: warmup
+difficulty: Easy
+summary: Implement a tiny stateful counter API.
+description: Implement Counter with increment(), decrement(), reset(), and value() methods.
+scenario: |-
+  A backend engineer at a ride-sharing company is building a lightweight session tracking object for a driver's consecutive-trip streak. Each completed trip calls increment(), a cancelled trip calls decrement(), and resetting at shift end calls reset(). The object is embedded in a Redis-backed driver session and must expose a clean value() read path for the real-time dashboard. Keeping the implementation minimal and correct is critical because bugs here silently corrupt bonus calculations.
+alt_scenarios:
+  - "**Rate limiter:** A gateway service uses a counter object to track the number of requests in the current time window before deciding to throttle a client."
+  - "**CI retry tracker:** A build system wraps retry state in a counter class to increment on each failed attempt and reset on a successful job completion."
+  - "**Inventory management:** A warehouse API tracks available stock units with increment/decrement operations that are audited on every update."
+constraints:
+- The counter starts at 0.
+examples:
+- input: |-
+    c = Counter()
+    c.increment()
+    c.increment()
+    c.value()
+  output: '2'
+starter_code: |-
+  class Counter:
+      def __init__(self):
+          pass
+
+      def increment(self) -> None:
+          pass
+
+      def decrement(self) -> None:
+          pass
+
+      def reset(self) -> None:
+          pass
+
+      def value(self) -> int:
+          pass
+follow_ups:
+- Support incrementing by an amount.
+- Add undo for the last operation.
+key_skills:
+- stateful
+- counting
+test_type: class
+class_name: Counter
+test_cases:
+- label: basic flow
+  init_args: []
+  ops:
+  - increment
+  - increment
+  - value
+  - decrement
+  - value
+  - reset
+  - value
+  op_args:
+  - []
+  - []
+  - []
+  - []
+  - []
+  - []
+  - []
+  expected:
+  - null
+  - null
+  - 2
+  - null
+  - 1
+  - null
+  - 0
+explanation: |-
+  This warm-up is meant to build confidence around **stateful** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Simple Counter as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

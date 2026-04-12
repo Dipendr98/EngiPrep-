@@ -1,0 +1,97 @@
+id: 31
+title: Windowed Event Counter
+category: streaming
+difficulty: Medium
+summary: Count events in multiple time windows (1min, 5min, 1hr) efficiently.
+description: Implement a counter that tracks events over time. record(timestamp) records an event. count(timestamp, window_seconds) returns the number of events in the last window_seconds as of the given timestamp. Support multiple window sizes efficiently.
+scenario: |-
+  You're building the metrics backend for an API gateway that handles 50K requests per second across a global fleet of edge nodes. The SRE team's dashboard has three widgets per service: "5xx errors in the last 60s," "requests in the last 5 minutes," and "total traffic in the last hour"—all queried independently with different window sizes and all expected to update within a second of real events. The counters must stay accurate as time advances without re-scanning historical data, and a single pod needs to support dozens of services simultaneously with predictable memory use.
+alt_scenarios:
+  - "**Fraud detection platform:** Counting how many payment attempts a given card number has made in the last 60 seconds and last 15 minutes to trigger velocity-based fraud rules in real time."
+  - "**Rate-limiting service (API gateway):** Tracking how many requests each API key has made within a rolling 1-minute window to enforce per-customer quotas without storing the full request history."
+  - "**Content moderation pipeline:** Counting how many posts a user account has submitted in sliding windows of 1 minute and 1 hour to detect automated spam bursts before they reach human reviewers."
+constraints:
+- Timestamps are positive integers representing Unix seconds
+- Timestamps passed to record() are non-decreasing
+- window_seconds is a positive integer
+- count() should run in O(log n) or better
+- Multiple events may share the same timestamp
+examples:
+- input: |-
+    counter = WindowedEventCounter()
+    counter.record(100)
+    counter.record(105)
+    counter.record(110)
+    counter.record(200)
+    counter.count(110, 15)
+  output: '3  # Events at t=100, 105, 110 are all within the window [95, 110]'
+- input: counter.count(110, 5)
+  output: '2  # Events at t=105 and t=110 fall within [105, 110]'
+- input: counter.count(200, 100)
+  output: '4  # All four events (100, 105, 110, 200) fall within [100, 200]'
+starter_code: |-
+  class WindowedEventCounter:
+      def __init__(self):
+          pass
+
+      def record(self, timestamp: int) -> None:
+          pass
+
+      def count(self, timestamp: int, window_seconds: int) -> int:
+          pass
+follow_ups:
+- Use bucketed counting to reduce memory.
+- Add a rate() method that returns events-per-second for a window.
+- How would you merge counts from multiple servers?
+key_skills:
+- sorted list / deque
+- binary search
+- bucketing
+- time-based cleanup
+test_type: class
+test_cases:
+- label: count windows
+  init_args: []
+  ops:
+  - record
+  - record
+  - record
+  - record
+  - count
+  - count
+  - count
+  op_args:
+  - - 100
+  - - 105
+  - - 110
+  - - 200
+  - - 110
+    - 15
+  - - 110
+    - 5
+  - - 200
+    - 100
+  expected:
+  - null
+  - null
+  - null
+  - null
+  - 3
+  - 2
+  - 4
+class_name: WindowedEventCounter
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **sorted list / deque** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **binary search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review lower-bound / upper-bound style binary search and the off-by-one rules that keep it correct.
+- Think about lazy cleanup versus eager cleanup and what each means for latency and memory.
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.

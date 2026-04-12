@@ -1,0 +1,50 @@
+id: 67
+title: Count Vowels
+category: warmup
+difficulty: Easy
+summary: Count vowels in a string.
+description: Implement count_vowels(s) that returns the number of English vowels in the string, case-insensitive.
+scenario: |-
+  The accessibility team at an e-learning platform is building a readability scoring tool that estimates how phonetically dense a passage of text is, using vowel count as a proxy metric. The scorer processes thousands of short text segments per second from student submissions and needs a fast, case-insensitive vowel counter that handles uppercase chapter headings and lowercase body text uniformly without normalizing the entire string first. You need a single-pass counter that correctly identifies a, e, i, o, and u regardless of case.
+alt_scenarios:
+  - "**Spam keyword heuristic:** A content filter scores messages by vowel density as one signal in a naive Bayes spam classifier, running the count over millions of incoming messages daily."
+  - "**Text-to-speech pre-processor:** A TTS engine counts vowels in each word to estimate syllable count for prosody modeling before sending text to the synthesis backend."
+constraints:
+- Count a, e, i, o, u only.
+examples:
+- input: count_vowels("OpenAI")
+  output: '4'
+starter_code: |-
+  def count_vowels(s: str) -> int:
+      pass
+follow_ups:
+- Return counts per vowel.
+- Ignore vowels inside quoted segments.
+key_skills:
+- strings
+- counting
+test_type: function
+function_name: count_vowels
+test_cases:
+- label: mixed case
+  input:
+    s: OpenAI
+  expected: 4
+- label: none
+  input:
+    s: rhythms
+  expected: 0
+- label: repeated
+  input:
+    s: queue
+  expected: 4
+explanation: |-
+  This warm-up is meant to build confidence around **strings** with a very small surface area.
+
+  A good answer should still name the invariant or main idea clearly, handle the obvious edge cases, and keep the implementation easy to read.
+
+  Use the hardcoded tests to sanity-check the basics quickly, then explain why your chosen approach is the simplest correct solution.
+references:
+- Practice a few small string transforms by hand so indexing, trimming, and reconstruction feel automatic.
+- Counting problems usually become easier once you decide what each counter means.
+- 'Treat Count Vowels as a speed drill: solve it cleanly, run the tests, then restate the core idea in one sentence.'

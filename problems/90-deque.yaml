@@ -1,0 +1,64 @@
+id: 90
+title: "collections.deque"
+category: syntax
+difficulty: Easy
+summary: Use collections.deque to rotate a list right by k positions, handling negative and oversized k.
+description: >-
+  Implement `rotate_list(lst: list, k: int) -> list` that takes a list and an integer k
+  and returns a new list rotated right by k positions. Use collections.deque. k may be
+  larger than len(lst); k may also be negative for left rotation.
+scenario: |-
+  A platform infrastructure team at a cloud company is implementing a round-robin task dispatcher for their distributed job queue. On each scheduling tick, the dispatcher processes a fixed number of worker slots and then rotates the worker list right by that count so the next tick starts with a fresh lead worker. The rotation must handle negative offsets (for rewind scenarios) and oversized k values gracefully, and the original worker list must not be mutated since it is shared across goroutines.
+alt_scenarios:
+  - "**Carousel ad rotation:** A digital advertising platform rotates a ranked list of ad creatives by the number of impressions served each second to implement fair exposure."
+  - "**Network switch:** A packet scheduler rotates its port service queue after each burst to implement deficit round-robin scheduling across active ports."
+  - "**Game turn manager:** A multiplayer game server rotates its ordered player list at the end of each round so the lead player changes predictably."
+constraints:
+  - lst may be empty
+  - k may be any integer (positive, negative, or zero)
+  - The original list must not be modified
+examples:
+  - input: rotate_list([1,2,3,4,5], 2)
+    output: '[4, 5, 1, 2, 3]'
+starter_code: |-
+  def rotate_list(lst: list, k: int) -> list:
+      pass
+follow_ups:
+  - How would you implement rotation without deque (pure slicing)?
+  - What is the time complexity of deque.rotate(k)?
+key_skills:
+  - deque
+  - rotate
+  - collections
+  - modular arithmetic
+test_type: function
+function_name: rotate_list
+test_cases:
+  - label: rotate right by 2
+    input:
+      lst: [1, 2, 3, 4, 5]
+      k: 2
+    expected: [4, 5, 1, 2, 3]
+  - label: rotate right by 1
+    input:
+      lst: [1, 2, 3]
+      k: 1
+    expected: [3, 1, 2]
+  - label: negative k left rotation
+    input:
+      lst: [1, 2, 3, 4]
+      k: -1
+    expected: [2, 3, 4, 1]
+  - label: k equals length full rotation
+    input:
+      lst: [1, 2, 3]
+      k: 6
+    expected: [1, 2, 3]
+explanation: |-
+  `deque.rotate(k)` rotates right by k in O(k) time. A positive k moves the rightmost
+  elements to the front; negative k moves leftmost to the back. deque is designed for
+  O(1) appends and pops from both ends, making it ideal for queue, sliding window, and
+  rotation operations. Convert back with `list(d)`.
+references:
+  - "Python docs: collections.deque — https://docs.python.org/3/library/collections.html#collections.deque"
+  - "deque.rotate() — https://docs.python.org/3/library/collections.html#collections.deque.rotate"

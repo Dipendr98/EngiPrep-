@@ -1,0 +1,60 @@
+id: 86
+title: "String Methods"
+category: syntax
+difficulty: Easy
+summary: Normalize a string by collapsing extra whitespace and applying title case to each word.
+description: >-
+  Implement `normalize_sentence(s: str) -> str` that takes a string with inconsistent
+  casing and extra spaces between words, and returns a version where words are
+  title-cased and separated by exactly one space. Strip leading and trailing whitespace.
+scenario: |-
+  A customer data platform at a retail company ingests user profile records from three different upstream CRMs, each of which uses different whitespace and casing conventions for the display name field. Before the records are merged into the unified customer graph, a normalization step must title-case every name and collapse irregular spacing so that "  john   DOE  " and "John Doe" resolve to the same canonical key. The engineer writing this step needs a clean, one-function solution that handles all whitespace edge cases.
+alt_scenarios:
+  - "**E-commerce search:** A product catalog normalizer title-cases and collapses whitespace in seller-submitted product names before indexing them for search."
+  - "**HR system import:** A people-ops tool normalizes employee name fields imported from a legacy HRIS that uses inconsistent spacing and all-caps formatting."
+  - "**Document parser:** A contract analysis service normalizes party names extracted by OCR, which often contain extra spaces and inconsistent capitalization."
+constraints:
+  - Input may have leading, trailing, or multiple consecutive spaces
+  - Words consist of ASCII letters only
+examples:
+  - input: 'normalize_sentence("  hello   WORLD  ")'
+    output: '"Hello World"'
+starter_code: |-
+  def normalize_sentence(s: str) -> str:
+      pass
+follow_ups:
+  - How would you preserve acronyms (e.g., "NASA") without lowercasing them?
+  - What if the input could contain punctuation?
+key_skills:
+  - string methods
+  - split
+  - join
+  - title case
+  - strip
+test_type: function
+function_name: normalize_sentence
+test_cases:
+  - label: leading and trailing spaces with run
+    input:
+      s: "  hello   WORLD  "
+    expected: "Hello World"
+  - label: mixed casing no extra spaces
+    input:
+      s: "python IS great"
+    expected: "Python Is Great"
+  - label: single word
+    input:
+      s: "one"
+    expected: "One"
+  - label: single-char words with spaces
+    input:
+      s: "  a  b  c  "
+    expected: "A B C"
+explanation: |-
+  The pattern `" ".join(s.split())` is the idiomatic way to collapse all whitespace
+  (including runs of spaces and tabs) into single spaces while stripping the ends. Then
+  `.title()` on each word handles casing. Chaining string methods is a core Python skill.
+references:
+  - "Python docs: str.split() — https://docs.python.org/3/library/stdtypes.html#str.split"
+  - "Python docs: str.join() — https://docs.python.org/3/library/stdtypes.html#str.join"
+  - "Python docs: str.title() — https://docs.python.org/3/library/stdtypes.html#str.title"

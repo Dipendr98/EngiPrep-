@@ -1,0 +1,127 @@
+id: 127
+title: Flatten Nested List Iterator
+category: stateful
+difficulty: Medium
+summary: Implement an iterator that lazily flattens an arbitrarily nested list.
+description: Design a NestedIterator class that takes a nested list (a list that can contain integers or other nested lists at any depth) and provides a standard iterator interface — has_next() and next(). Elements should be yielded in left-to-right depth-first order. Implement it without flattening the entire structure upfront.
+scenario: |-
+  You're a data infrastructure engineer at a fintech company whose ingestion pipeline receives deeply nested JSON audit records from partner banks — arrays of transaction groups, each containing sub-arrays of line items. Materializing a fully flattened list before processing would require gigabytes of heap on peak days. You need a lazy iterator that yields one leaf value at a time so the downstream Kafka producer can apply backpressure and the service stays within its 512 MB memory limit.
+alt_scenarios:
+  - "**File system crawler:** A storage analytics service traverses an arbitrarily deep directory tree one entry at a time, yielding file metadata lazily so a downstream reporter can stream results to S3 without loading the full tree."
+  - "**DOM event bubbling engine:** A UI framework walks a nested component tree depth-first, emitting lifecycle events for each leaf node one at a time so handlers can short-circuit traversal without processing the entire subtree."
+  - "**Recursive config resolver:** A deployment tool lazily expands a hierarchically nested YAML config (environments containing regions containing services) into a flat stream of service-level settings for sequential validation."
+constraints:
+- has_next() returns True if there is at least one more integer to yield
+- next() returns the next integer; calling it when has_next() is False is undefined
+- The nested structure can be arbitrarily deep (not just 2 levels)
+- Do not flatten the entire list in __init__ — use lazy evaluation (stack-based)
+- The input may contain empty sublists
+examples:
+- input: 'NestedIterator([[1,1],2,[1,1]]) -> next()'
+  output: '1, 1, 2, 1, 1 (one per call)'
+- input: 'NestedIterator([1,[4,[6]]]) -> next()'
+  output: '1, 4, 6'
+starter_code: |-
+  class NestedIterator:
+      def __init__(self, nested_list: list):
+          """
+          nested_list: a list that may contain ints or nested lists at any depth.
+          Use a stack for lazy traversal — do not flatten upfront.
+          """
+          pass
+
+      def next(self) -> int:
+          """Return the next integer in the flattened sequence."""
+          pass
+
+      def has_next(self) -> bool:
+          """Return True if there are more integers to yield."""
+          pass
+follow_ups:
+- Implement as a Python generator function (using yield) instead.
+- Support mutable nested lists (add an insert_at_current method).
+- Extend to handle nested dicts as well as lists.
+key_skills:
+- iterator pattern
+- stack
+- lazy evaluation
+- OOP
+test_type: class
+class_name: NestedIterator
+test_cases:
+- label: two-level nesting
+  init_args:
+  - - - 1
+      - 1
+    - 2
+    - - 1
+      - 1
+  ops:
+  - __eval__
+  op_args:
+  - '[obj.next() for _ in range(5) if obj.has_next()]'
+  expected:
+  - - 1
+    - 1
+    - 2
+    - 1
+    - 1
+- label: deep nesting
+  init_args:
+  - - 1
+    - - 4
+      - - 6
+  ops:
+  - __eval__
+  op_args:
+  - '[obj.next() for _ in range(10) if obj.has_next()]'
+  expected:
+  - - 1
+    - 4
+    - 6
+- label: empty sublists skipped
+  init_args:
+  - - []
+    - 1
+    - - []
+      - 2
+    - 3
+  ops:
+  - __eval__
+  op_args:
+  - '[obj.next() for _ in range(10) if obj.has_next()]'
+  expected:
+  - - 1
+    - 2
+    - 3
+- label: has_next is false when exhausted
+  init_args:
+  - - 5
+  ops:
+  - next
+  - has_next
+  op_args:
+  - []
+  - []
+  expected:
+  - 5
+  - false
+function_name: NestedIterator
+explanation: |-
+  Stack-based approach: store elements in a stack (initially the reversed input so leftmost is on top).
+
+  has_next():
+  - While the stack is non-empty and the top is a list (not an int): pop the list and push its elements in reverse order onto the stack.
+  - Return stack is non-empty.
+
+  next():
+  - Call has_next() to ensure the top is an int, then pop and return it.
+
+  Why reverse when pushing: lists are processed left-to-right, so push items in reverse so the leftmost child ends up on top of the stack.
+
+  Why lazy: we only expand a sublist when we need the next element, not all at once. This keeps memory proportional to the max depth, not the total element count.
+
+  Alternative: Python generator with yield from for recursive depth-first traversal. Simpler code but requires understanding how generators compose.
+references:
+- Push items in reverse when expanding a sublist — this maintains left-to-right order with a stack.
+- The generator alternative (yield from) is shorter; know both and explain the memory trade-off.

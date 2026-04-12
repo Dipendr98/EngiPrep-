@@ -1,0 +1,127 @@
+id: 2
+title: Time-Based Key-Value Store
+category: stateful
+difficulty: Medium
+summary: Key-value store where each key can hold multiple timestamped values.
+description: Implement a data structure that stores key-value pairs with timestamps. set(key, value, timestamp) stores the value. get(key, timestamp) returns the value with the largest timestamp <= the given timestamp, or empty string if none exists. Timestamps are strictly increasing for each key.
+scenario: |-
+  The Platform Infrastructure team runs a centralized feature-flag service where hundreds of microservices read flag values. Operators push new flag states throughout the day via the control plane, and every write is stamped with a Unix timestamp. When a service replica starts up, it needs to reconstruct the exact flag state it should have seen at its boot time—not the current state—so you need an efficient "what was the value of flag X at time T?" lookup across a potentially long history of writes.
+alt_scenarios:
+  - "**Financial audit system:** A trading platform records every price feed update with a timestamp and lets the compliance team reconstruct the exact market state at any point during a trading session."
+  - "**IoT device shadow:** A device-management service stores each sensor reading with a server-assigned timestamp so dashboards can replay historical telemetry at arbitrary points in time."
+  - "**A/B testing framework:** An experimentation platform tracks every experiment assignment change with a timestamp so analysts can attribute conversions to the correct variant even after the experiment ends."
+constraints:
+- Keys and values are strings
+- Timestamps are positive integers
+- For a given key, set calls always have strictly increasing timestamps
+- get returns an empty string if no value exists at or before the given timestamp
+examples:
+- input: |-
+    store = TimeMap()
+    store.set('theme', 'dark', 1)
+    store.set('theme', 'light', 5)
+    store.get('theme', 3)
+    store.get('theme', 5)
+    store.get('theme', 0)
+  output: |-
+    'dark'   # timestamp 1 is the largest <= 3
+    'light'  # exact match at timestamp 5
+    ''       # no value exists at or before timestamp 0
+- input: |-
+    store = TimeMap()
+    store.set('lang', 'en', 10)
+    store.set('lang', 'fr', 20)
+    store.get('lang', 15)
+    store.get('lang', 25)
+    store.get('region', 5)
+  output: |-
+    'en'  # 10 is the largest timestamp <= 15
+    'fr'  # 20 is the largest timestamp <= 25
+    ''    # key 'region' was never set
+starter_code: |-
+  class TimeMap:
+      def __init__(self):
+          pass
+
+      def set(self, key: str, value: str, timestamp: int) -> None:
+          pass
+
+      def get(self, key: str, timestamp: int) -> str:
+          pass
+follow_ups:
+- What if timestamps are not guaranteed to be increasing?
+- Add a delete(key, timestamp) operation.
+- How would you handle this if the data doesn't fit in memory?
+key_skills:
+- hash map
+- binary search
+- sorted collections
+- temporal data
+test_type: class
+test_cases:
+- label: basic lookups
+  init_args: []
+  ops:
+  - set
+  - set
+  - get
+  - get
+  - get
+  op_args:
+  - - theme
+    - dark
+    - 1
+  - - theme
+    - light
+    - 5
+  - - theme
+    - 3
+  - - theme
+    - 5
+  - - theme
+    - 0
+  expected:
+  - null
+  - null
+  - dark
+  - light
+  - ''
+- label: independent keys
+  init_args: []
+  ops:
+  - set
+  - set
+  - get
+  - get
+  op_args:
+  - - lang
+    - en
+    - 10
+  - - lang
+    - fr
+    - 20
+  - - lang
+    - 15
+  - - region
+    - 5
+  expected:
+  - null
+  - null
+  - en
+  - ''
+class_name: TimeMap
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **binary search** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Review lower-bound / upper-bound style binary search and the off-by-one rules that keep it correct.
+- Study when a sorted list is enough versus when you need a heap, tree, or bisect-based structure.
+- Think about append-only time-series storage and why monotonic timestamps simplify retrieval.

@@ -1,0 +1,65 @@
+id: 94
+title: "zip and enumerate"
+category: syntax
+difficulty: Easy
+summary: Use zip and enumerate together to produce 1-based ranked leaderboard strings from parallel lists.
+description: >-
+  Implement `format_leaderboard(names: list[str], scores: list[int]) -> list[str]` that
+  takes a list of names and a corresponding list of scores and returns a list of strings
+  formatted as "1. Alice: 90" with 1-based rank. Use zip and enumerate.
+scenario: |-
+  A backend engineer at a mobile gaming studio is building the leaderboard API that powers the end-of-match results screen. The API receives two parallel arrays — player display names and their final scores — and must return a list of human-readable strings like "1. Alice: 90" to render in the client UI. Using zip and enumerate together keeps the implementation concise and avoids the fragile manual index counter that appeared in the previous implementation and caused off-by-one bugs during hotfixes.
+alt_scenarios:
+  - "**Sports analytics platform:** A stats service pairs athlete names with their recorded times and formats them into a ranked results table for a race event."
+  - "**CI test reporter:** A test framework zips test case names with their pass/fail results and enumerates them to produce a numbered test summary report."
+  - "**E-commerce inventory report:** A catalog tool pairs SKU names with stock counts and formats them into a ranked low-stock alert list for the operations team."
+constraints:
+  - len(names) == len(scores)
+  - Lists may be empty
+  - Ranks are 1-based
+examples:
+  - input: format_leaderboard(["Alice","Bob","Carol"], [90,85,78])
+    output: '["1. Alice: 90", "2. Bob: 85", "3. Carol: 78"]'
+starter_code: |-
+  def format_leaderboard(names: list[str], scores: list[int]) -> list[str]:
+      pass
+follow_ups:
+  - How would you sort by score descending before formatting?
+  - What does zip do when the two lists have different lengths?
+key_skills:
+  - zip
+  - enumerate
+  - f-strings
+  - iteration
+test_type: function
+function_name: format_leaderboard
+test_cases:
+  - label: three players
+    input:
+      names: ["Alice", "Bob", "Carol"]
+      scores: [90, 85, 78]
+    expected: ["1. Alice: 90", "2. Bob: 85", "3. Carol: 78"]
+  - label: single player
+    input:
+      names: ["Solo"]
+      scores: [100]
+    expected: ["1. Solo: 100"]
+  - label: zero scores
+    input:
+      names: ["X", "Y"]
+      scores: [0, 0]
+    expected: ["1. X: 0", "2. Y: 0"]
+  - label: empty lists
+    input:
+      names: []
+      scores: []
+    expected: []
+explanation: |-
+  `enumerate(iterable, start=1)` yields (index, value) pairs with a configurable
+  starting index, removing the need to track a counter variable. `zip(a, b)` pairs
+  corresponding elements from two iterables and stops at the shorter one. Combining
+  them via `enumerate(zip(names, scores), 1)` is a clean, readable pattern for
+  parallel iteration with indexing.
+references:
+  - "Python docs: enumerate() — https://docs.python.org/3/library/functions.html#enumerate"
+  - "Python docs: zip() — https://docs.python.org/3/library/functions.html#zip"

@@ -1,0 +1,137 @@
+id: 39
+title: Middleware Pipeline
+category: infra
+difficulty: Medium
+summary: Composable middleware chain for request/response processing.
+description: Implement a middleware pipeline where each middleware can inspect/modify a request, call the next middleware, and then inspect/modify the response. Support use(middleware_fn) to add middleware and handle(request) to process a request through the chain. Each middleware receives (request, next_fn) and returns a response.
+scenario: |-
+  You're on the Platform team at a startup building an internal micro-framework used by 15 backend services. Each service needs cross-cutting behaviors—request ID injection, JWT validation, structured logging, response-time headers—but you don't want to copy-paste this logic into every service or force teams to inherit from a bloated base class. You're designing a composable middleware pipeline inspired by Express.js where each concern is an independent function that wraps the next, so teams can assemble exactly the middleware stack they need in a single place and reason about execution order at a glance.
+alt_scenarios:
+  - "**gRPC interceptor chain:** Building a composable chain of server-side interceptors for authentication, rate-limiting, and distributed tracing that each service configures independently, following the same before/after wrapping pattern."
+  - "**CLI tool plugin system:** Implementing a command pipeline where each plugin can preprocess arguments, call the next handler, and post-process the output—for example, one plugin adds verbose logging while another reformats the result as JSON."
+  - "**GraphQL server (Apollo-style):** Chaining resolver middleware for field-level authorization checks, caching, and dataloader batching, where each layer decides whether to short-circuit or call through to the next."
+constraints:
+- 'A middleware function has signature: middleware(request, next_fn) -> response'
+- request and response are plain Python dicts
+- Middleware is executed in the order added via use()
+- If the last middleware does not call next_fn, the pipeline returns its response
+- handle() with no middleware registered returns None
+- Middleware may modify the request dict before calling next_fn
+examples:
+- input: |-
+    pipeline = MiddlewarePipeline()
+
+    def logging_mw(request, next_fn):
+        print(f">> {request['method']} {request['path']}")
+        response = next_fn(request)
+        print(f"<< {response['status']}")
+        return response
+
+    def handler(request, next_fn):
+        return {'status': 200, 'body': 'OK'}
+
+    pipeline.use(logging_mw)
+    pipeline.use(handler)
+    pipeline.handle({'method': 'GET', 'path': '/users'})
+  output: 'Prints ''>> GET /users'' then ''<< 200''; returns {''status'': 200, ''body'': ''OK''}'
+- input: |-
+    def auth_mw(request, next_fn):
+        if 'token' not in request:
+            return {'status': 401, 'body': 'Unauthorized'}
+        return next_fn(request)
+
+    pipeline2 = MiddlewarePipeline()
+    pipeline2.use(auth_mw)
+    pipeline2.use(handler)
+    pipeline2.handle({'method': 'GET', 'path': '/secret'})
+  output: '{''status'': 401, ''body'': ''Unauthorized''}  # auth middleware short-circuits'
+starter_code: |-
+  class MiddlewarePipeline:
+      def __init__(self):
+          pass
+
+      def use(self, middleware_fn) -> None:
+          pass
+
+      def handle(self, request: dict) -> dict:
+          pass
+follow_ups:
+- Add error-handling middleware that catches exceptions from downstream.
+- Support middleware that short-circuits (returns early without calling next).
+- Add middleware ordering with priority levels.
+key_skills:
+- chain of responsibility
+- function composition
+- closures
+- error propagation
+test_type: class
+test_cases:
+- label: middleware order
+  setup_code: |-
+    logs = []
+    def logging_mw(request, next_fn):
+        logs.append(f"before {request['path']}")
+        response = next_fn(request)
+        logs.append(f"after {response['status']}")
+        return response
+
+    def handler(request, next_fn):
+        return {'status': 200, 'body': 'OK'}
+  init_args: []
+  ops:
+  - use
+  - use
+  - handle
+  - __eval__
+  op_args:
+  - - __ref__: logging_mw
+  - - __ref__: handler
+  - - method: GET
+      path: /users
+  - - logs
+  expected:
+  - null
+  - null
+  - status: 200
+    body: OK
+  - - before /users
+    - after 200
+- label: short circuit
+  setup_code: |-
+    def auth_mw(request, next_fn):
+        if 'token' not in request:
+            return {'status': 401, 'body': 'Unauthorized'}
+        return next_fn(request)
+
+    def handler(request, next_fn):
+        return {'status': 200, 'body': 'OK'}
+  init_args: []
+  ops:
+  - use
+  - use
+  - handle
+  op_args:
+  - - __ref__: auth_mw
+  - - __ref__: handler
+  - - method: GET
+      path: /secret
+  expected:
+  - null
+  - null
+  - status: 401
+    body: Unauthorized
+class_name: MiddlewarePipeline
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **chain of responsibility** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **function composition** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Design for lifecycle edges: startup, retries, cleanup, shutdown, and bad inputs.'
+- Explain which failures should be surfaced, retried, ignored, or quarantined.
+- After implementing Middleware Pipeline, re-run the provided hardcoded tests and explain why each one protects an important invariant.

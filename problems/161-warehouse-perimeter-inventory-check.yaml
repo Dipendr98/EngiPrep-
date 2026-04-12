@@ -1,0 +1,121 @@
+title: Warehouse Perimeter Inventory Check
+category: arrays
+difficulty: Easy
+summary: Sum the values of all items stored along the perimeter of a rectangular warehouse
+  grid.
+description: 'You are given a 2D matrix representing a warehouse floor plan, where
+  each cell contains the number of items stored at that location. A routine inventory
+  check requires counting the total number of items stored along the perimeter (outer
+  border) of the warehouse. The perimeter includes all cells in the first row, last
+  row, first column, and last column.
+
+
+  Return the total count of items along the perimeter of the warehouse grid.
+
+
+  Note: If the matrix has only one row or one column, all cells are considered part
+  of the perimeter. If the matrix is empty, return 0.'
+scenario: In an automated warehouse management system, robots perform nightly perimeter
+  checks to verify that items near loading docks and exterior walls haven't been disturbed.
+  Since the perimeter shelves are closest to entry/exit points, they are most susceptible
+  to miscounts and need frequent auditing.
+constraints:
+- 0 <= number of rows <= 200
+- 0 <= number of columns <= 200
+- 0 <= matrix[i][j] <= 1000
+- All rows have the same number of columns
+examples:
+- input: perimeter_inventory([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+  output: '40'
+- input: perimeter_inventory([[10, 20], [30, 40]])
+  output: '100'
+- input: perimeter_inventory([[5]])
+  output: '5'
+starter_code: "def perimeter_inventory(warehouse):\n    pass"
+function_name: perimeter_inventory
+key_skills:
+- matrix traversal
+- boundary detection
+- iteration over 2D arrays
+follow_ups:
+- How would you modify the solution to return the perimeter sum for an inner ring
+  at depth k (e.g., depth 0 is the outermost ring, depth 1 is the next ring inward,
+  etc.)?
+- If certain cells are marked as blocked (value -1) and should be excluded from the
+  count, how would you adjust your approach?
+test_cases:
+- label: basic 3x3 case
+  input:
+    warehouse:
+    - - 1
+      - 2
+      - 3
+    - - 4
+      - 5
+      - 6
+    - - 7
+      - 8
+      - 9
+  expected: 40
+- label: 2x2 all perimeter
+  input:
+    warehouse:
+    - - 10
+      - 20
+    - - 30
+      - 40
+  expected: 100
+- label: single element
+  input:
+    warehouse:
+    - - 5
+  expected: 5
+- label: empty warehouse
+  input:
+    warehouse: []
+  expected: 0
+- label: single row
+  input:
+    warehouse:
+    - - 3
+      - 7
+      - 2
+      - 5
+  expected: 17
+- label: larger 4x5 matrix
+  input:
+    warehouse:
+    - - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    - - 6
+      - 0
+      - 0
+      - 0
+      - 7
+    - - 8
+      - 0
+      - 0
+      - 0
+      - 9
+    - - 10
+      - 11
+      - 12
+      - 13
+      - 14
+  expected: 105
+explanation: 'The optimal approach iterates through each cell of the matrix and checks
+  if it lies on the perimeter (i.e., the cell is in the first or last row, or in the
+  first or last column). If so, add its value to a running sum. This runs in O(m*n)
+  time where m and n are the dimensions. An optimization is to only iterate over the
+  first row, last row, and the middle rows'' first and last elements, avoiding unnecessary
+  checks on interior cells. Special care is needed for edge cases: empty matrix, single
+  row, single column, and 1x1 matrix.'
+references:
+- 2D array traversal
+- Matrix boundary conditions
+- Edge case handling in grids
+id: 161
+test_type: function

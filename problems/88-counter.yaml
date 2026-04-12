@@ -1,0 +1,63 @@
+id: 88
+title: "collections.Counter"
+category: syntax
+difficulty: Easy
+summary: Use Counter to find the k most common strings with alphabetical tie-breaking.
+description: >-
+  Implement `top_k_words(words: list[str], k: int) -> list[str]` that takes a list of
+  strings and an integer k, and returns the k most common strings in descending order
+  of frequency. Break ties alphabetically (ascending).
+scenario: |-
+  A search analytics team at a consumer marketplace is building a "Trending Searches" widget that surfaces the most frequently typed queries over the past hour. Every minute, a batch job reads the latest log slice, counts query occurrences, and returns the top-k terms to populate the widget's cache. Alphabetical tie-breaking ensures the widget displays consistent results when two queries have identical counts, avoiding flicker on the frontend.
+alt_scenarios:
+  - "**Social media platform:** A hashtag analytics service identifies the k most-used hashtags in a batch of posts to populate a trending topics sidebar."
+  - "**Security audit tool:** A log analysis script finds the k most frequently occurring IP addresses in an access log to flag potential DDoS sources."
+  - "**E-commerce recommendation:** A product analytics job surfaces the k most frequently co-purchased item SKUs from a session log to drive a 'frequently bought together' module."
+constraints:
+  - k >= 1 and k <= len(set(words))
+  - Words are non-empty strings
+examples:
+  - input: top_k_words(["a","b","a","c","b","a"], 2)
+    output: '["a", "b"]'
+starter_code: |-
+  def top_k_words(words: list[str], k: int) -> list[str]:
+      pass
+follow_ups:
+  - How would you handle the case where k is larger than the number of unique words?
+  - How would you stream this to handle an infinite word sequence?
+key_skills:
+  - Counter
+  - most_common
+  - collections
+  - sorting with tie-break
+test_type: function
+function_name: top_k_words
+test_cases:
+  - label: top 2 with clear winner
+    input:
+      words: ["a", "b", "a", "c", "b", "a"]
+      k: 2
+    expected: ["a", "b"]
+  - label: top 1 with tie broken alphabetically
+    input:
+      words: ["x", "y", "x", "y", "z"]
+      k: 1
+    expected: ["x"]
+  - label: top 2 from three unique words
+    input:
+      words: ["cat", "dog", "cat", "bird", "dog", "cat"]
+      k: 2
+    expected: ["cat", "dog"]
+  - label: all words equally frequent
+    input:
+      words: ["a", "b", "c"]
+      k: 3
+    expected: ["a", "b", "c"]
+explanation: |-
+  `Counter(words)` builds a frequency dict in one call. `most_common(k)` returns the
+  top k as (element, count) pairs. For alphabetical tie-breaking, sort by `(-count, word)`
+  before slicing. Counter is almost always cleaner than manually building a frequency
+  dict in interview solutions.
+references:
+  - "Python docs: collections.Counter — https://docs.python.org/3/library/collections.html#collections.Counter"
+  - "Counter.most_common() — https://docs.python.org/3/library/collections.html#collections.Counter.most_common"

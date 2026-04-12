@@ -1,0 +1,169 @@
+id: 125
+title: Chess Move Validator
+category: stateful
+difficulty: Medium
+summary: Validate chess piece moves on a board without check/checkmate logic.
+description: Implement is_valid_move(piece, from_pos, to_pos, board) that returns True if the given chess piece can legally move from from_pos to to_pos on the current board. Validate movement patterns for all 6 piece types. from_pos and to_pos are (row, col) tuples (0–7). The board is an 8×8 list of strings ('' for empty, 'wK'/'bR' etc. for white/black pieces). You do not need to handle check, checkmate, en passant, or castling.
+scenario: |-
+  You're on the backend team at an online chess platform handling 20k concurrent games. The React client sends every drag-and-drop move attempt to a validation endpoint before the move is applied to the game state. A separate engine service handles check and checkmate — your validator's sole responsibility is to enforce piece-specific movement geometry and path blocking, rejecting illegal moves with a structured error so the client can snap the piece back to its origin square.
+alt_scenarios:
+  - "**Workflow engine:** A business process orchestrator validates each state-transition request against a rule table — checking whether the source state permits the transition type, whether intermediate states are unblocked, and whether the actor has the required role."
+  - "**Circuit breaker middleware:** An API gateway validates whether a downstream service call is permitted given the current circuit state, enforcing transition rules (closed → open → half-open) and blocking requests that violate the allowed path."
+  - "**Access control policy engine:** A zero-trust authorization service checks each resource-access request against a permission matrix, verifying movement from the requester's current privilege level to the target scope and rejecting paths blocked by an intermediate deny rule."
+constraints:
+- Piece codes are two characters — first is color ('w'/'b'), second is type ('K','Q','R','B','N','P')
+- A piece cannot move to a cell occupied by a friendly piece
+- Sliding pieces (Q, R, B) are blocked by any piece on the path
+- Knights jump over pieces; no blocking applies
+- Pawns move forward (lower row for white, higher row for black), capture diagonally, and can advance two squares from starting row
+- No castling, en passant, or promotion required
+examples:
+- input: 'is_valid_move("wR", (7,0), (7,4), board)  # rook moving right along clear row'
+  output: 'True'
+- input: 'is_valid_move("wR", (7,0), (7,4), board)  # piece blocking the path'
+  output: 'False'
+starter_code: |-
+  def is_valid_move(piece: str, from_pos: tuple, to_pos: tuple, board: list[list[str]]) -> bool:
+      """
+      piece: e.g. 'wR', 'bN', 'wP'
+      from_pos, to_pos: (row, col) 0-indexed
+      board: 8x8 grid of strings ('' = empty)
+      Returns True if the move is valid per piece movement rules.
+      """
+      pass
+follow_ups:
+- Add check detection (is the king in check after this move?).
+- Add castling and en passant.
+- Generate all legal moves for a given piece position.
+key_skills:
+- case analysis
+- 2D grid traversal
+- path blocking
+- OOP decomposition
+test_type: function
+test_cases:
+- label: rook clear path
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[7][0] = 'wR'
+  args:
+  - wR
+  - - 7
+    - 0
+  - - 7
+    - 4
+  - __ref__: board
+  expected: true
+- label: rook blocked by friendly
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[7][0] = 'wR'
+    board[7][3] = 'wP'
+  args:
+  - wR
+  - - 7
+    - 0
+  - - 7
+    - 4
+  - __ref__: board
+  expected: false
+- label: rook captures enemy
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[7][0] = 'wR'
+    board[7][4] = 'bP'
+  args:
+  - wR
+  - - 7
+    - 0
+  - - 7
+    - 4
+  - __ref__: board
+  expected: true
+- label: knight jumps over pieces
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[0][1] = 'wN'
+    board[1][1] = 'wP'
+    board[0][2] = 'wP'
+  args:
+  - wN
+  - - 0
+    - 1
+  - - 2
+    - 2
+  - __ref__: board
+  expected: true
+- label: pawn moves forward one
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[6][4] = 'wP'
+  args:
+  - wP
+  - - 6
+    - 4
+  - - 5
+    - 4
+  - __ref__: board
+  expected: true
+- label: pawn blocked cannot move
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[6][4] = 'wP'
+    board[5][4] = 'bP'
+  args:
+  - wP
+  - - 6
+    - 4
+  - - 5
+    - 4
+  - __ref__: board
+  expected: false
+- label: pawn captures diagonally
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[6][4] = 'wP'
+    board[5][5] = 'bP'
+  args:
+  - wP
+  - - 6
+    - 4
+  - - 5
+    - 5
+  - __ref__: board
+  expected: true
+- label: bishop valid diagonal
+  setup_code: |-
+    board = [['']*8 for _ in range(8)]
+    board[7][2] = 'wB'
+  args:
+  - wB
+  - - 7
+    - 2
+  - - 4
+    - 5
+  - __ref__: board
+  expected: true
+function_name: is_valid_move
+explanation: |-
+  Structure the solution as a dispatcher: parse color and piece type, then delegate to a helper per piece type.
+
+  Shared utilities:
+  - path_clear(from_pos, to_pos, board, step): walk the path step-by-step, return False if any intermediate cell is occupied.
+  - is_friendly(cell, color): cell starts with same color char.
+
+  Per piece:
+  - R: must move in same row or column; path must be clear.
+  - B: must move diagonally (|dr| == |dc|); path must be clear.
+  - Q: R rules OR B rules.
+  - N: (|dr|,|dc|) must be (1,2) or (2,1); no path check.
+  - K: |dr| <= 1 and |dc| <= 1.
+  - P (white): dr = -1 straight (must be empty), or dr = -2 from row 6 (must be clear); diagonal capture requires enemy piece.
+  - P (black): same but dr = +1 and starting row = 1.
+
+  Always reject if destination is occupied by friendly piece (check first before type-specific logic).
+
+  Time O(n) for sliding pieces (path check), O(1) for N/K/P.
+references:
+- Structure as a dispatcher with one helper per piece type — avoids a deeply nested if-else block.
+- Handle 'friendly capture' rejection before any piece-specific logic to keep each handler clean.

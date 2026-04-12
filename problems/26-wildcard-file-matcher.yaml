@@ -1,0 +1,70 @@
+id: 26
+title: Wildcard File Matcher
+category: search
+difficulty: Medium
+summary: Match file paths against glob patterns with *, ?, and ** support.
+description: Implement match(pattern, path) that returns True if the path matches the glob pattern. * matches any sequence within a path segment, ? matches a single character, and ** matches zero or more path segments. For example, 'src/**/*.py' matches 'src/lib/utils/helpers.py'.
+scenario: |-
+  You're building the file-selection engine for an internal monorepo CI system that determines which build targets need to be re-evaluated after a code change. Engineers declare watch patterns like "services/**/*.go" or "config/prod_?.yaml" in their BUILD files, and the CI scheduler matches changed file paths against those patterns to decide which pipelines to trigger. The pattern engine must run from scratch—no fnmatch or glob library calls—because you need precise control over how "**" crosses directory boundaries, and the existing library semantics don't match your monorepo conventions.
+alt_scenarios:
+  - "**Cloud storage (S3-compatible API team):** Implementing server-side object key filtering so ListObjects requests with prefix/wildcard patterns efficiently select matching blobs without scanning the full bucket."
+  - "**Security scanning platform:** Matching file paths in a repository against a configurable allowlist of patterns (e.g., 'tests/**/*.json') to decide which files are exempt from secret-detection scans."
+  - "**Log archival pipeline:** Routing log files to different retention tiers by matching their paths against glob rules defined by each product team in a central config file."
+constraints:
+- Paths use '/' as the separator
+- '''*'' matches zero or more characters within a single path segment (never crosses ''/'')'
+- '''?'' matches exactly one character (never ''/'')'
+- '''**'' matches zero or more complete path segments (including zero)'
+- Patterns and paths have no leading or trailing slashes
+examples:
+- input: match('src/**/*.py', 'src/lib/utils/helpers.py')
+  output: True  — '**' matches 'lib/utils' (two segments), '*' matches 'helpers'
+- input: match('test_?.py', 'test_a.py')
+  output: True  — '?' matches the single character 'a'
+- input: match('test_?.py', 'test_ab.py')
+  output: False  — '?' matches exactly one character, but 'ab' is two
+starter_code: |-
+  def match(pattern: str, path: str) -> bool:
+      """Return True if path matches the glob pattern supporting *, ?, and **."""
+      pass
+follow_ups:
+- Support negation patterns like !*.test.py.
+- Return all matching paths from a directory tree.
+- Support brace expansion like {a,b,c}.py.
+key_skills:
+- dynamic programming or recursion
+- string matching
+- backtracking
+- path splitting
+test_type: function
+test_cases:
+- label: double star
+  input:
+    pattern: src/**/*.py
+    path: src/lib/utils/helpers.py
+  expected: true
+- label: single char
+  input:
+    pattern: test_?.py
+    path: test_a.py
+  expected: true
+- label: single char too long
+  input:
+    pattern: test_?.py
+    path: test_ab.py
+  expected: false
+function_name: match
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **dynamic programming or recursion** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **string matching** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Separate the indexing step from the query step so you know where the work belongs.
+- Be explicit about ranking and tie-breaking instead of leaving output order accidental.
+- After implementing Wildcard File Matcher, re-run the provided hardcoded tests and explain why each one protects an important invariant.

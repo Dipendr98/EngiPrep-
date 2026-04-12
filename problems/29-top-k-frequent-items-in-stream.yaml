@@ -1,0 +1,119 @@
+id: 29
+title: Top-K Frequent Items in Stream
+category: streaming
+difficulty: Medium
+summary: Track the K most frequently occurring items in a data stream.
+description: Implement a streaming heavy-hitters tracker. add(item) records an occurrence. top_k() returns the K most frequent items seen so far with their counts. The stream may be very large, but K is small.
+scenario: |-
+  Your team runs the centralized error-aggregation pipeline for a microservices platform that ingests 8 million log events per hour across 200 services. The SRE team wants a live "Top 10 Error Codes Right Now" panel in their incident dashboard, updated every 30 seconds, without storing or replaying the full log history. K is always small (5–10 entries), but the event stream is unbounded and can't fit in memory. You're building the streaming heavy-hitter tracker that powers that panel—something that ingests one event at a time and answers top_k() queries in sub-millisecond time.
+alt_scenarios:
+  - "**Ad-tech platform:** Tracking the top K most-clicked creative IDs in a real-time bidding event stream so campaign managers can identify breakout ads without querying the full impression database."
+  - "**E-commerce search team:** Identifying the K most-searched product queries in the current hour's session stream so the merchandising team can monitor trending searches and adjust promoted results."
+  - "**Network security appliance:** Surfacing the top K source IP addresses by packet volume in a live traffic stream so a firewall can flag potential DDoS sources without storing every packet header."
+constraints:
+- K is a positive integer set at construction
+- Items are hashable (strings or integers)
+- top_k() returns a list of (item, count) tuples sorted by count descending
+- Ties in count are broken by item in ascending lexicographic order
+- add() should be O(1) amortized; top_k() should be O(K log K) or better
+examples:
+- input: |-
+    tracker = TopKTracker(k=2)
+    tracker.add('404')
+    tracker.add('500')
+    tracker.add('404')
+    tracker.add('404')
+    tracker.add('500')
+    tracker.add('503')
+    tracker.top_k()
+  output: '[(''404'', 3), (''500'', 2)]  — the 2 most frequent items with their counts'
+- input: |-
+    tracker.add('503')
+    tracker.add('503')
+    tracker.add('503')
+    tracker.top_k()
+  output: |-
+    [('404', 3), ('503', 4)]  — wait, 503 now has 4 hits, so:
+    [('503', 4), ('404', 3)]  — sorted by count descending
+starter_code: |-
+  class TopKTracker:
+      def __init__(self, k: int):
+          pass
+
+      def add(self, item: str) -> None:
+          pass
+
+      def top_k(self) -> list[tuple[str, int]]:
+          pass
+follow_ups:
+- What if you can only use O(K) memory (approximate algorithms)?
+- 'Support a time window: only count items from the last T seconds.'
+- Add a remove(item) operation.
+key_skills:
+- hash map
+- min-heap
+- space-efficient counting
+- streaming algorithms
+test_type: class
+test_cases:
+- label: top k ordering
+  init_args:
+  - 2
+  ops:
+  - add
+  - add
+  - add
+  - add
+  - add
+  - add
+  - __eval__
+  - add
+  - add
+  - add
+  - __eval__
+  op_args:
+  - - '404'
+  - - '500'
+  - - '404'
+  - - '404'
+  - - '500'
+  - - '503'
+  - - '[list(item) for item in obj.top_k()]'
+  - - '503'
+  - - '503'
+  - - '503'
+  - - '[list(item) for item in obj.top_k()]'
+  expected:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - null
+  - - - '404'
+      - 3
+    - - '500'
+      - 2
+  - null
+  - null
+  - null
+  - - - '503'
+      - 4
+    - - '404'
+      - 3
+class_name: TopKTracker
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **hash map** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **min-heap** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Look for bounded-memory updates that only touch the newest item and whatever just expired.
+- Use running aggregates so each new event is O(1) or close to it.
+- After implementing Top-K Frequent Items in Stream, re-run the provided hardcoded tests and explain why each one protects an important invariant.

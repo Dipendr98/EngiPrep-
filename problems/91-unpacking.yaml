@@ -1,0 +1,61 @@
+id: 91
+title: "Unpacking & Destructuring"
+category: syntax
+difficulty: Easy
+summary: Use Python's starred unpacking to split a list into its first element and the remaining elements.
+description: >-
+  Implement `split_first_rest(lst: list) -> list` that takes a non-empty list and
+  returns a two-element list `[first, rest]` where `first` is the first element and
+  `rest` is a list of all remaining elements. Use Python's starred unpacking.
+scenario: |-
+  A data pipeline team at a bioinformatics company is building a recursive sequence processor that walks a list of genomic feature annotations one element at a time. On each call the processor needs to peel off the first annotation, process it, and pass the remainder to the next stage. The team uses Python's starred unpacking idiom to keep the head/tail split clean and avoid off-by-one errors that would appear with manual indexing in a recursive function.
+alt_scenarios:
+  - "**CLI argument parser:** A command-line tool unpacks the first argument as the subcommand and captures the rest as subcommand-specific flags using starred assignment."
+  - "**Functional stream processor:** A Haskell-inspired Python library peels the head event from an event stream and recurses on the tail to build a pure transformation pipeline."
+  - "**Protocol parser:** A binary protocol decoder extracts the first byte as the opcode and passes the remaining bytes to the payload parser using starred unpacking."
+constraints:
+  - lst is non-empty (len(lst) >= 1)
+  - Do not use indexing (lst[0], lst[1:]) — use starred unpacking
+examples:
+  - input: split_first_rest([1,2,3,4])
+    output: '[1, [2, 3, 4]]'
+  - input: split_first_rest([42])
+    output: '[42, []]'
+starter_code: |-
+  def split_first_rest(lst: list) -> list:
+      pass
+follow_ups:
+  - How would you split off the last element instead of the first?
+  - How does starred unpacking work in function signatures (*args, **kwargs)?
+key_skills:
+  - unpacking
+  - starred assignment
+  - destructuring
+  - sequence operations
+test_type: function
+function_name: split_first_rest
+test_cases:
+  - label: four elements
+    input:
+      lst: [1, 2, 3, 4]
+    expected: [1, [2, 3, 4]]
+  - label: single element
+    input:
+      lst: [42]
+    expected: [42, []]
+  - label: string elements
+    input:
+      lst: ["a", "b", "c"]
+    expected: ["a", ["b", "c"]]
+  - label: two elements
+    input:
+      lst: [10, 20]
+    expected: [10, [20]]
+explanation: |-
+  `first, *rest = lst` is Python's starred unpacking. It works in assignment, function
+  parameters, and for loops. `*rest` captures everything after `first` as a list. This
+  pattern appears in recursive algorithms, argument forwarding (`*args, **kwargs`), and
+  anywhere you need to peel elements off a sequence cleanly.
+references:
+  - "PEP 3132: Extended Iterable Unpacking"
+  - "Python docs: assignment statements — https://docs.python.org/3/reference/simple_stmts.html#assignment-statements"

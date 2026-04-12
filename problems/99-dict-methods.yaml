@@ -1,0 +1,67 @@
+id: 99
+title: "Dictionary Methods"
+category: syntax
+difficulty: Easy
+summary: Merge two dicts with overrides winning, then remove any key whose final value is None.
+description: >-
+  Implement `merge_configs(base: dict, overrides: dict) -> dict` that merges two dicts:
+  start with base, apply overrides on top, then remove any key whose final value is None.
+  Return the resulting dict.
+scenario: |-
+  A platform engineering team at a SaaS company is building the configuration resolution layer for their multi-tenant deployment system. Each tenant starts with a shared base config, and a per-environment override file is layered on top at startup. A None value in the override file is a deliberate signal to strip a key that exists in the base config — for example, to disable a feature that should not run in production. The merged result must not mutate the originals, since other tenants share the same base config object.
+alt_scenarios:
+  - "**Feature flag resolver:** A feature management service merges a default flag state dict with a per-user override dict, removing flags set to None to respect explicit opt-outs."
+  - "**Kubernetes operator:** A controller merges a base pod spec with a per-namespace override patch, treating null values as explicit deletions of inherited spec fields."
+  - "**ML experiment tracker:** An experiment config builder merges a base hyperparameter dict with a sweep override, removing None-valued keys before passing the config to the trainer."
+constraints:
+  - Keys may be any hashable type; values may be any Python object including None
+  - The original base and overrides dicts must not be modified
+  - Keys present in overrides with value None are removed from the result
+examples:
+  - input: merge_configs({"a":1,"b":2,"c":3}, {"b":20,"c":null,"d":4})
+    output: '{"a": 1, "b": 20, "d": 4}'
+starter_code: |-
+  def merge_configs(base: dict, overrides: dict) -> dict:
+      pass
+follow_ups:
+  - How would you implement deep merging for nested dicts?
+  - How would you handle the case where you want to keep None values explicitly?
+key_skills:
+  - dict methods
+  - merge
+  - items
+  - get
+  - dict unpacking
+test_type: function
+function_name: merge_configs
+test_cases:
+  - label: override with removal
+    input:
+      base: {"a": 1, "b": 2, "c": 3}
+      overrides: {"b": 20, "c": null, "d": 4}
+    expected: {"a": 1, "b": 20, "d": 4}
+  - label: override removes only key
+    input:
+      base: {"x": 1}
+      overrides: {"x": null}
+    expected: {}
+  - label: empty base
+    input:
+      base: {}
+      overrides: {"a": 1, "b": 2}
+    expected: {"a": 1, "b": 2}
+  - label: empty overrides
+    input:
+      base: {"a": 1, "b": 2}
+      overrides: {}
+    expected: {"a": 1, "b": 2}
+explanation: |-
+  `{**base, **overrides}` merges two dicts with overrides winning on conflicts — the
+  cleanest Python 3.5+ syntax. Alternatively, `base.update(overrides)` mutates in place.
+  To filter out None values, use a dict comprehension: `{k: v for k, v in merged.items()
+  if v is not None}`. Knowing `dict.get(key, default)`, `dict.pop(key, default)`, and
+  `dict.items()` is essential for interview dict manipulation.
+references:
+  - "Python docs: dict — https://docs.python.org/3/library/stdtypes.html#mapping-types-dict"
+  - "PEP 448: Additional Unpacking Generalizations (**kwargs in dict literals)"
+  - "Python docs: dict.update() — https://docs.python.org/3/library/stdtypes.html#dict.update"

@@ -1,0 +1,70 @@
+id: 16
+title: Task Scheduler with Cooldowns
+category: scheduling
+difficulty: Medium
+summary: Schedule tasks respecting a cooldown between identical task types.
+description: Given a list of tasks (characters) and a cooldown period N, find the minimum time to execute all tasks. Between two same tasks, there must be at least N intervals. You can insert idle intervals. Return a list [total_time, schedule] where schedule is the ordered list of tasks/idles.
+scenario: |-
+  The ML Infrastructure team runs a GPU cluster where model training jobs are submitted as typed task categories—each category represents a specific model family that requires exclusive access to a subset of specialized CUDA kernels. Vendor firmware imposes a mandatory cooldown period between consecutive jobs of the same type to prevent thermal throttling and memory corruption. You need a scheduler that minimizes total wall-clock runtime by interleaving task categories optimally, inserting idle cycles only when no alternative task type is available.
+alt_scenarios:
+  - "**Manufacturing line scheduler:** A factory control system enforces a cooldown between runs of the same product type on a shared stamping machine to allow die cooling, and minimizes total production time by interleaving SKUs."
+  - "**Database vacuum scheduler:** A storage engine schedules maintenance operations (VACUUM, ANALYZE, REINDEX) on tables, enforcing a minimum gap between repeated operations on the same table to avoid I/O saturation."
+  - "**Content moderation queue:** A trust-and-safety platform schedules human review tasks with cooldowns between identical content categories to prevent reviewer fatigue bias from reviewing the same type repeatedly."
+constraints: []
+examples: []
+starter_code: |-
+  def schedule_tasks(tasks: list[str], cooldown: int) -> list:
+      pass
+follow_ups:
+- Add priorities so higher-priority tasks run first.
+- What if different task types have different cooldown periods?
+- Minimize idle time instead of total time.
+key_skills:
+- greedy algorithm
+- priority queue
+- hash map
+- scheduling
+test_type: function
+test_cases:
+- label: classic cooldown
+  setup_code: tasks = ['A', 'A', 'A', 'B', 'B', 'B']
+  args:
+  - __ref__: tasks
+  - 2
+  expected:
+  - 8
+  - - A
+    - B
+    - idle
+    - A
+    - B
+    - idle
+    - A
+    - B
+- label: no idle needed
+  setup_code: tasks = ['A', 'B', 'A', 'B']
+  args:
+  - __ref__: tasks
+  - 1
+  expected:
+  - 4
+  - - A
+    - B
+    - A
+    - B
+function_name: schedule_tasks
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **greedy algorithm** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **priority queue** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Review heap operations and why heaps are often the simplest way to keep the next best item ready.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Model which item should be processed next and which data structure answers that question most directly.
+- Keep one eye on tie-breaking rules so your output stays deterministic.

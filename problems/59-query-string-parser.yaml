@@ -1,0 +1,66 @@
+id: 59
+title: Query String Parser
+category: parsing
+difficulty: Easy
+summary: Parse a URL-style query string into keys and values.
+description: Implement parse_query(query) that converts a query string like "a=1&b=2" into a dictionary. Percent decoding is not required. If a key appears multiple times, store its values in order in a list.
+scenario: |-
+  The platform team at a SaaS company is building a lightweight edge proxy that inspects incoming HTTP request URLs to enforce routing rules and access control before forwarding traffic to backend services. The proxy receives raw request lines from the socket and must parse the query string portion into a structured map — without pulling in a full HTTP library — so that downstream middleware can read parameters like `tenant_id`, `version`, and repeated `tag` values as plain key-value pairs. You need a parser that handles missing values, repeated keys aggregated into lists, and empty query strings gracefully.
+alt_scenarios:
+  - "**Analytics event router:** A server-side tag manager parses query strings from pixel-tracking URLs to extract campaign parameters and route events to the correct analytics destination."
+  - "**Webhook dispatcher:** A webhook relay service parses query parameters from inbound URLs to determine which subscriber endpoint should receive each incoming payload."
+  - "**CLI argument normalizer:** A developer tool parses query-string-formatted config overrides passed on the command line into a structured options map before applying them to a config file."
+constraints:
+- The input omits the leading ?
+- Keys may appear without values, which should map to an empty string
+examples:
+- input: parse_query("a=1&b=2")
+  output: '{"a": "1", "b": "2"}'
+- input: parse_query("tag=x&tag=y")
+  output: '{"tag": ["x", "y"]}'
+starter_code: |-
+  def parse_query(query: str) -> dict:
+      pass
+follow_ups:
+- Support percent decoding.
+- Preserve parameter order exactly.
+key_skills:
+- parsing
+- hash map
+test_type: function
+function_name: parse_query
+test_cases:
+- label: simple pairs
+  input:
+    query: a=1&b=2
+  expected:
+    a: '1'
+    b: '2'
+- label: repeated key
+  input:
+    query: tag=x&tag=y
+  expected:
+    tag:
+    - x
+    - y
+- label: missing value
+  input:
+    query: debug&x=1
+  expected:
+    debug: ''
+    x: '1'
+explanation: |-
+  This problem is mainly about choosing a clean invariant around **parsing** and then preserving it on every operation.
+
+  A strong solution starts by deciding what state to keep in memory, how each public operation updates that state, and what the time complexity should be in the common case.
+
+  The usual tradeoff here is how **hash map** supports the fast path without making updates or edge cases harder to reason about.
+
+  When studying it, write down the data structure layout first, then walk through the smallest tricky example by hand: duplicate updates, missing keys, empty input, or a boundary timestamp/index.
+
+  A polished interview answer should also call out complexity, edge cases, and the invariant that proves the implementation stays correct after each step.
+references:
+- Practice turning informal text rules into a tokenizer plus a small set of deterministic parsing steps.
+- 'Review constant-time dictionary operations: insert, lookup, delete, and how collisions affect real-world performance.'
+- Translate the input format into tokens and small grammar rules before worrying about implementation details.
+- Use examples that hit malformed input, nesting, and precedence to check your parser design.
