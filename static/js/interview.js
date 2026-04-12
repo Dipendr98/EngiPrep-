@@ -11,7 +11,7 @@ function showView(name) {
 
   // Hide the top-bar entirely on the home page
   const topBar = document.querySelector('.top-bar');
-  if (topBar) topBar.style.display = name === 'home' ? 'none' : '';
+  if (topBar) topBar.style.display = name === 'home' ? 'none' : 'block';
 }
 
 function enterApp() {
@@ -39,8 +39,13 @@ function selectMode(el) {
 // ── START INTERVIEW ──
 
 async function startDirectInterview(problemId) {
-  const problem = allProblems.find(p => p.id === problemId);
-  if (!problem) return;
+  let problem = typeof allProblems !== 'undefined' ? allProblems.find(p => String(p.id) === String(problemId)) : null;
+  if (!problem || !problem._ephemeral) {
+    const res = await fetch('/api/problems/' + problemId);
+    problem = await res.json();
+  }
+  currentInterviewProblem = problem;
+  currentInterviewProblemId = String(problemId);
   await startInterview(problem.category, problemId);
 }
 

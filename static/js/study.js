@@ -1,7 +1,11 @@
 async function showStudyView(problemId) {
-  const res = await fetch(`/api/problems/${problemId}`);
-  if (!res.ok) return;
-  currentStudyProblem = await res.json();
+  let problem = typeof allProblems !== 'undefined' ? allProblems.find(p => String(p.id) === String(problemId)) : null;
+  if (!problem || !problem._ephemeral) {
+    const res = await fetch(`/api/problems/${problemId}`);
+    if (!res.ok) return;
+    problem = await res.json();
+  }
+  currentStudyProblem = problem;
   researchChatHistory = [];
 
   document.getElementById('study-bar-title').textContent = currentStudyProblem.title;
@@ -203,6 +207,7 @@ async function sendResearchMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         problem_id: currentStudyProblem.id,
+        problem_data: currentStudyProblem._ephemeral ? currentStudyProblem : null,
         message: text,
         history: researchChatHistory,
       }),
