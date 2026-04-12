@@ -15,6 +15,24 @@ bp = Blueprint('code', __name__)
 _node_strip_types_support = None
 
 
+def _resolve_tool_path(*candidates):
+    for candidate in candidates:
+        if not candidate:
+            continue
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+        if os.path.isabs(candidate) and os.path.exists(candidate):
+            return candidate
+    return None
+
+
+def _resolve_node_runner():
+    if os.name == 'nt':
+        return _resolve_tool_path('node.exe', 'node', r'C:\Program Files\nodejs\node.exe')
+    return _resolve_tool_path('node')
+
+
 def _native_binary_path(dir_path, stem='solution'):
     suffix = '.exe' if os.name == 'nt' else ''
     return os.path.join(dir_path, stem + suffix)
@@ -59,7 +77,7 @@ def _node_supports_strip_types():
     if _node_strip_types_support is not None:
         return _node_strip_types_support
 
-    node = shutil.which('node')
+    node = _resolve_node_runner()
     if not node:
         _node_strip_types_support = False
         return False
@@ -81,7 +99,7 @@ def _typescript_run_command(path):
     try:
         return [_resolve_typescript_runner(), '--transpile-only', path]
     except FileNotFoundError:
-        node = shutil.which('node')
+        node = _resolve_node_runner()
         if node and _node_supports_strip_types():
             return [node, '--experimental-strip-types', path]
         if node:
@@ -206,6 +224,8 @@ def _java_class_name(path):
 
 def _check_tool_available(cmd):
     """Check if a command-line tool is available."""
+    if _resolve_tool_path(cmd):
+        return True
     try:
         result = subprocess.run(
             ['where' if os.name == 'nt' else 'which', cmd],
@@ -218,9 +238,12 @@ def _check_tool_available(cmd):
 
 def _language_runtime_status(language):
     if language == 'python':
-        return True, sys.executable
+        return True, f'Using {sys.executable}'
     if language == 'javascript':
-        return (_check_tool_available('node'), 'Node.js is required for JavaScript execution.')
+        node = _resolve_node_runner()
+        if node:
+            return True, f'Using {node}'
+        return False, 'Node.js is required for JavaScript execution.'
     if language == 'typescript':
         try:
             runner = _resolve_typescript_runner()
@@ -545,6 +568,19 @@ def _default_return_literal(annotation, to_lang):
     }.get(to_lang, 'null')
 
 
+def _cpp_type_hint(annotation, default='int'):
+    normalized = (annotation or '').strip().replace(' ', '')
+    if normalized == 'bool':
+        return 'bool'
+    if normalized == 'str':
+        return 'string'
+    if normalized == 'float':
+        return 'double'
+    if normalized in ('None', 'NoneType'):
+        return 'void'
+    return default
+
+
 def _build_local_function_translation(function_info, to_lang):
     name = function_info['name']
     params = function_info['params']
@@ -557,6 +593,7 @@ def _build_local_function_translation(function_info, to_lang):
     kotlin_params = ', '.join(f'{param}: Any?' for param in params)
     swift_params = ', '.join(f'_{param}: Any' for param in params)
     async_prefix = 'async ' if function_info['is_async'] and to_lang in ('javascript', 'typescript') else ''
+    cpp_params = ', '.join(f'int {param}' for param in params)
 
     translations = {
         'javascript': (
@@ -591,9 +628,11 @@ def _build_local_function_translation(function_info, to_lang):
         ),
         'cpp': (
             '#include <iostream>\n'
+            '#include <string>\n'
             'using namespace std;\n\n'
-            f'void {name}(/* params: {_commented_param_hint(params)} */) {{\n'
+            f'int {name}({cpp_params}) {{\n'
             '    // TODO: implement\n'
+            '    return 0;\n'
             '}\n\n'
             'int main() {\n'
             '    return 0;\n'
@@ -880,7 +919,10 @@ def _build_local_class_translation(class_info, to_lang):
     if to_lang == 'cpp':
         blocks = ['#include <iostream>', '#include <vector>', '#include <string>', 'using namespace std;', '', f'class {class_name} {{', 'public:']
         for method in methods:
-            params = ', '.join(f'auto {param["name"]}' for param in method['params'])
+            params = ', '.join(
+                f'{_cpp_type_hint(param["annotation"])} {param["name"]}'
+                for param in method['params']
+            )
             if method['name'] == '__init__':
                 blocks.extend([
                     f'    {class_name}({params}) {{',
@@ -888,9 +930,14 @@ def _build_local_class_translation(class_info, to_lang):
                     '    }',
                 ])
                 continue
-            blocks.append(f'    auto {method["name"]}({params}) {{')
+            return_type = _cpp_type_hint(method['return_annotation'])
+            return_value = _default_return_literal(method['return_annotation'], 'cpp')
+            if return_value == 'null':
+                return_value = '0'
+            blocks.append(f'    {return_type} {method["name"]}({params}) {{')
             blocks.append('        // TODO: implement')
-            blocks.append('        return nullptr;')
+            if return_type != 'void':
+                blocks.append(f'        return {return_value or 0};')
             blocks.append('    }')
         blocks.extend(['};', '', 'int main() {', '    return 0;', '}'])
         return '\n'.join(blocks) + '\n'
