@@ -8,15 +8,31 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(__file__)
 
+def _select_writable_dir(preferred, fallback_name):
+    candidates = [preferred, os.path.join(tempfile.gettempdir(), fallback_name)]
+    for candidate in candidates:
+        try:
+            os.makedirs(candidate, exist_ok=True)
+            probe = tempfile.NamedTemporaryFile(dir=candidate, delete=True)
+            probe.close()
+            return candidate
+        except OSError:
+            continue
+    return tempfile.gettempdir()
+
+
 if os.environ.get('VERCEL') == '1':
-    SESSIONS_DIR = os.path.join(tempfile.gettempdir(), 'codeprep_sessions')
-    RUNNER_TEMP_DIR = os.path.join(tempfile.gettempdir(), 'codeprep_tmp')
+    sessions_dir = os.path.join(tempfile.gettempdir(), 'codeprep_sessions')
+    runner_temp_dir = os.path.join(tempfile.gettempdir(), 'codeprep_tmp')
 elif os.environ.get('RAILWAY_ENVIRONMENT'):
-    SESSIONS_DIR = os.path.join('/tmp', 'codeprep_sessions')
-    RUNNER_TEMP_DIR = os.path.join('/tmp', 'codeprep_tmp')
+    sessions_dir = os.path.join('/tmp', 'codeprep_sessions')
+    runner_temp_dir = os.path.join('/tmp', 'codeprep_tmp')
 else:
-    SESSIONS_DIR = os.path.join(BASE_DIR, 'user_data', 'sessions')
-    RUNNER_TEMP_DIR = os.path.join(BASE_DIR, 'user_data', 'tmp')
+    sessions_dir = os.path.join(BASE_DIR, 'user_data', 'sessions')
+    runner_temp_dir = os.path.join(BASE_DIR, 'user_data', 'tmp')
+
+SESSIONS_DIR = _select_writable_dir(sessions_dir, 'codeprep_sessions')
+RUNNER_TEMP_DIR = _select_writable_dir(runner_temp_dir, 'codeprep_tmp')
 
 PROBLEMS_DIR = os.path.join(BASE_DIR, 'problems')
 PROMPTS_DIR = os.path.join(BASE_DIR, 'prompts')

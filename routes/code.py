@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 import shutil
+import uuid
 
 from flask import Blueprint, request, jsonify
 
@@ -11,11 +12,19 @@ import config
 from services import ai
 
 bp = Blueprint('code', __name__)
+_node_strip_types_support = None
 
 
 def _native_binary_path(dir_path, stem='solution'):
     suffix = '.exe' if os.name == 'nt' else ''
     return os.path.join(dir_path, stem + suffix)
+
+
+def _create_run_workspace():
+    """Create a per-run workspace without tempfile.mkdtemp's restrictive permissions."""
+    path = os.path.join(config.RUNNER_TEMP_DIR, f'codeprep_run_{uuid.uuid4().hex[:12]}')
+    os.mkdir(path)
+    return path
 
 
 def _command_for_windows(cmd):
@@ -45,11 +54,36 @@ def _resolve_typescript_runner():
     raise FileNotFoundError('ts-node is not installed. Install it globally or in this project to run TypeScript.')
 
 
+def _node_supports_strip_types():
+    global _node_strip_types_support
+    if _node_strip_types_support is not None:
+        return _node_strip_types_support
+
+    node = shutil.which('node')
+    if not node:
+        _node_strip_types_support = False
+        return False
+
+    try:
+        result = subprocess.run(
+            [node, '--experimental-strip-types', '-e', 'console.log("ok")'],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        _node_strip_types_support = result.returncode == 0
+    except Exception:
+        _node_strip_types_support = False
+    return _node_strip_types_support
+
+
 def _typescript_run_command(path):
     try:
         return [_resolve_typescript_runner(), '--transpile-only', path]
     except FileNotFoundError:
         node = shutil.which('node')
+        if node and _node_supports_strip_types():
+            return [node, '--experimental-strip-types', path]
         if node:
             # Fallback for JS-compatible TypeScript skeletons.
             return [node, path]
@@ -192,6 +226,8 @@ def _language_runtime_status(language):
             runner = _resolve_typescript_runner()
             return True, f'Using {runner}'
         except FileNotFoundError:
+            if _node_supports_strip_types():
+                return True, 'Using Node.js built-in TypeScript stripping.'
             if _check_tool_available('node'):
                 return True, 'Using Node fallback for JS-compatible TypeScript code.'
             return False, 'TypeScript requires ts-node or Node.js to be installed.'
@@ -224,6 +260,31 @@ def _language_runtime_status(language):
     if language == 'sql':
         return True, 'Using sqlite3 CLI or Python sqlite fallback.'
     return False, f'Unsupported language: {language}'
+
+
+def _language_execution_profile(language):
+    local_available, status = _language_runtime_status(language)
+    supports_simulation = language != 'python'
+    if local_available:
+        return {
+            'local_available': True,
+            'supports_simulation': supports_simulation,
+            'execution_mode': 'local',
+            'status': status,
+        }
+    if supports_simulation:
+        return {
+            'local_available': False,
+            'supports_simulation': True,
+            'execution_mode': 'simulated',
+            'status': status,
+        }
+    return {
+        'local_available': False,
+        'supports_simulation': False,
+        'execution_mode': 'unavailable',
+        'status': status,
+    }
 
 
 def _is_stub_statement(stmt):
@@ -419,16 +480,23 @@ def run_code():
             'exit_code': 1,
         })
 
-    is_available, status_message = _language_runtime_status(language)
-    if not is_available:
-        return _simulate_execution_with_ai(language, user_code)
+    profile = _language_execution_profile(language)
+    if not profile['local_available']:
+        if profile['supports_simulation']:
+            return _simulate_execution_with_ai(language, user_code, profile['status'])
+        return jsonify({
+            'stdout': '',
+            'stderr': profile['status'],
+            'exit_code': 1,
+            'execution_mode': 'unavailable',
+        })
 
     # For SQL, use a special handler
     if language == 'sql':
         return _run_sql(user_code)
 
     # Create temp directory for compiled languages
-    tmpdir = tempfile.mkdtemp(prefix='codeprep_run_', dir=config.RUNNER_TEMP_DIR)
+    tmpdir = _create_run_workspace()
     ext = lang_cfg['extension']
 
     # Java requires filename to match class name
@@ -460,18 +528,21 @@ def run_code():
                         'stdout': compile_result.stdout,
                         'stderr': f'Compilation Error:\n{compile_result.stderr}',
                         'exit_code': compile_result.returncode,
+                        'execution_mode': 'local',
                     })
             except subprocess.TimeoutExpired:
                 return jsonify({
                     'stdout': '',
                     'stderr': f'Compilation timeout (>{config.CODE_TIMEOUT}s)',
                     'exit_code': 1,
+                    'execution_mode': 'local',
                 })
             except FileNotFoundError as e:
                 return jsonify({
                     'stdout': '',
                     'stderr': f'Compiler not found. Make sure the {language} compiler is installed.\n{e}',
                     'exit_code': 1,
+                    'execution_mode': 'local',
                 })
 
         # Execution step
@@ -495,18 +566,21 @@ def run_code():
                 'stdout': result.stdout,
                 'stderr': result.stderr,
                 'exit_code': result.returncode,
+                'execution_mode': 'local',
             })
         except subprocess.TimeoutExpired:
             return jsonify({
                 'stdout': '',
                 'stderr': f'Timeout: code took too long (>{config.CODE_TIMEOUT}s)',
                 'exit_code': 1,
+                'execution_mode': 'local',
             })
         except FileNotFoundError as e:
             return jsonify({
                 'stdout': '',
                 'stderr': f'Runtime not found. Make sure {language} is installed on the system.\n{e}',
                 'exit_code': 1,
+                'execution_mode': 'local',
             })
 
     except Exception as e:
@@ -514,6 +588,7 @@ def run_code():
             'stdout': '',
             'stderr': f'Runner error: {e}',
             'exit_code': 1,
+            'execution_mode': 'local',
         })
     finally:
         try:
@@ -550,6 +625,7 @@ def _run_sql(user_code):
                 'stdout': result.stdout,
                 'stderr': result.stderr,
                 'exit_code': result.returncode,
+                'execution_mode': 'local',
             })
         except FileNotFoundError:
             # Fallback: try python's sqlite3 module
@@ -559,6 +635,7 @@ def _run_sql(user_code):
                 'stdout': '',
                 'stderr': f'Timeout: SQL took too long (>{config.CODE_TIMEOUT}s)',
                 'exit_code': 1,
+                'execution_mode': 'local',
             })
     finally:
         try:
@@ -609,12 +686,14 @@ finally:
             'stdout': result.stdout,
             'stderr': result.stderr,
             'exit_code': result.returncode,
+            'execution_mode': 'local',
         })
     except subprocess.TimeoutExpired:
         return jsonify({
             'stdout': '',
             'stderr': f'Timeout: SQL took too long (>{config.CODE_TIMEOUT}s)',
             'exit_code': 1,
+            'execution_mode': 'local',
         })
     finally:
         try:
@@ -723,12 +802,14 @@ def list_languages():
             'id': key,
             'label': label_overrides.get(key, key.title()),
             'extension': cfg['extension'],
-            'available': True,
-            'status': status if available else 'Available via AI Cloud Simulation',
+            'available': available,
+            'execution_mode': 'local' if available else 'simulated',
+            'supports_simulation': key != 'python',
+            'status': status if available else f'{status} AI cloud simulation is available as a fallback.',
         })
     return jsonify(languages)
 
-def _simulate_execution_with_ai(language, code):
+def _simulate_execution_with_ai(language, code, runtime_status=None):
     """Simulate code execution using the AI model when a local compiler is unavailable."""
     import json
     client = ai.get_client()
@@ -762,12 +843,16 @@ Code:
         return jsonify({
             'stdout': str(stdout_val) + '\n[Output generated by AI Cloud Simulation]',
             'stderr': str(stderr_val),
-            'exit_code': int(result.get('exit_code', 0))
+            'exit_code': int(result.get('exit_code', 0)),
+            'execution_mode': 'simulated',
+            'warning': runtime_status or 'Local runtime is unavailable. Result generated via AI simulation.',
         })
     except Exception as e:
         return jsonify({
             'stdout': '',
             'stderr': f'AI Simulation Failed: {str(e)}',
-            'exit_code': 1
+            'exit_code': 1,
+            'execution_mode': 'simulated',
+            'warning': runtime_status or 'Local runtime is unavailable.',
         })
 
