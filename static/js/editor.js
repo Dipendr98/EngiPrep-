@@ -1,4 +1,5 @@
 const languageRuntimeMeta = new Map();
+let activeTranslationRequestId = 0;
 
 const LANGUAGE_CONFIG = {
   python: {
@@ -245,6 +246,7 @@ function initEditor() {
 
 function switchLanguage(lang) {
   if (!LANGUAGE_CONFIG[lang]) return;
+  activeTranslationRequestId += 1;
   const oldCode = editor ? editor.getValue() : '';
   const oldLang = currentLanguage;
   currentLanguage = lang;
@@ -283,6 +285,7 @@ function switchLanguage(lang) {
       const problemTitle = document.getElementById('top-bar-title')?.textContent || '';
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const translationRequestId = activeTranslationRequestId;
 
       fetch('/api/translate-code', {
         method: 'POST',
@@ -297,6 +300,9 @@ function switchLanguage(lang) {
       })
         .then(r => r.json())
         .then(data => {
+          if (translationRequestId !== activeTranslationRequestId || currentLanguage !== lang) {
+            return;
+          }
           if (data.translated_code) {
             translatedCodeCache[lang] = data.translated_code;
             // Only update if user hasn't typed something else
@@ -310,6 +316,9 @@ function switchLanguage(lang) {
           editor.refresh();
         })
         .catch(() => {
+          if (translationRequestId !== activeTranslationRequestId || currentLanguage !== lang) {
+            return;
+          }
           if (editor.getValue() === loadingText) {
             editor.setValue(langConfig.placeholder);
           }

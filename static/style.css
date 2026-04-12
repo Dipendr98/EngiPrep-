@@ -67,6 +67,7 @@ body {
   height: 28px;
   width: 28px;
   display: block;
+  object-fit: contain;
 }
 
 .top-bar-center {
@@ -3895,10 +3896,11 @@ body::after {
 .top-bar-logo-img {
   width: 34px;
   height: 34px;
-  padding: 6px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1d4d4f, #cc7a29);
-  box-shadow: 0 10px 24px rgba(29, 77, 79, 0.18);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  object-fit: contain;
 }
 
 .btn {

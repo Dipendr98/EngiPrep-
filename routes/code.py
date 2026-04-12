@@ -327,8 +327,222 @@ def _extract_simple_python_function_stub(code):
     }
 
 
+def _annotation_to_python_text(annotation):
+    if annotation is None:
+        return None
+    try:
+        return ast.unparse(annotation)
+    except Exception:
+        return None
+
+
+def _extract_simple_python_class_stub(code):
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return None
+
+    class_nodes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
+    if len(class_nodes) != 1 or len(tree.body) != 1:
+        return None
+
+    class_node = class_nodes[0]
+    if class_node.decorator_list or class_node.bases or class_node.keywords:
+        return None
+
+    methods = []
+    for node in class_node.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return None
+        if node.decorator_list or node.args.kwonlyargs or node.args.vararg or node.args.kwarg:
+            return None
+        if not node.body or not all(_is_stub_statement(stmt) for stmt in node.body):
+            return None
+
+        params = []
+        for arg in node.args.args[1:]:
+            params.append({
+                'name': arg.arg,
+                'annotation': _annotation_to_python_text(arg.annotation),
+            })
+
+        methods.append({
+            'name': node.name,
+            'params': params,
+            'return_annotation': _annotation_to_python_text(node.returns),
+            'is_async': isinstance(node, ast.AsyncFunctionDef),
+        })
+
+    return {
+        'name': class_node.name,
+        'methods': methods,
+    }
+
+
 def _commented_param_hint(params):
     return ', '.join(params) if params else 'none'
+
+
+def _map_python_type(annotation, target_lang):
+    normalized = (annotation or '').strip()
+    if not normalized:
+        defaults = {
+            'java': 'Object',
+            'csharp': 'object',
+            'go': 'interface{}',
+            'kotlin': 'Any?',
+            'swift': 'Any',
+            'typescript': 'any',
+        }
+        return defaults.get(target_lang)
+
+    base = normalized.replace(' ', '')
+    if base in ('int', 'float'):
+        return {
+            'java': 'int' if base == 'int' else 'double',
+            'csharp': 'int' if base == 'int' else 'double',
+            'go': 'int' if base == 'int' else 'float64',
+            'kotlin': 'Int' if base == 'int' else 'Double',
+            'swift': 'Int' if base == 'int' else 'Double',
+            'typescript': 'number',
+        }.get(target_lang)
+    if base == 'bool':
+        return {
+            'java': 'boolean',
+            'csharp': 'bool',
+            'go': 'bool',
+            'kotlin': 'Boolean',
+            'swift': 'Bool',
+            'typescript': 'boolean',
+        }.get(target_lang)
+    if base == 'str':
+        return {
+            'java': 'String',
+            'csharp': 'string',
+            'go': 'string',
+            'kotlin': 'String',
+            'swift': 'String',
+            'typescript': 'string',
+        }.get(target_lang)
+    if base == 'None':
+        return {
+            'java': 'void',
+            'csharp': 'void',
+            'go': '',
+            'kotlin': 'Unit',
+            'swift': 'Void',
+            'typescript': 'void',
+        }.get(target_lang)
+    if base.startswith('list[') or base.startswith('List['):
+        inner = normalized[normalized.find('[') + 1:-1] if '[' in normalized and normalized.endswith(']') else ''
+        mapped_inner = _map_python_type(inner, target_lang) or (
+            'Object' if target_lang == 'java'
+            else 'object' if target_lang == 'csharp'
+            else 'interface{}' if target_lang == 'go'
+            else 'Any?' if target_lang == 'kotlin'
+            else 'Any' if target_lang == 'swift'
+            else 'any'
+        )
+        return {
+            'java': f'List<{mapped_inner}>',
+            'csharp': f'List<{mapped_inner}>',
+            'go': f'[]{mapped_inner}',
+            'kotlin': f'MutableList<{mapped_inner}>',
+            'swift': f'[{mapped_inner}]',
+            'typescript': f'{mapped_inner}[]',
+        }.get(target_lang)
+    if base.startswith('dict[') or base.startswith('Dict['):
+        return {
+            'java': 'Map<Object, Object>',
+            'csharp': 'Dictionary<object, object>',
+            'go': 'map[string]interface{}',
+            'kotlin': 'MutableMap<Any?, Any?>',
+            'swift': '[String: Any]',
+            'typescript': 'Record<string, any>',
+        }.get(target_lang)
+    return {
+        'java': 'Object',
+        'csharp': 'object',
+        'go': 'interface{}',
+        'kotlin': 'Any?',
+        'swift': 'Any',
+        'typescript': 'any',
+    }.get(target_lang)
+
+
+def _default_return_literal(annotation, to_lang):
+    normalized = (annotation or '').strip()
+    if normalized in ('None', 'NoneType'):
+        return ''
+    if normalized == 'bool':
+        return {
+            'javascript': 'false',
+            'typescript': 'false',
+            'java': 'false',
+            'csharp': 'false',
+            'go': 'false',
+            'rust': 'false',
+            'php': 'false',
+            'swift': 'false',
+            'kotlin': 'false',
+        }.get(to_lang, 'false')
+    if normalized in ('int', 'float'):
+        return '0'
+    if normalized == 'str':
+        return {
+            'ruby': "''",
+            'php': "''",
+        }.get(to_lang, '""')
+    if normalized.startswith('list[') or normalized.startswith('List['):
+        return {
+            'javascript': '[]',
+            'typescript': '[]',
+            'java': 'new ArrayList<>()',
+            'csharp': 'new List<object>()',
+            'go': 'nil',
+            'rust': 'Vec::new()',
+            'ruby': '[]',
+            'php': '[]',
+            'swift': '[]',
+            'kotlin': 'mutableListOf()',
+        }.get(to_lang, 'null')
+    if normalized.startswith('dict[') or normalized.startswith('Dict['):
+        return {
+            'javascript': '{}',
+            'typescript': '{}',
+            'java': 'new HashMap<>()',
+            'csharp': 'new Dictionary<object, object>()',
+            'go': 'nil',
+            'rust': 'std::collections::HashMap::new()',
+            'ruby': '{}',
+            'php': '[]',
+            'swift': '[:]',
+            'kotlin': 'mutableMapOf()',
+        }.get(to_lang, 'null')
+    if normalized:
+        return {
+            'java': 'null',
+            'csharp': 'null',
+            'go': 'nil',
+            'kotlin': 'null',
+            'swift': 'nil',
+            'typescript': 'null',
+            'javascript': 'null',
+            'ruby': 'nil',
+            'php': 'null',
+        }.get(to_lang, 'null')
+    return {
+        'javascript': 'null',
+        'typescript': 'null',
+        'java': 'null',
+        'csharp': 'null',
+        'go': 'nil',
+        'rust': '()',
+        'ruby': 'nil',
+        'php': 'null',
+        'swift': 'nil',
+        'kotlin': 'null',
+    }.get(to_lang, 'null')
 
 
 def _build_local_function_translation(function_info, to_lang):
@@ -449,6 +663,279 @@ def _build_local_function_translation(function_info, to_lang):
         ),
     }
     return translations.get(to_lang)
+
+
+def _build_local_class_translation(class_info, to_lang):
+    class_name = class_info['name']
+    methods = class_info['methods']
+
+    if to_lang == 'javascript':
+        blocks = [f'class {class_name} {{']
+        if not methods:
+            blocks.append('  constructor() {}')
+        for method in methods:
+            params = ', '.join(param['name'] for param in method['params'])
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'  constructor({params}) {{',
+                    '    // TODO: implement',
+                    '  }',
+                ])
+                continue
+            return_value = _default_return_literal(method['return_annotation'], 'javascript')
+            blocks.append(f'  {method["name"]}({params}) {{')
+            blocks.append('    // TODO: implement')
+            if return_value:
+                blocks.append(f'    return {return_value};')
+            blocks.append('  }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'typescript':
+        blocks = [f'class {class_name} {{']
+        if not methods:
+            blocks.append('  constructor() {}')
+        for method in methods:
+            params = ', '.join(
+                f'{param["name"]}: {_map_python_type(param["annotation"], "typescript") or "any"}'
+                for param in method['params']
+            )
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'  constructor({params}) {{',
+                    '    // TODO: implement',
+                    '  }',
+                ])
+                continue
+            return_type = _map_python_type(method['return_annotation'], 'typescript') or 'any'
+            return_value = _default_return_literal(method['return_annotation'], 'typescript')
+            blocks.append(f'  {method["name"]}({params}): {return_type} {{')
+            blocks.append('    // TODO: implement')
+            if return_value:
+                blocks.append(f'    return {return_value};')
+            blocks.append('  }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'java':
+        blocks = ['import java.util.*;', '', f'public class {class_name} {{']
+        for method in methods:
+            params = ', '.join(
+                f'{_map_python_type(param["annotation"], "java") or "Object"} {param["name"]}'
+                for param in method['params']
+            )
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'    public {class_name}({params}) {{',
+                    '        // TODO: implement',
+                    '    }',
+                ])
+                continue
+            return_type = _map_python_type(method['return_annotation'], 'java') or 'Object'
+            return_value = _default_return_literal(method['return_annotation'], 'java')
+            blocks.append(f'    public {return_type} {method["name"]}({params}) {{')
+            blocks.append('        // TODO: implement')
+            if return_value:
+                blocks.append(f'        return {return_value};')
+            blocks.append('    }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'csharp':
+        blocks = ['using System;', 'using System.Collections.Generic;', '', f'public class {class_name}', '{']
+        for method in methods:
+            params = ', '.join(
+                f'{_map_python_type(param["annotation"], "csharp") or "object"} {param["name"]}'
+                for param in method['params']
+            )
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'    public {class_name}({params})',
+                    '    {',
+                    '        // TODO: implement',
+                    '    }',
+                ])
+                continue
+            return_type = _map_python_type(method['return_annotation'], 'csharp') or 'object'
+            return_value = _default_return_literal(method['return_annotation'], 'csharp')
+            blocks.append(f'    public {return_type} {method["name"]}({params})')
+            blocks.append('    {')
+            blocks.append('        // TODO: implement')
+            if return_value:
+                blocks.append(f'        return {return_value};')
+            blocks.append('    }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'go':
+        blocks = ['package main', '', f'type {class_name} struct {{', '}', '']
+        for method in methods:
+            params = ', '.join(
+                f'{param["name"]} {_map_python_type(param["annotation"], "go") or "interface{}"}'
+                for param in method['params']
+            )
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'func New{class_name}({params}) *{class_name} {{',
+                    '    // TODO: implement',
+                    f'    return &{class_name}{{}}',
+                    '}',
+                    '',
+                ])
+                continue
+            return_type = _map_python_type(method['return_annotation'], 'go')
+            signature = f'func (s *{class_name}) {method["name"].title()}({params})'
+            if return_type:
+                signature += f' {return_type}'
+            blocks.append(signature + ' {')
+            blocks.append('    // TODO: implement')
+            return_value = _default_return_literal(method['return_annotation'], 'go')
+            if return_value:
+                blocks.append(f'    return {return_value}')
+            blocks.append('}')
+            blocks.append('')
+        blocks.append('func main() {}')
+        return '\n'.join(blocks).rstrip() + '\n'
+
+    if to_lang == 'ruby':
+        blocks = [f'class {class_name}']
+        for method in methods:
+            params = ', '.join(param['name'] for param in method['params'])
+            method_name = 'initialize' if method['name'] == '__init__' else method['name']
+            blocks.append(f'  def {method_name}({params})')
+            blocks.append('    # TODO: implement')
+            return_value = _default_return_literal(method['return_annotation'], 'ruby')
+            if return_value:
+                blocks.append(f'    {return_value}')
+            blocks.append('  end')
+            blocks.append('')
+        blocks.append('end')
+        return '\n'.join(blocks).rstrip() + '\n'
+
+    if to_lang == 'php':
+        blocks = ['<?php', '', f'class {class_name}', '{']
+        for method in methods:
+            params = ', '.join(f'${param["name"]}' for param in method['params'])
+            method_name = '__construct' if method['name'] == '__init__' else method['name']
+            blocks.append(f'    public function {method_name}({params}) {{')
+            blocks.append('        // TODO: implement')
+            return_value = _default_return_literal(method['return_annotation'], 'php')
+            if return_value:
+                blocks.append(f'        return {return_value};')
+            blocks.append('    }')
+            blocks.append('')
+        blocks.append('}')
+        return '\n'.join(blocks).rstrip() + '\n'
+
+    if to_lang == 'swift':
+        blocks = ['import Foundation', '', f'class {class_name} {{']
+        for method in methods:
+            params = ', '.join(
+                f'{param["name"]}: {_map_python_type(param["annotation"], "swift") or "Any"}'
+                for param in method['params']
+            )
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'    init({params}) {{',
+                    '        // TODO: implement',
+                    '    }',
+                ])
+                continue
+            return_type = _map_python_type(method['return_annotation'], 'swift') or 'Any'
+            blocks.append(f'    func {method["name"]}({params}) -> {return_type} {{')
+            blocks.append('        // TODO: implement')
+            return_value = _default_return_literal(method['return_annotation'], 'swift')
+            if return_value:
+                blocks.append(f'        return {return_value}')
+            blocks.append('    }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'kotlin':
+        constructor_method = next((method for method in methods if method['name'] == '__init__'), None)
+        constructor_params = ''
+        if constructor_method:
+            constructor_params = ', '.join(
+                f'private val {param["name"]}: {_map_python_type(param["annotation"], "kotlin") or "Any?"}'
+                for param in constructor_method['params']
+            )
+        blocks = [f'class {class_name}({constructor_params}) {{']
+        for method in methods:
+            if method['name'] == '__init__':
+                continue
+            params = ', '.join(
+                f'{param["name"]}: {_map_python_type(param["annotation"], "kotlin") or "Any?"}'
+                for param in method['params']
+            )
+            return_type = _map_python_type(method['return_annotation'], 'kotlin') or 'Any?'
+            blocks.append(f'    fun {method["name"]}({params}): {return_type} {{')
+            blocks.append('        // TODO: implement')
+            return_value = _default_return_literal(method['return_annotation'], 'kotlin')
+            if return_value:
+                blocks.append(f'        return {return_value}')
+            blocks.append('    }')
+        blocks.append('}')
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'cpp':
+        blocks = ['#include <iostream>', '#include <vector>', '#include <string>', 'using namespace std;', '', f'class {class_name} {{', 'public:']
+        for method in methods:
+            params = ', '.join(f'auto {param["name"]}' for param in method['params'])
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'    {class_name}({params}) {{',
+                    '        // TODO: implement',
+                    '    }',
+                ])
+                continue
+            blocks.append(f'    auto {method["name"]}({params}) {{')
+            blocks.append('        // TODO: implement')
+            blocks.append('        return nullptr;')
+            blocks.append('    }')
+        blocks.extend(['};', '', 'int main() {', '    return 0;', '}'])
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'c':
+        return (
+            '#include <stdio.h>\n\n'
+            f'/* TODO: translate Python class {class_name} into a C struct and related functions. */\n'
+            'int main(void) {\n'
+            '    return 0;\n'
+            '}\n'
+        )
+
+    if to_lang == 'rust':
+        blocks = [f'struct {class_name} {{', '}', '']
+        blocks.append(f'impl {class_name} {{')
+        for method in methods:
+            params = ', '.join(f'{param["name"]}: impl Sized' for param in method['params'])
+            if method['name'] == '__init__':
+                blocks.extend([
+                    f'    fn new({params}) -> Self {{',
+                    '        // TODO: implement',
+                    f'        {class_name} {{}}',
+                    '    }',
+                ])
+                continue
+            param_list = ', '.join(filter(None, ['&mut self', params]))
+            blocks.append(f'    fn {method["name"]}({param_list}) {{')
+            blocks.append('        // TODO: implement')
+            blocks.append('    }')
+        blocks.extend(['}', '', 'fn main() {}'])
+        return '\n'.join(blocks) + '\n'
+
+    if to_lang == 'bash':
+        return (
+            '#!/usr/bin/env bash\n'
+            f'# TODO: translate Python class {class_name} into Bash functions.\n'
+        )
+
+    if to_lang == 'sql':
+        return (
+            f'-- SQL translation is not available for Python class starter code: {class_name}\n'
+        )
+
+    return None
 
 
 def _clean_translated_code(translated):
@@ -726,6 +1213,14 @@ def translate_code():
                     'translated_code': translated,
                     'source': 'local_template',
                 })
+        class_stub = _extract_simple_python_class_stub(code)
+        if class_stub:
+            translated = _build_local_class_translation(class_stub, to_lang)
+            if translated:
+                return jsonify({
+                    'translated_code': translated,
+                    'source': 'local_template',
+                })
 
     lang_names = {
         'python': 'Python', 'javascript': 'JavaScript', 'typescript': 'TypeScript',
@@ -773,6 +1268,15 @@ Rules:
             stub = _extract_simple_python_function_stub(code)
             if stub:
                 translated = _build_local_function_translation(stub, to_lang)
+                if translated:
+                    return jsonify({
+                        'translated_code': translated,
+                        'source': 'local_template_fallback',
+                        'warning': str(e),
+                    })
+            class_stub = _extract_simple_python_class_stub(code)
+            if class_stub:
+                translated = _build_local_class_translation(class_stub, to_lang)
                 if translated:
                     return jsonify({
                         'translated_code': translated,
