@@ -96,7 +96,13 @@ def chat(session_id):
     test_results_data = None
 
     if code.strip():
-        test_results_data = _run_tests_for_session(session, code, client, language)
+        test_results_data = _run_tests_for_session(
+            session,
+            code,
+            client,
+            language,
+            allow_ai_generation=False,
+        )
         if test_results_data:
             test_context = code_runner.format_results_for_context(
                 {
@@ -117,7 +123,12 @@ def chat(session_id):
                 yield f"data: {json.dumps({'test_results': test_results_data})}\n\n"
 
             full_response = ''
-            for text in ai.stream_chat(client, session['messages'], max_tokens=config.CHAT_MAX_TOKENS):
+            context_messages = ai.build_context_window(
+                session['messages'],
+                max_messages=config.CHAT_HISTORY_MAX_MESSAGES,
+                max_chars=config.CHAT_HISTORY_MAX_CHARS,
+            )
+            for text in ai.stream_chat(client, context_messages, max_tokens=config.CHAT_MAX_TOKENS):
                 full_response += text
                 yield f"data: {json.dumps({'content': text})}\n\n"
 
@@ -166,7 +177,12 @@ def start_interview(session_id):
     def generate():
         try:
             full_response = ''
-            for text in ai.stream_chat(client, session['messages'], max_tokens=config.START_MAX_TOKENS):
+            context_messages = ai.build_context_window(
+                session['messages'],
+                max_messages=config.CHAT_HISTORY_MAX_MESSAGES,
+                max_chars=config.CHAT_HISTORY_MAX_CHARS,
+            )
+            for text in ai.stream_chat(client, context_messages, max_tokens=config.START_MAX_TOKENS):
                 full_response += text
                 yield f"data: {json.dumps({'content': text})}\n\n"
 
@@ -201,7 +217,13 @@ def run_tests(session_id):
     sessions.save(session)
 
     client = ai.get_client()
-    test_results = _run_tests_for_session(session, user_code, client, language)
+    test_results = _run_tests_for_session(
+        session,
+        user_code,
+        client,
+        language,
+        allow_ai_generation=True,
+    )
     if not test_results:
         return jsonify({'error': 'Could not auto-generate test cases. Make sure the interviewer has presented a problem first.'}), 400
 
@@ -289,7 +311,25 @@ def _run_pre_canned_tests(user_code, problem):
     }
 
 
-def _run_tests_for_session(session, user_code, client, language='python'):
+def _get_cached_generated_tests(session):
+    cached = session.get('generated_test_spec') or {}
+    function_name = cached.get('function_name')
+    test_cases = cached.get('test_cases')
+    if not function_name or not isinstance(test_cases, list) or not test_cases:
+        return None, []
+    return function_name, test_cases
+
+
+def _store_generated_tests(session, function_name, test_cases):
+    session['generated_test_spec'] = {
+        'function_name': function_name,
+        'test_cases': test_cases,
+        'generated_at': datetime.now().isoformat(),
+    }
+    sessions.save(session)
+
+
+def _run_tests_for_session(session, user_code, client, language='python', allow_ai_generation=True):
     if language != 'python':
         return {
             'test_type': 'language-limited',
@@ -308,10 +348,30 @@ def _run_tests_for_session(session, user_code, client, language='python'):
         if pre_canned is not None:
             return pre_canned
 
-    fn_name, test_cases = ai.generate_test_cases(client, session['messages'])
+    fn_name, test_cases = _get_cached_generated_tests(session)
+    if fn_name and test_cases:
+        run_result = code_runner.run(user_code, fn_name, test_cases)
+        return {
+            'test_type': 'function',
+            'display_name': fn_name,
+            'success': run_result['success'],
+            'results': run_result['results'],
+            'error': run_result['error'],
+        }
+
+    if not allow_ai_generation:
+        return None
+
+    context_messages = ai.build_context_window(
+        session['messages'],
+        max_messages=config.CHAT_HISTORY_MAX_MESSAGES,
+        max_chars=config.CHAT_HISTORY_MAX_CHARS,
+    )
+    fn_name, test_cases = ai.generate_test_cases(client, context_messages)
     if not fn_name or not test_cases:
         return None
 
+    _store_generated_tests(session, fn_name, test_cases)
     run_result = code_runner.run(user_code, fn_name, test_cases)
     return {
         'test_type': 'function',

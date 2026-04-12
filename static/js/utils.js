@@ -7,17 +7,27 @@ function escapeHtml(text) {
 
 function renderMarkdown(text) {
   try {
-    let processed = text;
-    processed = processed.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => {
-      try {
-        return katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false });
-      } catch { return `$$${tex}$$`; }
-    });
-    processed = processed.replace(/(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g, (_, tex) => {
-      try {
-        return katex.renderToString(tex.trim(), { displayMode: false, throwOnError: false });
-      } catch { return `$${tex}$`; }
-    });
+    let processed = String(text ?? '');
+    const hasMath = processed.includes('$');
+    const hasMarkdownSyntax = /```|`|(^|\n)\s*([-*+]|\d+\.)\s|[*_#[\]>|]/m.test(processed);
+
+    if (!hasMath && !hasMarkdownSyntax) {
+      return escapeHtml(processed).replace(/\n/g, '<br>');
+    }
+
+    if (hasMath) {
+      processed = processed.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => {
+        try {
+          return katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false });
+        } catch { return `$$${tex}$$`; }
+      });
+      processed = processed.replace(/(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g, (_, tex) => {
+        try {
+          return katex.renderToString(tex.trim(), { displayMode: false, throwOnError: false });
+        } catch { return `$${tex}$`; }
+      });
+    }
+
     return marked.parse(processed, { breaks: true });
   } catch (e) {
     return escapeHtml(text);
@@ -38,6 +48,30 @@ function scrollToBottom() {
   });
 }
 
+function trimChatHistory(history, options = {}) {
+  const maxMessages = options.maxMessages ?? 12;
+  const maxChars = options.maxChars ?? 18000;
+  if (!Array.isArray(history) || history.length <= maxMessages) {
+    return Array.isArray(history) ? history.slice() : [];
+  }
+
+  const kept = [];
+  let totalChars = 0;
+  for (let i = history.length - 1; i >= 0; i -= 1) {
+    const message = history[i] || {};
+    const content = String(message.content ?? '');
+    const nextCount = kept.length + 1;
+    const nextChars = totalChars + content.length;
+    if (kept.length > 0 && (nextCount > maxMessages || nextChars > maxChars)) {
+      break;
+    }
+    kept.push(message);
+    totalChars = nextChars;
+  }
+
+  return kept.reverse();
+}
+
 /**
  * Read an SSE stream from a fetch Response and dispatch chunks.
  * Replaces the 5 duplicated SSE readers throughout the app.
@@ -47,6 +81,25 @@ async function readSSEStream(response, callbacks) {
   const decoder = new TextDecoder();
   let buffer = '';
   let fullContent = '';
+  let pendingContent = '';
+  let pendingChunk = '';
+  let contentUpdateScheduled = false;
+
+  const flushContent = () => {
+    if (!contentUpdateScheduled || !pendingChunk) return;
+    contentUpdateScheduled = false;
+    if (callbacks.onContent) callbacks.onContent(pendingContent, pendingChunk);
+    pendingChunk = '';
+  };
+
+  const scheduleContentFlush = () => {
+    if (contentUpdateScheduled || !callbacks.onContent) return;
+    contentUpdateScheduled = true;
+    const scheduleFrame = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : (cb) => setTimeout(cb, 16);
+    scheduleFrame(flushContent);
+  };
 
   while (true) {
     const { done, value } = await reader.read();
@@ -62,21 +115,27 @@ async function readSSEStream(response, callbacks) {
         const data = JSON.parse(line.slice(6));
         if (data.content) {
           fullContent += data.content;
-          if (callbacks.onContent) callbacks.onContent(fullContent, data.content);
+          pendingContent = fullContent;
+          pendingChunk += data.content;
+          scheduleContentFlush();
         }
         if (data.test_results && callbacks.onTestResults) {
+          flushContent();
           callbacks.onTestResults(data.test_results);
         }
         if (data.error && callbacks.onError) {
+          flushContent();
           callbacks.onError(data.error);
         }
         if (data.done && callbacks.onDone) {
+          flushContent();
           callbacks.onDone(fullContent);
         }
       } catch (e) {}
     }
   }
 
+  flushContent();
   return fullContent;
 }
 

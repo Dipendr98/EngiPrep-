@@ -1,3 +1,6 @@
+const languageRuntimeMeta = new Map();
+let activeTranslationRequestId = 0;
+
 const LANGUAGE_CONFIG = {
   python: {
     mode: 'python',
@@ -73,15 +76,19 @@ async function hydrateLanguageAvailability() {
     const res = await fetch('/api/languages');
     const languages = await res.json();
     const languageMap = new Map(languages.map(lang => [lang.id, lang]));
+    languageRuntimeMeta.clear();
+    languages.forEach(lang => languageRuntimeMeta.set(lang.id, lang));
 
     Array.from(langSelect.options).forEach(option => {
       const meta = languageMap.get(option.value);
       if (!meta) return;
 
-      option.disabled = meta.available === false;
-      option.textContent = meta.available === false
-        ? `${meta.label} (install required)`
-        : meta.label;
+      option.disabled = meta.available === false && !meta.supports_simulation;
+      option.textContent = meta.available
+        ? `${meta.label} · Local`
+        : meta.supports_simulation
+          ? `${meta.label} · AI Sim`
+          : `${meta.label} · Install`;
       option.title = meta.status || '';
     });
 
@@ -89,7 +96,24 @@ async function hydrateLanguageAvailability() {
       langSelect.value = 'python';
       currentLanguage = 'python';
     }
+    updateRunButtonsForLanguage();
   } catch (e) { }
+}
+
+function updateRunButtonsForLanguage() {
+  const runBtn = document.getElementById('run-btn');
+  const runTestsBtn = document.getElementById('run-tests-btn');
+  const meta = languageRuntimeMeta.get(currentLanguage);
+  if (runBtn && meta) {
+    runBtn.title = meta.status || '';
+  }
+  if (runTestsBtn) {
+    const isPython = currentLanguage === 'python';
+    runTestsBtn.disabled = !isPython;
+    runTestsBtn.title = isPython
+      ? 'Generate and run Python interview tests'
+      : 'Generated interview tests currently support Python only';
+  }
 }
 
 function initEditor() {
@@ -127,10 +151,12 @@ function initEditor() {
     langSelect.value = currentLanguage;
   }
   hydrateLanguageAvailability();
+  updateRunButtonsForLanguage();
 }
 
 function switchLanguage(lang) {
   if (!LANGUAGE_CONFIG[lang]) return;
+  activeTranslationRequestId += 1;
   const oldCode = editor ? editor.getValue() : '';
   const oldLang = currentLanguage;
   currentLanguage = lang;
@@ -169,6 +195,7 @@ function switchLanguage(lang) {
       const problemTitle = document.getElementById('top-bar-title')?.textContent || '';
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const translationRequestId = activeTranslationRequestId;
 
       fetch('/api/translate-code', {
         method: 'POST',
@@ -183,6 +210,9 @@ function switchLanguage(lang) {
       })
         .then(r => r.json())
         .then(data => {
+          if (translationRequestId !== activeTranslationRequestId || currentLanguage !== lang) {
+            return;
+          }
           if (data.translated_code) {
             translatedCodeCache[lang] = data.translated_code;
             // Only update if user hasn't typed something else
@@ -196,6 +226,9 @@ function switchLanguage(lang) {
           editor.refresh();
         })
         .catch(() => {
+          if (translationRequestId !== activeTranslationRequestId || currentLanguage !== lang) {
+            return;
+          }
           if (editor.getValue() === loadingText) {
             editor.setValue(langConfig.placeholder);
           }
@@ -211,6 +244,8 @@ function switchLanguage(lang) {
   } else {
     editor.refresh();
   }
+
+  updateRunButtonsForLanguage();
 }
 
 function clearEditor() {
@@ -306,6 +341,14 @@ async function runCode() {
     const data = await res.json();
 
     let html = '';
+    if (data.execution_mode === 'simulated') {
+      html += `<span class="output-warning">AI simulation mode</span>\n`;
+    } else if (data.execution_mode === 'local') {
+      html += `<span class="output-exit-ok">Local runtime</span>\n`;
+    }
+    if (data.warning) {
+      html += `<span class="output-stderr">${escapeHtml(data.warning)}</span>\n`;
+    }
     if (data.stdout) html += escapeHtml(data.stdout);
     if (data.stderr) html += `<span class="output-stderr">${escapeHtml(data.stderr)}</span>`;
     if (!data.stdout && !data.stderr) html = '<span class="output-placeholder">(no output)</span>';

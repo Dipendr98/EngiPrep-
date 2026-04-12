@@ -18,7 +18,14 @@ def research_chat():
     if not user_message.strip():
         return jsonify({'error': 'No message provided'}), 400
 
-    problem = problems.get_by_id(problem_id)
+    problem_data = data.get('problem_data')
+    
+    problem = problems.get_by_id(problem_id) if problem_id else None
+    
+    # If problem is not in DB but we have data (ephemeral), use the data
+    if not problem and problem_data:
+        problem = problem_data
+
     problem_context = ""
     if problem:
         problem_context = problems.build_study_context(problem)
@@ -29,6 +36,11 @@ def research_chat():
     for msg in history:
         messages.append({'role': msg.get('role', 'user'), 'content': msg.get('content', '')})
     messages.append({'role': 'user', 'content': user_message})
+    messages = ai.build_context_window(
+        messages,
+        max_messages=config.RESEARCH_HISTORY_MAX_MESSAGES,
+        max_chars=config.RESEARCH_HISTORY_MAX_CHARS,
+    )
 
     def generate():
         yield from ai.sse_stream(

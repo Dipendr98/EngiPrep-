@@ -4,13 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodePrep — Mock Interview</title>
+  <title>EngiPrep Studio | Interview Practice Workbench</title>
+  <meta name="description" content="Train inside a local interview practice workbench with guided sessions, study mode, multi-language execution, and clear runtime status.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
@@ -21,7 +22,16 @@
   <!-- GLOBAL TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-landing" id="top-bar-landing">
-      <img src="{{ url_for('static', filename='favicon.svg') }}" alt="CodePrep" class="top-bar-logo-img">
+      <div class="top-bar-left-group">
+        <button class="btn btn-ghost btn-sm" onclick="showView('home')" title="Back">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
+        <img src="{{ url_for('static', filename='brand-mark.svg') }}" alt="Workbench mark" class="top-bar-logo-img">
+      </div>
       <div class="top-bar-right">
         <div class="mode-toggle" id="mode-toggle">
           <button class="mode-btn selected" data-mode="text" onclick="selectMode(this)">
@@ -117,8 +127,226 @@
     </div>
   </div>
 
+  <!-- HOME PAGE -->
+  <div id="home-view" class="view active">
+    <div class="home-page">
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-grid-bg"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Engineering Drill Deck
+          </div>
+          <h1 class="hero-title">
+            Build Interview Muscle<br>
+            <span class="hero-gradient">Inside Your Workbench</span>
+          </h1>
+          <p class="hero-subtitle">
+            Practice with an AI interviewer that follows up, pushes back, and gives detailed feedback — just like a real technical interview. 170+ problems across 12 categories.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-hero-primary" onclick="enterApp()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Open Workbench
+            </button>
+            <a href="https://github.com/Dipendr98/EngiPrep-" target="_blank" class="btn btn-hero-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              Project Source
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="hero-stat-number">170+</span>
+              <span class="hero-stat-label">Practice Sets</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-number">12+</span>
+              <span class="hero-stat-label">Tracks</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-number">15</span>
+              <span class="hero-stat-label">Runtimes</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-number">100%</span>
+              <span class="hero-stat-label">Local First</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="home-section">
+        <h2 class="section-heading">A Practice System, Not Just a Prompt Box</h2>
+        <p class="section-subheading">A complete interview prep platform — no subscriptions, no cloud, no BS.</p>
+        <div class="features-grid">
+          <div class="feature-card feature-card-accent">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>AI Mock Interviews</h3>
+            <p>A real conversational interviewer that asks clarifying questions, pushes back on your reasoning, and gives structured hire/no-hire feedback.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+            <h3>AI Problem Generator</h3>
+            <p>Generate fresh, unique problems on-demand. Pick a category, difficulty, and topic — the AI creates original challenges every time.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <h3>Study Mode</h3>
+            <p>Research problems with an AI tutor before committing to an interview. Get hints without spoilers, explore tradeoffs, and build confidence.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-orange">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </div>
+            <h3>Voice Interviews</h3>
+            <p>Practice talking through solutions out loud — real-time speech-to-text, AI responds through your speakers. Just like a phone screen.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h3>Multi-Language Editor</h3>
+            <p>Code in Python, JavaScript, Java, C++, Go, Rust, TypeScript, and 8 more. Auto-translated starter code and syntax highlighting built-in.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-red">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h3>Progress Tracking</h3>
+            <p>Track your completion across all categories. Status dots show your best performance, and you can resume any past session from History.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categories Section -->
+      <section class="home-section">
+        <h2 class="section-heading">Tracks You Can Actually Train Against</h2>
+        <p class="section-subheading">From classic algorithms to real-world cybersecurity and full-stack challenges.</p>
+        <div class="categories-grid">
+          <div class="category-card" onclick="enterAppWithCategory('stateful')">
+            <span class="cat-card-icon">🗄️</span>
+            <span class="cat-card-name">Stateful</span>
+            <span class="cat-card-desc">LRU Cache, Min Stack, Trie</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('arrays')">
+            <span class="cat-card-icon">📊</span>
+            <span class="cat-card-name">Arrays</span>
+            <span class="cat-card-desc">Two Pointers, Sliding Window</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('trees')">
+            <span class="cat-card-icon">🌳</span>
+            <span class="cat-card-name">Trees</span>
+            <span class="cat-card-desc">BST, LCA, Path Sum</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('graphs')">
+            <span class="cat-card-icon">🕸️</span>
+            <span class="cat-card-name">Graphs</span>
+            <span class="cat-card-desc">BFS, DFS, Shortest Path</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('dynamic programming')">
+            <span class="cat-card-icon">♟️</span>
+            <span class="cat-card-name">Dynamic Programming</span>
+            <span class="cat-card-desc">Knapsack, Coin Change, LIS</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('cybersecurity')">
+            <span class="cat-card-icon">🔒</span>
+            <span class="cat-card-name">Cybersecurity</span>
+            <span class="cat-card-desc">SQLi, XSS, JWT, RBAC</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('fullstack')">
+            <span class="cat-card-icon">🌐</span>
+            <span class="cat-card-name">Full Stack</span>
+            <span class="cat-card-desc">REST, Middleware, Routing</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('streaming')">
+            <span class="cat-card-icon">🌊</span>
+            <span class="cat-card-name">Streaming</span>
+            <span class="cat-card-desc">Moving Avg, Top-K, Median</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('concurrency')">
+            <span class="cat-card-icon">⚡</span>
+            <span class="cat-card-name">Concurrency</span>
+            <span class="cat-card-desc">Locks, Pools, Queues</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('backtracking')">
+            <span class="cat-card-icon">🔄</span>
+            <span class="cat-card-name">Backtracking</span>
+            <span class="cat-card-desc">N-Queens, Sudoku, Combos</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('strings')">
+            <span class="cat-card-icon">🔤</span>
+            <span class="cat-card-name">Strings</span>
+            <span class="cat-card-desc">Palindrome, Anagram, Regex</span>
+          </div>
+          <div class="category-card" onclick="enterAppWithCategory('syntax')">
+            <span class="cat-card-icon">🐍</span>
+            <span class="cat-card-name">Python Syntax</span>
+            <span class="cat-card-desc">Loops, Comprehensions, Builtins</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="home-section">
+        <h2 class="section-heading">How The Loop Works</h2>
+        <p class="section-subheading">Three simple steps to level up your interview game.</p>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Pick a Problem</h3>
+            <p>Browse 170+ curated problems or generate fresh ones with AI. Filter by category, difficulty, or topic.</p>
+          </div>
+          <div class="step-connector">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Interview or Study</h3>
+            <p>Start a mock interview with the AI, or study the problem first with the research tutor. Text or voice — your choice.</p>
+          </div>
+          <div class="step-connector">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Get Real Feedback</h3>
+            <p>Receive a structured evaluation — communication, code quality, problem-solving, and a hire/no-hire rating.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="home-section home-cta">
+        <div class="cta-card">
+          <h2>Ready To Rebuild This Into Your Own Stack?</h2>
+          <p>Jump in and solve your first problem. No sign-up required — everything runs locally on your machine.</p>
+          <button class="btn btn-hero-primary" onclick="enterApp()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Enter Studio
+          </button>
+        </div>
+      </section>
+
+      <footer class="home-footer">
+        <p>Built by <a href="https://github.com/Dipendr98" target="_blank">Dipendra</a> • <a href="https://github.com/Dipendr98/EngiPrep-" target="_blank">GitHub</a> • 100% Open Source</p>
+      </footer>
+    </div>
+  </div>
+
   <!-- LANDING / SESSION PICKER -->
-  <div id="landing-view" class="view active">
+  <div id="landing-view" class="view">
     <div class="landing">
       <div class="landing-body">
         <div class="filter-sidebar-overlay" id="filter-sidebar-overlay" onclick="toggleFilterSidebar()"></div>
@@ -131,7 +359,6 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input type="text" class="search-input" id="search-input" placeholder="Search..." autocomplete="off">
-              <kbd class="search-kbd">⌘K</kbd>
             </div>
             <button class="btn btn-primary btn-sm sidebar-surprise-btn" id="start-btn" onclick="startRandomInterview()">
               Surprise Me

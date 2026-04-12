@@ -8,6 +8,7 @@ import config
 
 # Default client singleton (uses .env / config defaults).
 _default_client = None
+_client_cache = {}
 
 # Provider presets for the frontend
 PROVIDER_PRESETS = [
@@ -102,13 +103,23 @@ PROVIDER_PRESETS = [
 ]
 
 
+def _get_cached_client(api_key, base_url):
+    """Return a cached OpenAI-compatible client for a provider configuration."""
+    cache_key = (base_url or '', api_key or '')
+    client = _client_cache.get(cache_key)
+    if client is None:
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        _client_cache[cache_key] = client
+    return client
+
+
 def _get_default_client():
     """Return a cached default client using .env / config settings."""
     global _default_client
     if _default_client is None:
         api_key = os.environ.get('OPENAI_API_KEY', 'pollinations')
         base_url = config.OPENAI_BASE_URL
-        _default_client = OpenAI(api_key=api_key, base_url=base_url)
+        _default_client = _get_cached_client(api_key, base_url)
     return _default_client
 
 
@@ -128,7 +139,7 @@ def get_client():
 
     if base_url:
         key = api_key or 'pollinations'
-        return OpenAI(api_key=key, base_url=base_url)
+        return _get_cached_client(key, base_url)
 
     return _get_default_client()
 
@@ -145,6 +156,36 @@ def get_model():
     except RuntimeError:
         pass
     return config.CHAT_MODEL
+
+
+def build_context_window(messages, max_messages=None, max_chars=None):
+    """Keep the system prompt plus the newest messages within a soft size budget."""
+    if not messages:
+        return []
+
+    first = messages[0]
+    has_system = first.get('role') == 'system'
+    tail = messages[1:] if has_system else messages
+
+    if not tail:
+        return messages[:]
+
+    kept = []
+    total_chars = 0
+    for message in reversed(tail):
+        content = str(message.get('content', ''))
+        next_count = len(kept) + 1
+        next_chars = total_chars + len(content)
+        if kept:
+            if max_messages is not None and next_count > max_messages:
+                break
+            if max_chars is not None and next_chars > max_chars:
+                break
+        kept.append(message)
+        total_chars = next_chars
+
+    kept.reverse()
+    return ([first] if has_system else []) + kept
 
 
 def stream_chat(client, messages, temperature=None, max_tokens=None, model=None):

@@ -102,18 +102,22 @@ TOPIC_POOLS = {
 
 DIFFICULTIES = ['Easy', 'Medium', 'Hard']
 
-GENERATE_PROMPT = """You are an expert coding interview problem designer. Generate a NEW, ORIGINAL coding problem suitable for technical interview practice.
+GENERATE_PROMPT = """You are an expert coding interview problem designer. Generate a completely NEW, ORIGINAL, and UNIQUE coding problem suitable for technical interview practice.
 
 Requirements:
 - Topic area: {topic}
 - Difficulty: {difficulty}
 - Category: {category}
-- The problem must be ORIGINAL - not a direct copy of any well-known LeetCode/HackerRank problem
-- It should test the specified topic/skill area
+- The problem MUST be 100% ORIGINAL — not a copy or variation of any well-known LeetCode, HackerRank, or competitive programming problem
+- It MUST be DIFFERENT from ALL existing problems listed below — do NOT repeat or closely resemble any of them
+- It should test the specified topic/skill area in a creative, fresh way
 - Include a realistic scenario that gives context (like a real engineering use case)
 - The function signature should be in Python
 - Include 3-4 test cases with clear inputs and expected outputs
 - Include 2 follow-up questions for candidates who finish early
+- Use a creative, unique title that is NOT similar to any existing title
+
+{existing_titles_block}
 
 You MUST respond with valid JSON in this exact format:
 {{
@@ -395,6 +399,32 @@ def _generate_problem_payload(client, prompt, category, difficulty, topic):
         return _normalize_problem_data(_parse_ai_response(repaired_raw), category, difficulty, topic)
 
 
+def _get_existing_titles(extra_titles=None):
+    """Gather all existing problem titles to prevent duplicates."""
+    titles = set()
+    for problem in problems.load_all():
+        title = problem.get('title', '')
+        if title:
+            titles.add(title)
+    if extra_titles:
+        titles.update(extra_titles)
+    return sorted(titles)
+
+
+def _build_existing_titles_block(extra_titles=None):
+    """Build the exclusion block for the generation prompt."""
+    titles = _get_existing_titles(extra_titles)
+    if not titles:
+        return 'No existing problems yet — generate something fresh!'
+    # Send up to 200 titles to keep within token limits
+    sample = titles[:200]
+    title_list = '\n'.join(f'- {t}' for t in sample)
+    return (
+        f'EXISTING PROBLEMS — you MUST NOT duplicate or closely resemble ANY of these '
+        f'({len(sample)} shown):\n{title_list}'
+    )
+
+
 def generate_problem(category=None, difficulty=None, topic=None):
     """Generate a new problem using AI and save it as a YAML file.
 
@@ -422,6 +452,7 @@ def generate_problem(category=None, difficulty=None, topic=None):
         topic=topic,
         difficulty=difficulty,
         category=category,
+        existing_titles_block=_build_existing_titles_block(),
     )
 
     try:
@@ -450,11 +481,16 @@ def generate_problem(category=None, difficulty=None, topic=None):
     return problem_data
 
 
-def generate_problem_ephemeral(category=None, difficulty=None, topic=None):
+def generate_problem_ephemeral(category=None, difficulty=None, topic=None,
+                               extra_titles=None):
     """Generate a new problem using AI but do NOT save it to disk.
 
     The problem is returned with a temporary negative ID so it won't
     collide with real problems. It exists only in the frontend's memory.
+
+    Args:
+        extra_titles: Optional list of titles already generated in this
+                      batch so the AI avoids repeating them.
     """
     import random
 
@@ -471,6 +507,7 @@ def generate_problem_ephemeral(category=None, difficulty=None, topic=None):
         topic=topic,
         difficulty=difficulty,
         category=category,
+        existing_titles_block=_build_existing_titles_block(extra_titles),
     )
 
     try:
