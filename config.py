@@ -51,7 +51,7 @@ TRANSCRIPTION_MODEL = 'gpt-4o-mini-transcribe'
 # Chat parameters — kept tight so first token arrives fast
 CHAT_TEMPERATURE = 0.65
 CHAT_MAX_TOKENS = 1500        # was 4000: interviewer replies don't need essay length
-START_MAX_TOKENS = 600         # was 2000: opening greeting is short
+START_MAX_TOKENS = 1000        # enough for full problem statement + greeting
 RESEARCH_TEMPERATURE = 0.55
 RESEARCH_MAX_TOKENS = 1200     # was 3000: tutor hints stay focused
 TEST_GEN_TEMPERATURE = 0.2
@@ -78,11 +78,10 @@ FLASK_DEBUG = not os.environ.get('RAILWAY_ENVIRONMENT')
 
 # SSE headers reused by all streaming endpoints
 # X-Accel-Buffering: no  — disables nginx/Railway proxy buffering
-# Connection: keep-alive  — keeps TCP open for the stream duration
+# Do NOT add Connection: keep-alive — invalid on HTTP/2, breaks Railway proxy
 SSE_HEADERS = {
     'Cache-Control': 'no-cache',
     'X-Accel-Buffering': 'no',
-    'Connection': 'keep-alive',
 }
 
 
