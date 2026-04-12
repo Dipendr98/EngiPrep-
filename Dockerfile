@@ -8,9 +8,18 @@ ENV OPENAI_API_KEY=pollinations
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (needed for code execution sandbox)
+# Install system dependencies for code execution (all 6 supported languages)
+# python: already in base image
+# javascript: nodejs
+# c: gcc
+# cpp: g++
+# java: default-jdk-headless (javac + java)
+# sql: python sqlite3 module (built-in, no extra package needed)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    g++ \
+    nodejs \
+    default-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -20,8 +29,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create sessions directory
-RUN mkdir -p /app/user_data/sessions
+# Create required directories and ensure /tmp is writable for code execution
+RUN mkdir -p /app/user_data/sessions /app/user_data/tmp \
+    && chmod 1777 /tmp
 
 # Railway sets PORT env var; default to 5000
 ENV PORT=5000
