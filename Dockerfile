@@ -37,4 +37,6 @@ ENV PORT=5000
 EXPOSE 5000
 
 # Run with gunicorn for production
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile - app:app"]
+# gthread worker: each SSE stream holds one thread, not one whole worker process.
+# --threads 16 lets 2 workers handle 32 concurrent SSE connections without queuing.
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --worker-class gthread --workers 2 --threads 16 --timeout 120 --access-logfile - --error-logfile - app:app"]

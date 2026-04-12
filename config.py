@@ -48,18 +48,19 @@ CHAT_MODEL = os.environ.get('OPENAI_MODEL', os.environ.get('CHAT_MODEL', 'openai
 REALTIME_MODEL = 'gpt-4o-realtime-preview'
 TRANSCRIPTION_MODEL = 'gpt-4o-mini-transcribe'
 
-# Chat parameters
-CHAT_TEMPERATURE = 0.7
-CHAT_MAX_TOKENS = 4000
-START_MAX_TOKENS = 2000
-RESEARCH_TEMPERATURE = 0.6
-RESEARCH_MAX_TOKENS = 3000
+# Chat parameters — kept tight so first token arrives fast
+CHAT_TEMPERATURE = 0.65
+CHAT_MAX_TOKENS = 1500        # was 4000: interviewer replies don't need essay length
+START_MAX_TOKENS = 600         # was 2000: opening greeting is short
+RESEARCH_TEMPERATURE = 0.55
+RESEARCH_MAX_TOKENS = 1200     # was 3000: tutor hints stay focused
 TEST_GEN_TEMPERATURE = 0.2
 TEST_GEN_MAX_TOKENS = 2000
-CHAT_HISTORY_MAX_MESSAGES = 14
-CHAT_HISTORY_MAX_CHARS = 24000
-RESEARCH_HISTORY_MAX_MESSAGES = 12
-RESEARCH_HISTORY_MAX_CHARS = 18000
+# Smaller context = smaller prompt per request = faster TTFT on any provider
+CHAT_HISTORY_MAX_MESSAGES = 10    # was 14
+CHAT_HISTORY_MAX_CHARS = 12000    # was 24000
+RESEARCH_HISTORY_MAX_MESSAGES = 8  # was 12
+RESEARCH_HISTORY_MAX_CHARS = 10000 # was 18000
 
 # Code execution
 CODE_TIMEOUT = 5
@@ -76,9 +77,12 @@ FLASK_PORT = int(os.environ.get('PORT', 5000))
 FLASK_DEBUG = not os.environ.get('RAILWAY_ENVIRONMENT')
 
 # SSE headers reused by all streaming endpoints
+# X-Accel-Buffering: no  — disables nginx/Railway proxy buffering
+# Connection: keep-alive  — keeps TCP open for the stream duration
 SSE_HEADERS = {
     'Cache-Control': 'no-cache',
     'X-Accel-Buffering': 'no',
+    'Connection': 'keep-alive',
 }
 
 
