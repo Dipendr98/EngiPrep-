@@ -36,6 +36,11 @@ def research_chat():
     for msg in history:
         messages.append({'role': msg.get('role', 'user'), 'content': msg.get('content', '')})
     messages.append({'role': 'user', 'content': user_message})
+    messages = ai.build_context_window(
+        messages,
+        max_messages=config.RESEARCH_HISTORY_MAX_MESSAGES,
+        max_chars=config.RESEARCH_HISTORY_MAX_CHARS,
+    )
 
     def generate():
         yield from ai.sse_stream(

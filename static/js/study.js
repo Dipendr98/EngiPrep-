@@ -209,7 +209,7 @@ async function sendResearchMessage() {
         problem_id: currentStudyProblem.id,
         problem_data: currentStudyProblem._ephemeral ? currentStudyProblem : null,
         message: text,
-        history: researchChatHistory,
+        history: trimChatHistory(researchChatHistory),
       }),
     });
 
@@ -308,8 +308,9 @@ async function sendInterviewTutorMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         problem_id: currentInterviewProblemId,
+        problem_data: currentInterviewProblem && currentInterviewProblem._ephemeral ? currentInterviewProblem : null,
         message: text,
-        history: interviewTutorHistory,
+        history: trimChatHistory(interviewTutorHistory),
       }),
     });
 
